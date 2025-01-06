@@ -1,0 +1,15 @@
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 90
+include = '''
+(
+    (
+        swpython
+      | .github
+    ).*\.pyi?$
+)|(
+    setup\.py
+)
+'''

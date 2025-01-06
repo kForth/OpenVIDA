@@ -1,0 +1,89 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <h3 class="mt-5">Select Vehicle Profile</h3>
+    <form>
+        <div class="row">
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_market" class="form-label"
+                    >Market</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_market"
+                    data-bind="value: market, options: marketOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_modelYear" class="form-label"
+                    >Model Year</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_modelYear"
+                    data-bind="value: modelYear, options: modelYearOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_model" class="form-label"
+                    >Model</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_model"
+                    data-bind="value: model, options: modelOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_engine" class="form-label"
+                    >Engine</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_engine"
+                    data-bind="value: engine, options: engineOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_transmission" class="form-label"
+                    >Transmission</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_transmission"
+                    data-bind="value: transmission, options: transmissionOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_steering" class="form-label"
+                    >Steering</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_steering"
+                    data-bind="value: steering, options: steeringOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_bodyStyle" class="form-label"
+                    >Body Style</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_bodyStyle"
+                    data-bind="value: bodyStyle, options: bodyStyleOptions, optionsText: 'description'"
+                ></select>
+            </div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <label for="vehicleProfile_specialVehicle" class="form-label"
+                    >Special Vehicle</label
+                >
+                <select
+                    class="form-control"
+                    id="vehicleProfile_specialVehicle"
+                    data-bind="value: specialVehicle, options: specialVehicleOptions, optionsText: 'description'"
+                ></select>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

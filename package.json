@@ -1,0 +1,9 @@
+{
+    "dependencies": {
+        "bootstrap": "^5.3.3",
+        "bootstrap-icons": "^1.11.3",
+        "jquery": "^3.7.1",
+        "knockout": "^3.5.1",
+        "mathjs": "^13.0.1"
+    }
+}
