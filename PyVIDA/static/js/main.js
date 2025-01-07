@@ -19,7 +19,6 @@ class VidaModel {
         self.steeringOptions = ko.observableArray();
         self.bodyStyleOptions = ko.observableArray();
         self.specialVehicleOptions = ko.observableArray();
-        self.profiles = ko.observableArray();
 
         $.get("/vida/markets").then((e) => self.marketOptions(e));
         $.get("/vida/modelYears").then((e) => self.modelYearOptions(e));
@@ -29,7 +28,6 @@ class VidaModel {
         $.get("/vida/steerings").then((e) => self.steeringOptions(e));
         $.get("/vida/bodyStyles").then((e) => self.bodyStyleOptions(e));
         $.get("/vida/specialVehicles").then((e) => self.specialVehicleOptions(e));
-        $.get("/vida/profiles").then((e) => { self.profiles(e) });
     }
 }
 
