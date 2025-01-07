@@ -29,6 +29,15 @@ class VehicleModel(Model):
     ImagePath: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
 
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ImagePath": self.ImagePath,
+            "ObjVersion": self.ObjVersion,
+        }
+
 
 class VINVariantCodes(Model):
     __bind_key__ = "basedata"
@@ -59,6 +68,14 @@ class SpecialVehicle(Model):
     Cid: Mapped[int] = mapped_column(db.Integer)
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class VehicleProfileDescriptions(Model):
@@ -105,6 +122,29 @@ class VehicleProfile(Model):
     fkModelYear: Mapped[int] = mapped_column(db.ForeignKey("ModelYear.Id"))
     fkSpecialVehicle: Mapped[int] = mapped_column(db.ForeignKey("SpecialVehicle.Id"))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.Id,
+            "FolderLevel": self.FolderLevel,
+            "Description": self.Description,
+            "Title": self.Title,
+            "ChassisNoFrom": self.ChassisNoFrom,
+            "ChassisNoTo": self.ChassisNoTo,
+            "fkNodeECU": self.fkNodeECU,
+            "fkVehicleModel": self.fkVehicleModel,
+            "fkBodyStyle": self.fkBodyStyle,
+            "fkSteering": self.fkSteering,
+            "fkTransmission": self.fkTransmission,
+            "fkSuspension": self.fkSuspension,
+            "fkEngine": self.fkEngine,
+            "fkStructureWeek": self.fkStructureWeek,
+            "fkBrakeSystem": self.fkBrakeSystem,
+            "fkPartnerGroup": self.fkPartnerGroup,
+            "fkModelYear": self.fkModelYear,
+            "fkSpecialVehicle": self.fkSpecialVehicle,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class SelectedProfiles(Model):
@@ -183,6 +223,14 @@ class BodyStyle(Model):
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
 
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
+
 
 class BrakeSystem(Model):
     __bind_key__ = "basedata"
@@ -192,6 +240,14 @@ class BrakeSystem(Model):
     Cid: Mapped[int] = mapped_column(db.Integer)
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class Engine(Model):
@@ -203,6 +259,14 @@ class Engine(Model):
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
 
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
+
 
 class ModelYear(Model):
     __bind_key__ = "basedata"
@@ -212,6 +276,14 @@ class ModelYear(Model):
     Cid: Mapped[int] = mapped_column(db.Integer)
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class StructureWeek(Model):
@@ -223,6 +295,14 @@ class StructureWeek(Model):
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
 
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
+
 
 class NodeECU(Model):
     __bind_key__ = "basedata"
@@ -232,6 +312,14 @@ class NodeECU(Model):
     Cid: Mapped[int] = mapped_column(db.Integer)
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class PartnerGroup(Model):
@@ -243,6 +331,14 @@ class PartnerGroup(Model):
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
 
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
+
 
 class Steering(Model):
     __bind_key__ = "basedata"
@@ -252,6 +348,14 @@ class Steering(Model):
     Cid: Mapped[int] = mapped_column(db.Integer)
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class Suspension(Model):
@@ -263,6 +367,14 @@ class Suspension(Model):
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
 
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
+
 
 class Transmission(Model):
     __bind_key__ = "basedata"
@@ -272,6 +384,14 @@ class Transmission(Model):
     Cid: Mapped[int] = mapped_column(db.Integer)
     Description: Mapped[str] = mapped_column(db.String(255))
     ObjVersion: Mapped[datetime] = mapped_column(db.DateTime)
+
+    def to_dict(self) -> dict:
+        return {
+            "Id": self.Id,
+            "Cid": self.Cid,
+            "Description": self.Description,
+            "ObjVersion": self.ObjVersion,
+        }
 
 
 class VINDecodeModel(Model):
