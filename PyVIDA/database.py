@@ -50,13 +50,6 @@ class Model(CRUDMixin, db.Model):
 
     __abstract__ = True
 
-
-class PkModel(Model):
-    """Base model class that includes CRUD convenience methods, plus adds a 'primary key' column named ``id``."""
-
-    __abstract__ = True
-    id = Column(db.Integer, primary_key=True)
-
     @classmethod
     def get_by_id(cls: Type[T], record_id) -> Optional[T]:
         """Get record by ID."""
@@ -68,6 +61,13 @@ class PkModel(Model):
         ):
             return cls.query.session.get(cls, int(record_id))
         return None
+
+
+class PkModel(Model):
+    """Base model class that includes CRUD convenience methods, plus adds a 'primary key' column named ``id``."""
+
+    __abstract__ = True
+    id = Column(db.Integer, primary_key=True)
 
 
 def reference_col(
