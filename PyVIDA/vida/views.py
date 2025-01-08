@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
 """Public section, including homepage and signup."""
 from flask import Blueprint, request
-
-from PyVIDA.vida.models.basedata import (
-    BodyStyle,
-    Engine,
-    ModelYear,
-    PartnerGroup,
-    SpecialVehicle,
-    Steering,
-    Transmission,
-    VehicleModel,
-    VehicleProfile,
-)
+from vida_py.models.basedata import VehicleProfile
 
 blueprint = Blueprint("vida", __name__, static_folder="../static", url_prefix="/vida")
 
