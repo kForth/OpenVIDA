@@ -8,7 +8,7 @@ Werkzeug==3.1.3
 # Database
 Flask-SQLAlchemy==3.1.1
 psycopg2-binary==2.9.10
-SQLAlchemy==2.0.36
+SQLAlchemy==2.0.37
 pyodbc==5.2.0
 
 # Forms
@@ -34,4 +34,4 @@ Flask-DebugToolbar==0.16.0
 # Environment variable parsing
 environs==14.0.0
 
-vida-py==0.1.2
+vida-py==0.1.3
