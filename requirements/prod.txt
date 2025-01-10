@@ -34,4 +34,4 @@ Flask-DebugToolbar==0.16.0
 # Environment variable parsing
 environs==14.0.0
 
-vida-py==0.1.2
+vida-py==0.1.3
