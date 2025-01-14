@@ -1,10 +1,46 @@
 # -*- coding: utf-8 -*-
 """Public section, including homepage and signup."""
-from flask import Blueprint, request
-from vida_py.models.basedata import VehicleProfile
+import io
 
-blueprint = Blueprint("vida", __name__, static_folder="../static", url_prefix="/vida")
+from flask import Blueprint, request, send_file
+from vida_py.images import Session as ImagesSession
+from vida_py.images import LocalizedGraphics, GraphicFormats, Graphics
+from vida_py.basedata import Session as BaseDataSession
+from vida_py.basedata import (
+    BodyStyle,
+    Engine,
+    ModelYear,
+    PartnerGroup,
+    SpecialVehicle,
+    Steering,
+    Transmission,
+    VehicleModel,
+    VehicleProfile,
+)
 
+blueprint = Blueprint("vida", __name__, static_folder="../static", url_prefix="/Vida")
+
+@blueprint.route("/DataImages/<path:filename>")
+def image(filename):
+    with ImagesSession() as _images:
+        img = (
+            _images.query(LocalizedGraphics).filter(LocalizedGraphics.path == filename).one()
+        )
+        img_type = (
+            _images.query(GraphicFormats)
+            .outerjoin(
+                Graphics,
+                Graphics.fkGraphicFormat == GraphicFormats.id,
+            )
+            .filter(Graphics.id == img.fkGraphic)
+            .one()
+        )
+    return send_file(
+        io.BytesIO(img.imageData),
+        mimetype=f'image/{img_type.description.lower()}',
+        as_attachment=True,
+        download_name=filename
+    )
 
 @blueprint.route("/profiles_from_vin", methods=["GET", "POST"])
 def get_vin_profiles():
