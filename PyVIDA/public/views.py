@@ -6,11 +6,15 @@ import re
 from lxml import etree as ET
 import zipfile
 
-from PyVIDA import settings
-
 from flask import Blueprint, current_app, flash, redirect, render_template, request
-from vida_py.service import Session as ServiceSession
-from vida_py.service import Document
+from sqlalchemy.sql import or_
+from vida_py import ServiceRepoSession, BaseDataSession, DiagRepoSession
+from vida_py.service import Document, DocumentProfile
+from vida_py.basedata import Engine, ModelYear, Transmission, VehicleModel, VehicleProfile
+from vida_py.basedata.scripts import get_valid_profiles_for_selected_builder
+from vida_py.diag import get_vin_components
+
+from PyVIDA import settings
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -33,9 +37,27 @@ def about():
     return render_template("public/about.html")
 
 
+@blueprint.route("/documents/<profile>/")
+def documents(profile):
+    with ServiceRepoSession() as _service:
+        # profiles = [
+        #     e[0]
+        #     for e in get_valid_profiles_for_selected_builder(_basedata, profile)
+        #
+        docs = _service.query(
+            Document
+        ).outerjoin(
+            DocumentProfile, DocumentProfile.fkDocument == Document.id
+        ).filter(
+            DocumentProfile.profileId == profile
+        ).all()
+        print(docs)
+        return render_template("public/documents.html", documents=docs)
+
+
 @blueprint.route("/document/<chronicle>/")
 def document(chronicle):
-    with ServiceSession() as _service:
+    with ServiceRepoSession() as _service:
         document = (
             _service.query(Document).filter(Document.chronicleId == chronicle).first()
         )

@@ -1,0 +1,9 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    {% for doc in documents %}
+    <div>
+        <a href="/document/{{ doc.chronicleId }}/">{{ doc.title }}</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
