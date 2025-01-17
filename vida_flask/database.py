@@ -2,7 +2,7 @@
 """Database module, including the SQLAlchemy database object and DB-related utilities."""
 from typing import Optional, Type, TypeVar
 
-from vida_flask.extensions import db
+from PyVIDA.extensions import db
 
 T = TypeVar("T", bound="PkModel")
 
