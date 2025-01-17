@@ -3,28 +3,29 @@
 import io
 
 from flask import Blueprint, request, send_file
-from vida_py.images import Session as ImagesSession
-from vida_py.images import LocalizedGraphics, GraphicFormats, Graphics
+from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
 from vida_py.basedata import (
-    BodyStyle,
-    Engine,
-    ModelYear,
-    PartnerGroup,
     SpecialVehicle,
     Steering,
     Transmission,
+    ValidProfiles,
     VehicleModel,
     VehicleProfile,
 )
+from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
+from vida_py.images import Session as ImagesSession
 
 blueprint = Blueprint("vida", __name__, static_folder="../static", url_prefix="/Vida")
+
 
 @blueprint.route("/DataImages/<path:filename>")
 def image(filename):
     with ImagesSession() as _images:
         img = (
-            _images.query(LocalizedGraphics).filter(LocalizedGraphics.path == filename).one()
+            _images.query(LocalizedGraphics)
+            .filter(LocalizedGraphics.path == filename)
+            .one()
         )
         img_type = (
             _images.query(GraphicFormats)
@@ -37,10 +38,11 @@ def image(filename):
         )
     return send_file(
         io.BytesIO(img.imageData),
-        mimetype=f'image/{img_type.description.lower()}',
+        mimetype=f"image/{img_type.description.lower()}",
         as_attachment=True,
-        download_name=filename
+        download_name=filename,
     )
+
 
 @blueprint.route("/profiles_from_vin", methods=["GET", "POST"])
 def get_vin_profiles():
@@ -55,49 +57,80 @@ def get_vin_profiles():
 
 @blueprint.route("/profiles", methods=["GET", "POST"])
 def profiles():
-    return [
-        e.to_dict()
-        for e in VehicleProfile.query.filter_by(
-            **{k: v for k, v in request.args.items() if v is not None}
-        ).all()
-    ]
+    with BaseDataSession() as _basedata:
+        profiles = (
+            _basedata.query(VehicleProfile)
+            .filter_by(**{k: v for k, v in request.args.items() if v is not None})
+            .all()
+        )
+        return [
+            {c.name: getattr(e, c.name) for c in e.__table__.columns} for e in profiles
+        ]
 
 
 @blueprint.route("/markets", methods=["GET", "POST"])
 def markets():
-    return [{"id": e.Id, "text": e.Description} for e in PartnerGroup.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description}
+            for e in _basedata.query(PartnerGroup).all()
+        ]
 
 
 @blueprint.route("/modelYears", methods=["GET", "POST"])
 def modelYears():
-    return [{"id": e.Id, "text": e.Description} for e in ModelYear.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description} for e in _basedata.query(ModelYear).all()
+        ]
 
 
 @blueprint.route("/models", methods=["GET", "POST"])
 def models():
-    return [{"id": e.Id, "text": e.Description} for e in VehicleModel.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description}
+            for e in _basedata.query(VehicleModel).all()
+        ]
 
 
 @blueprint.route("/engines", methods=["GET", "POST"])
 def engines():
-    return [{"id": e.Id, "text": e.Description} for e in Engine.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description} for e in _basedata.query(Engine).all()
+        ]
 
 
 @blueprint.route("/transmissions", methods=["GET", "POST"])
 def transmissions():
-    return [{"id": e.Id, "text": e.Description} for e in Transmission.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description}
+            for e in _basedata.query(Transmission).all()
+        ]
 
 
 @blueprint.route("/steerings", methods=["GET", "POST"])
 def steerings():
-    return [{"id": e.Id, "text": e.Description} for e in Steering.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description} for e in _basedata.query(Steering).all()
+        ]
 
 
 @blueprint.route("/bodyStyles", methods=["GET", "POST"])
 def bodyStyles():
-    return [{"id": e.Id, "text": e.Description} for e in BodyStyle.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description} for e in _basedata.query(BodyStyle).all()
+        ]
 
 
 @blueprint.route("/specialVehicles", methods=["GET", "POST"])
 def specialVehicles():
-    return [{"id": e.Id, "text": e.Description} for e in SpecialVehicle.query.all()]
+    with BaseDataSession() as _basedata:
+        return [
+            {"id": e.Id, "text": e.Description}
+            for e in _basedata.query(SpecialVehicle).all()
+        ]
