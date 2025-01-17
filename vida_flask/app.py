@@ -7,6 +7,7 @@ from flask import Flask, render_template
 
 from vida_flask import public, vida
 from vida_flask.extensions import cache, db, debug_toolbar
+from vida_flask.filters import FilterModule
 
 
 def create_app(config_object="vida_flask.settings"):
@@ -16,12 +17,17 @@ def create_app(config_object="vida_flask.settings"):
     """
     app = Flask(__name__.split(".")[0])
     app.config.from_object(config_object)
+    register_filters(app)
     register_extensions(app)
     register_blueprints(app)
     register_errorhandlers(app)
     register_shellcontext(app)
     configure_logger(app)
     return app
+
+
+def register_filters(app):
+    app.jinja_env.filters.update(FilterModule().filters())
 
 
 def register_extensions(app):
