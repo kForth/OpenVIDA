@@ -16,6 +16,9 @@ from flask import (
 )
 from lxml import etree
 from vida_py import ServiceRepoSession
+from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
+from vida_py.basedata import Session as BaseDataSession
+from vida_py.basedata import SpecialVehicle, Steering, Transmission, VehicleModel
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
 from vida_py.service import Document, DocumentProfile, Qualifier
@@ -35,6 +38,32 @@ def home():
         if redirect_url := request.args.get("next"):
             return redirect(redirect_url)
     return render_template("public/home.html")
+
+
+@blueprint.route("/profile", methods=["GET", "POST"])
+def profile_select():
+    """Profile select page."""
+    if request.method == "POST":
+        flash("POSTed.", "success")
+        if redirect_url := request.args.get("next"):
+            return redirect(redirect_url)
+
+    with BaseDataSession() as _basedata:
+        return render_template(
+            "public/profile.html",
+            markets=_basedata.query(PartnerGroup).all(),
+            modelYears=sorted(
+                _basedata.query(ModelYear).all(),
+                key=lambda e: e.Description,
+                reverse=True,
+            ),
+            vehicleModels=_basedata.query(VehicleModel).all(),
+            bodyStyles=_basedata.query(BodyStyle).all(),
+            engines=_basedata.query(Engine).all(),
+            specialVehicles=_basedata.query(SpecialVehicle).all(),
+            steerings=_basedata.query(Steering).all(),
+            transmissions=_basedata.query(Transmission).all(),
+        )
 
 
 @blueprint.route("/about/")

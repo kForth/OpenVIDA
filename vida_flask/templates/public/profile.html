@@ -1,0 +1,162 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container-fluid">
+    <div id="dataGrid" class="w-100 vh-100 flex-fill ag-theme-alpine"></div>
+</div>
+{% endblock %} {% block js %}
+<script type="text/javascript">
+    const ListConfig = {
+        rowSelection: "multiple",
+        suppressRowClickSelection: true,
+        // enableCellTextSelection: true,
+        // ensureDomOrder: true,
+        overlayLoadingTemplate:
+            '<span class="ag-overlay-loading-center">Loading Profile List...</span>defaultColDef',
+        suppressMovable: true,
+        resizable: true,
+        sortable: true,
+        editable: false,
+        filter: true,
+        floatingFilter: true,
+        minWidth: 80,
+        columnDefs: [
+            {
+                field: "Id",
+                filter: "agTextColumnFilter",
+                headerName: "Id",
+                flex: 2,
+            },
+            // {
+            //     field: "FolderLevel",
+            //     filter: "agTextColumnFilter",
+            //     headerName: "FolderLevel",
+            //     flex: 2,
+            // },
+            {
+                field: "Description",
+                filter: "agTextColumnFilter",
+                headerName: "Description",
+                flex: 3,
+            },
+            {
+                field: "ChassisNoFrom",
+                filter: "agTextColumnFilter",
+                headerName: "ChassisNoFrom",
+                flex: 2,
+            },
+            {
+                field: "ChassisNoTo",
+                filter: "agTextColumnFilter",
+                headerName: "ChassisNoTo",
+                flex: 2,
+            },
+            {
+                field: "NodeECU",
+                filter: "agTextColumnFilter",
+                headerName: "NodeECU",
+                flex: 2,
+            },
+            {
+                field: "VehicleModel",
+                filter: "agTextColumnFilter",
+                headerName: "VehicleModel",
+                flex: 2,
+            },
+            {
+                field: "BodyStyle",
+                filter: "agTextColumnFilter",
+                headerName: "BodyStyle",
+                flex: 2,
+            },
+            {
+                field: "Steering",
+                filter: "agTextColumnFilter",
+                headerName: "Steering",
+                flex: 2,
+            },
+            {
+                field: "Transmission",
+                filter: "agTextColumnFilter",
+                headerName: "Transmission",
+                flex: 2,
+            },
+            {
+                field: "Suspension",
+                filter: "agTextColumnFilter",
+                headerName: "Suspension",
+                flex: 2,
+            },
+            {
+                field: "Engine",
+                filter: "agTextColumnFilter",
+                headerName: "Engine",
+                flex: 2,
+            },
+            {
+                field: "StructureWeek",
+                filter: "agTextColumnFilter",
+                headerName: "StructureWeek",
+                flex: 2,
+            },
+            {
+                field: "BrakeSystem",
+                filter: "agTextColumnFilter",
+                headerName: "BrakeSystem",
+                flex: 2,
+            },
+            {
+                field: "PartnerGroup",
+                filter: "agTextColumnFilter",
+                headerName: "PartnerGroup",
+                flex: 2,
+            },
+            {
+                field: "ModelYear",
+                filter: "agTextColumnFilter",
+                headerName: "ModelYear",
+                flex: 2,
+            },
+            {
+                field: "SpecialVehicle",
+                filter: "agTextColumnFilter",
+                headerName: "SpecialVehicle",
+                flex: 2,
+            },
+            // {
+            //     field: "ObjVersion",
+            //     filter: "agTextColumnFilter",
+            //     headerName: "ObjVersion",
+            //     flex: 2,
+            // },
+        ],
+    };
+
+    const dataTable = $("#dataGrid");
+    const gridOptions = $.extend(ListConfig, {
+        onGridReady: (params) => {
+            params.api.sizeColumnsToFit();
+        },
+        onCellDoubleClicked: (event) => {},
+        // "onRowEditingStarted": (event) => {,
+        //   console.log("onRowEditingStarted", event);
+        // },
+        // "onRowEditingStopped": (event) => {,
+        //   console.log("onRowEditingStopped", event);
+        // },
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    const dataGrid = new agGrid.createGrid(dataTable[0], gridOptions);
+
+    $.ajax({
+        type: "GET",
+        url: "/Vida/profiles?FolderLevel=2",
+        success: (resp) => {
+            dataGrid.setGridOption("rowData", resp);
+            // gridOptions.columnApi.applyColumnState({
+            //     state: [{ colId: "date_issued", sort: "desc" }],
+            //     defaultState: { sort: null },
+            // });
+        },
+    });
+</script>
+{% endblock %}
