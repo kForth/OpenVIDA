@@ -16,6 +16,8 @@ from flask import (
 )
 from lxml import etree
 from vida_py import ServiceRepoSession
+from vida_py.diag import Session as DiagSession
+from vida_py.diag import get_valid_profiles_for_selected
 from vida_py.service import Document, DocumentProfile
 
 from vida_flask import settings
@@ -43,18 +45,17 @@ def about():
 
 @blueprint.route("/documents/<profile>/")
 def documents(profile):
-    with ServiceRepoSession() as _service:
-        # profiles = [
-        #     e[0]
-        #     for e in get_valid_profiles_for_selected_builder(_basedata, profile)
-        #
+    with ServiceRepoSession() as _service, DiagSession() as _diag:
+        profiles = [
+            e[0] for e in get_valid_profiles_for_selected(_diag, profile)
+        ]  # (ID, FolderLevel)
         docs = (
             _service.query(Document)
             .outerjoin(DocumentProfile, DocumentProfile.fkDocument == Document.id)
-            .filter(DocumentProfile.profileId == profile)
+            .filter(DocumentProfile.profileId.in_(profiles))
+            .order_by(Document.id)
             .all()
         )
-        print(docs)
         return render_template("public/documents.html", documents=docs)
 
 

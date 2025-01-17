@@ -1,5 +1,9 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
+    <h3>
+        Found {{ documents | length }} Document{{ "" if (documents | length) ==
+        1 else "s" }}
+    </h3>
     {% for doc in documents %}
     <div>
         <a href="/document/{{ doc.chronicleId }}/">{{ doc.title }}</a>
