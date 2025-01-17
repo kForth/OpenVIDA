@@ -1,8 +1,8 @@
-class VidaModel {
-    constructor() {
-        var self = this;
-    }
-}
+// class VidaModel {
+//     constructor() {
+//         var self = this;
+//     }
+// }
 
-var model = new VidaModel();
-ko.applyBindings(model);
+// var model = new VidaModel();
+// ko.applyBindings(model);
