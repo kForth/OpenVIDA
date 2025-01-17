@@ -18,7 +18,7 @@ from lxml import etree
 from vida_py import ServiceRepoSession
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
-from vida_py.service import Document, DocumentProfile
+from vida_py.service import Document, DocumentProfile, Qualifier
 
 from vida_flask import settings
 
@@ -56,7 +56,8 @@ def documents(profile):
             .order_by(Document.id)
             .all()
         )
-        return render_template("public/documents.html", documents=docs)
+        quals = _service.query(Qualifier).order_by(Qualifier.qualifierCode).all()
+        return render_template("public/documents.html", documents=docs, qualifiers=quals)
 
 
 @blueprint.route("/document/<chronicle>/")

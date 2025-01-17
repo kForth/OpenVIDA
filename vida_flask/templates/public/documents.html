@@ -1,13 +1,48 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container">
-    <h3>
-        Found {{ documents | length }} Document{{ "" if (documents | length) ==
-        1 else "s" }}
-    </h3>
-    {% for doc in documents %}
-    <div>
-        <a href="/document/{{ doc.chronicleId }}/">{{ doc.title }}</a>
+<div class="container-fluid d-flex flex-nowrap">
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px;">
+        <b class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white">
+            Found {{ documents | length }} Document{{ "" if (documents | length) ==
+            1 else "s" }}
+        </b>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            {% for qual in qualifiers %}
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link{% if loop.index0 == 0 %} active{% endif %}"
+                    id="qual-{{ qual.id }}-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#qual-{{ qual.id }}-tab-pane"
+                    type="button"
+                    role="tab"
+                    aria-controls="qual-{{ qual.id }}-tab-pane"
+                    {% if loop.index0 == 0 %}aria-selected="true"{% endif %}
+                >
+                    {{ qual.title }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
-    {% endfor %}
+    <div class="d-flex flex-column">
+        <div class="tab-content" id="myTabContent">
+            {% for qual in qualifiers %}
+            <div
+                class="tab-pane fade{% if loop.index0 == 0 %} show active{% endif %}"
+                id="qual-{{ qual.id }}-tab-pane"
+                role="tabpanel"
+                aria-labelledby="qual-{{ qual.id }}-tab"
+                tabindex="0"
+            >
+                {% for doc in documents if doc.fkQualifier == qual.id %}
+                <div>
+                    <a href="/document/{{ doc.chronicleId }}/">{{ doc.title }}</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+</div>
 </div>
 {% endblock %}
