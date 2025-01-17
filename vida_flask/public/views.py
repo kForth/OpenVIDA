@@ -18,7 +18,7 @@ from lxml import etree
 from vida_py import ServiceRepoSession
 from vida_py.service import Document, DocumentProfile
 
-from PyVIDA import settings
+from vida_flask import settings
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 

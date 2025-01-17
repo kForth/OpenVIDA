@@ -1,4 +1,4 @@
-# PyVIDA
+# VIDA-Flask
 
 ### Running locally
 
@@ -13,7 +13,7 @@ Go to `http://localhost:5000`. You will see a pretty welcome screen.
 
 ## License
 
-PyVIDA
+VIDA-Flask
 Copyright (C) 2025 Kestin Goforth
 
 This program is free software: you can redistribute it and/or modify
