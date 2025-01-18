@@ -42,7 +42,7 @@ def about():
     return render_template("public/about.html")
 
 
-@blueprint.route("/profile", methods=["GET", "POST"])
+@blueprint.route("/profile/", methods=["GET", "POST"])
 def profile_select():
     """Profile select page."""
     if request.method == "POST":
@@ -68,21 +68,9 @@ def profile_select():
         )
 
 
-@blueprint.route("/documents/<profile>/")
-def documents(profile):
-    with ServiceRepoSession() as _service, DiagSession() as _diag:
-        profiles = [
-            e[0] for e in get_valid_profiles_for_selected(_diag, profile)
-        ]  # (ID, FolderLevel)
-        docs = (
-            _service.query(Document)
-            .outerjoin(DocumentProfile, DocumentProfile.fkDocument == Document.id)
-            .filter(DocumentProfile.profileId.in_(profiles))
-            .order_by(Document.id)
-            .all()
-        )
-        quals = _service.query(Qualifier).order_by(Qualifier.qualifierCode).all()
-        return render_template("public/documents.html", documents=docs, qualifiers=quals)
+@blueprint.route("/documents/")
+def documents():
+    return render_template("public/documents.html")
 
 
 @blueprint.route("/document/<chronicle>/")

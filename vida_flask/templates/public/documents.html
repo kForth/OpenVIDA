@@ -1,35 +1,23 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container-fluid d-flex flex-nowrap overflow-none px-0">
-    <div class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-2">
-        <b class="d-flex align-items-center mb-3 mb-md-0 me-md-auto">
-            Found {{ documents | length }} Document{{ "" if (documents | length) ==
-            1 else "s" }}
-        </b>
+    <div class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-3">
+        <b class="d-flex align-items-center mb-3 mb-md-0 me-md-auto">Documents</b>
         <hr>
         <ul class="list-unstyled ps-0">
-            {% for qual in qualifiers %}
-            {% set docs = documents | byattr("fkQualifier", qual.id) | list %}
-            {% if (docs | length) > 0 %}
-            <li class="mb-1" role="presentation">
+            <li class="mb-1" role="presentation" data-bind="foreach: { data: docsByQual, as: 'el' }">
                 <button
                     class="btn btn-toggle d-inline-flex text-start rounded border-0"
-                    {% if loop.index0 == 0 %}aria-selected="true"{% endif %}
                     data-bs-toggle="collapse"
-                    data-bs-target="#qual-{{ qual.id }}-collapse"
                     aria-expanded="false"
+                    data-bind="text: `${el.qual.title} (${el.docs.length})`, attr: { 'data-bs-target': `#qual-${el.qual.id}-collapse` }"
                 >
-                    {{ qual.title }} ({{ docs | length }})
                 </button>
-                <div class="collapse" id="qual-{{ qual.id }}-collapse" style="">
-                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        {% for doc in docs %}
-                        <li><a href="#{{ doc.chronicleId }}" id="doc-{{ doc.chronicleId }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">{{ doc.title }}</a></li>
-                        {% endfor %}
+                <div class="collapse" data-bind="attr: { id: `qual-${el.qual.id}-collapse` }">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" data-bind="foreach: { data: el.docs, as: 'doc' }">
+                        <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" data-bind="text: doc.title, href: `/document/{doc.chronicleId}/`, click: () => $root.onDocLinkClick(doc)"></a></li>
                     </ul>
                 </div>
             </li>
-            {% endif %}
-            {% endfor %}
         </ul>
     </div>
     <div class="d-flex flex-column w-100 vh-100 overflow-y-auto" id="docContent"></div>
@@ -37,15 +25,68 @@
 {% endblock %}
 {% block js%}
 <script type="text/javascript">
-$('a[id^="doc-"]').on("click", function (e) {
-    console.log($(this));
-    $.ajax({
-        url: `/Vida/docHtml/${$(this).attr('id').substring(4)}/`,
-        method: 'GET',
-        success: resp => {
-            $("#docContent").html(resp)
+
+function imgSize() { }
+
+class DocumentViewModel {
+    constructor () {
+        var self = this;
+
+        self.selectedProfile = ko.observable(sessionStorage.getItem("selectedProfile"));
+        self.selectedProfile.subscribe((v) => {
+            sessionStorage.setItem("selectedProfile", v);
+            self.refreshDocs();
+        });
+
+        self.docsByQual = ko.observableArray();
+
+        self.sidebarQualifierHeader = (e) => {
+            console.log(this, e);
+            return "Title";
+        };
+        self.qualCollapseId = (e) => {
+            console.log(this, e);
+            return "id";
+        };
+        self.docLinkTitle = (e) => {
+            console.log(this, e);
+            return "Doc (0)";
+        };
+        self.docLink = (e) => {
+            console.log(this, e);
+            return "/document/{ doc.chronicleId }/";
+        };
+
+        self.onDocLinkClick = function (doc) {
+            var e = undefined;  // TODO
+            {# var doc = $(this).attr('id').substring(4); #}
+            {# if (e.ctrlKey || e.which == 2 || e.button == 4)
+                window.open($(this).attr("href"), '_blank').focus();
+            else { #}
+                $.ajax({
+                    url: `/Vida/docHtml/${doc.chronicleId}/`,
+                    method: 'GET',
+                    success: resp => {
+                        $("#docContent").html(resp)
+                    }
+                })
+            {# } #}
+        };
+
+        self.refreshDocs = function () {
+            $.ajax({
+                url: `/Vida/docsByQual/${self.selectedProfile()}?qualCols=id,title&docCols=id,chronicleId,fkQualifier,title`,
+                method: "get",
+                success: resp => {
+                    console.log(resp);
+                    self.docsByQual(resp);
+                }
+            });
         }
-    })
-});
+        self.refreshDocs();
+    }
+}
+ko.applyBindings(new DocumentViewModel());
+// $('a[id^="doc-"]').on("click", function (e) { });
 </script>
 {% endblock %}

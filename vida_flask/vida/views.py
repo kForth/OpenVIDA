@@ -19,7 +19,9 @@ from vida_py.basedata import (
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
 from vida_py import ServiceRepoSession
-from vida_py.service import Document
+from vida_py.diag import Session as DiagSession
+from vida_py.diag import get_valid_profiles_for_selected
+from vida_py.service import Document, DocumentProfile, Qualifier
 
 from vida_flask import settings
 
@@ -142,6 +144,32 @@ def specialVehicles():
             {"id": e.Id, "text": e.Description}
             for e in _basedata.query(SpecialVehicle).all()
         ]
+
+@blueprint.route("/docsByQual/<profile>", methods=["GET", "POST"])
+def documents_by_qualifier(profile):
+    with ServiceRepoSession() as _service, DiagSession() as _diag:
+        profiles = [
+            e[0] for e in get_valid_profiles_for_selected(_diag, profile)
+        ]  # (ID, FolderLevel)
+
+        quals = _service.query(Qualifier).order_by(Qualifier.qualifierCode).all()
+        qual_cols = request.args['qualCols'].split(",")
+        doc_cols = request.args['docCols'].split(",")
+        docs_by_qual = []
+        for qual in quals:
+            docs = (
+                _service.query(Document)
+                .outerjoin(DocumentProfile, DocumentProfile.fkDocument == Document.id)
+                .filter(DocumentProfile.profileId.in_(profiles), Document.fkQualifier == qual.id)
+                .order_by(Document.id)
+                .all()
+            )
+            if docs:
+                docs_by_qual.append({
+                    'qual': {c.name: getattr(qual, c.name) for c in qual.__table__.columns if c.name in qual_cols},
+                    'docs': [{c.name: getattr(e, c.name) for c in e.__table__.columns if c.name in doc_cols} for e in docs]
+                })
+    return docs_by_qual
 
 @blueprint.route("/docHtml/<chronicle>/", methods=["GET", "POST"])
 def get_document_html(chronicle):
