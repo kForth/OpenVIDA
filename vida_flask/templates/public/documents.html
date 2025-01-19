@@ -26,7 +26,7 @@
 
 function imgSize() { }
 
-class DocumentViewModel {
+class DocumentsViewModel {
     constructor () {
         var self = this;
 
@@ -64,7 +64,7 @@ class DocumentViewModel {
         self.refreshDocs();
     }
 }
-ko.applyBindings(new DocumentViewModel());
+ko.applyBindings(new DocumentsViewModel());
 // $('a[id^="doc-"]').on("click", function (e) { });
 </script>
 {% endblock %}
