@@ -21,6 +21,14 @@ from vida_py.images import Session as ImagesSession
 from vida_py import ServiceRepoSession
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
+from vida_py.epc import Session as EpcSession
+from vida_py.epc import (
+    CatalogueComponents,
+    ComponentConditions,
+    ComponentDescriptions,
+    Lexicon,
+    PartItems,
+)
 from vida_py.service import Document, DocumentProfile, Qualifier
 
 from vida_flask import settings
@@ -144,6 +152,91 @@ def specialVehicles():
             {"id": e.Id, "text": e.Description}
             for e in _basedata.query(SpecialVehicle).all()
         ]
+
+# TODO: getPartProfiles:
+# (
+#     [
+#         _basedata.query(VehicleProfile)
+#         .filter(VehicleProfile.Id == e.fkProfile)
+#         .one()
+#         for e in _epc.query(ComponentConditions)
+#         .filter(
+#             ComponentConditions.fkCatalogueComponent
+#             == component.ParentComponentId
+#         )
+#         .all()
+#     ]
+# )
+
+@blueprint.route("/partsForProfile/<profile>", methods=["GET", "POST"])
+def parts_for_profile(profile):
+
+    with BaseDataSession() as _basedata, DiagSession() as _diag, EpcSession() as _epc:
+        language = 15  # TODO
+
+        profiles = [
+            e[0] for e in get_valid_profiles_for_selected(_diag, profile)
+        ]  # (ID, FolderLevel)
+
+        print(
+            _epc.query(PartItems)
+            .outerjoin(CatalogueComponents, CatalogueComponents.fkPartItem == PartItems.Id)
+            .outerjoin(
+                ComponentConditions,
+                ComponentConditions.fkCatalogueComponent == CatalogueComponents.Id
+            ).filter(
+                ComponentConditions.fkProfile.in_(profiles)
+            ).all()
+        )
+
+        # part = _epc.query(PartItems).filter(PartItems.ItemNumber == partnumber).one()
+        # title = (
+        #     _epc.query(Lexicon)
+        #     .filter(
+        #         Lexicon.DescriptionId == part.DescriptionId,
+        #         Lexicon.fkLanguage == language,
+        #     )
+        #     .one()
+        # )
+        components = [
+            {
+                "part": {
+                    "id": part.Id,
+                    "code": part.Code,
+                    "itemNumber": part.ItemNumber,
+                    "isSoftware": part.IsSoftware,
+                    "stockRate": part.StockRate,
+                    "unitType": part.UnitType,
+                },
+                "component": {
+                    "id": part.CatalogueComponents.Id,
+                    "title": part.CatalogueComponents.title,
+                },
+                "descriptions": [
+                    {}
+                    for desc in
+                    _epc.query(Lexicon)
+                    .outerjoin(
+                        ComponentDescriptions,
+                        ComponentDescriptions.DescriptionId == Lexicon.DescriptionId,
+                    )
+                    .filter(
+                        Lexicon.fkLanguage == language,
+                        ComponentDescriptions.fkCatalogueComponent == part.CatalogueComponents.Id,
+                    )
+                    .all()
+                ]
+            }
+            for part in _epc.query(PartItems)
+                .outerjoin(CatalogueComponents, CatalogueComponents.fkPartItem == PartItems.Id)
+                .outerjoin(
+                    ComponentConditions,
+                    ComponentConditions.fkCatalogueComponent == CatalogueComponents.Id
+                ).filter(
+                    ComponentConditions.fkProfile.in_(profiles)
+                ).all()
+        ]
+    return components
 
 @blueprint.route("/docsByQual/<profile>", methods=["GET", "POST"])
 def documents_by_qualifier(profile):

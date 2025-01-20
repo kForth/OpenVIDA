@@ -68,6 +68,11 @@ def profile_select():
         )
 
 
+@blueprint.route("/parts/")
+def parts():
+    return render_template("public/parts.html")
+
+
 @blueprint.route("/documents/")
 def documents():
     return render_template("public/documents.html")
