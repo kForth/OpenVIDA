@@ -5,8 +5,10 @@ import io
 import re
 import zipfile
 
-from flask import Blueprint, abort, request, send_file
+from flask import Blueprint, request, send_file
 from lxml import etree
+from sqlalchemy import or_
+from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
 from vida_py.basedata import (
@@ -16,12 +18,8 @@ from vida_py.basedata import (
     VehicleModel,
     VehicleProfile,
 )
-from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
-from vida_py.images import Session as ImagesSession
-from vida_py import ServiceRepoSession
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
-from vida_py.epc import Session as EpcSession
 from vida_py.epc import (
     CatalogueComponents,
     ComponentConditions,
@@ -29,10 +27,12 @@ from vida_py.epc import (
     Lexicon,
     PartItems,
 )
+from vida_py.epc import Session as EpcSession
+from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
+from vida_py.images import Session as ImagesSession
 from vida_py.service import Document, DocumentProfile, Qualifier
 
 from vida_flask import settings
-
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
 
@@ -74,7 +74,7 @@ def get_vin_profiles():
 
 
 @blueprint.route("/profiles", methods=["GET", "POST"])
-def profiles():
+def get_profiles():
     with BaseDataSession() as _basedata:
         profiles = (
             _basedata.query(VehicleProfile)
@@ -87,7 +87,7 @@ def profiles():
 
 
 @blueprint.route("/markets", methods=["GET", "POST"])
-def markets():
+def get_markets():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description}
@@ -96,7 +96,7 @@ def markets():
 
 
 @blueprint.route("/modelYears", methods=["GET", "POST"])
-def modelYears():
+def get_model_years():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description} for e in _basedata.query(ModelYear).all()
@@ -104,7 +104,7 @@ def modelYears():
 
 
 @blueprint.route("/models", methods=["GET", "POST"])
-def models():
+def get_models():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description}
@@ -113,7 +113,7 @@ def models():
 
 
 @blueprint.route("/engines", methods=["GET", "POST"])
-def engines():
+def get_engines():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description} for e in _basedata.query(Engine).all()
@@ -121,7 +121,7 @@ def engines():
 
 
 @blueprint.route("/transmissions", methods=["GET", "POST"])
-def transmissions():
+def get_transmissions():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description}
@@ -130,7 +130,7 @@ def transmissions():
 
 
 @blueprint.route("/steerings", methods=["GET", "POST"])
-def steerings():
+def get_steerings():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description} for e in _basedata.query(Steering).all()
@@ -138,7 +138,7 @@ def steerings():
 
 
 @blueprint.route("/bodyStyles", methods=["GET", "POST"])
-def bodyStyles():
+def get_body_styles():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description} for e in _basedata.query(BodyStyle).all()
@@ -146,12 +146,13 @@ def bodyStyles():
 
 
 @blueprint.route("/specialVehicles", methods=["GET", "POST"])
-def specialVehicles():
+def get_special_vehicles():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description}
             for e in _basedata.query(SpecialVehicle).all()
         ]
+
 
 # TODO: getPartProfiles:
 # (
@@ -168,6 +169,7 @@ def specialVehicles():
 #     ]
 # )
 
+
 @blueprint.route("/partsForProfile/<profile>", methods=["GET", "POST"])
 def parts_for_profile(profile):
 
@@ -178,15 +180,79 @@ def parts_for_profile(profile):
             e[0] for e in get_valid_profiles_for_selected(_diag, profile)
         ]  # (ID, FolderLevel)
 
-        print(
-            _epc.query(PartItems)
-            .outerjoin(CatalogueComponents, CatalogueComponents.fkPartItem == PartItems.Id)
+        profile = (
+            _basedata.query(VehicleProfile).filter(VehicleProfile.Id == profile).first()
+        )
+
+        """
+        SELECT * FROM CatalogueComponents
+        LEFT JOIN PartItems ON PartItems.Id = CatalogueComponents.fkPartItem
+        LEFT JOIN ComponentConditions ON ComponentConditions.fkCatalogueComponent = CatalogueComponents.Id
+        WHERE ComponentConditions.fkProfile IN (
+        SELECT Id FROM [basedata].[dbo].[VehicleProfile]
+        WHERE (fkVehicleModel = 1006 OR fkVehicleModel IS NULL)
+        AND (fkModelYear = 1190 OR fkModelYear IS NULL)
+        AND (fkEngine = 1074 OR fkEngine IS NULL)
+        AND (fkTransmission= 1033 OR fkTransmission IS NULL)
+        AND (fkSteering = 1001 OR fkSteering IS NULL)
+        AND (fkBodyStyle = 1004 OR fkBodyStyle IS NULL)
+        AND (fkPartnerGroup = 1001 OR fkPartnerGroup IS NULL)
+        )
+        """
+        profiles = [
+            e[0]
+            for e in (
+                _basedata.query(VehicleProfile.Id)
+                .filter(
+                    or_(
+                        profile.fkVehicleModel is None,
+                        VehicleProfile.fkVehicleModel is None,
+                        profile.fkVehicleModel == VehicleProfile.fkVehicleModel,
+                    ),
+                    or_(
+                        profile.fkModelYear is None,
+                        VehicleProfile.fkModelYear is None,
+                        profile.fkModelYear == VehicleProfile.fkModelYear,
+                    ),
+                    or_(
+                        profile.fkEngine is None,
+                        VehicleProfile.fkEngine is None,
+                        profile.fkEngine == VehicleProfile.fkEngine,
+                    ),
+                    or_(
+                        profile.fkTransmission is None,
+                        VehicleProfile.fkTransmission is None,
+                        profile.fkTransmission == VehicleProfile.fkTransmission,
+                    ),
+                    or_(
+                        profile.fkSteering is None,
+                        VehicleProfile.fkSteering is None,
+                        profile.fkSteering == VehicleProfile.fkSteering,
+                    ),
+                    or_(
+                        profile.fkBodyStyle is None,
+                        VehicleProfile.fkBodyStyle is None,
+                        profile.fkBodyStyle == VehicleProfile.fkBodyStyle,
+                    ),
+                    or_(
+                        profile.fkPartnerGroup is None,
+                        VehicleProfile.fkPartnerGroup is None,
+                        profile.fkPartnerGroup == VehicleProfile.fkPartnerGroup,
+                    ),
+                )
+                .all()
+            )
+        ]
+
+        components = (
+            _epc.query(CatalogueComponents)
+            .outerjoin(PartItems, PartItems.Id == CatalogueComponents.fkPartItem)
             .outerjoin(
                 ComponentConditions,
-                ComponentConditions.fkCatalogueComponent == CatalogueComponents.Id
-            ).filter(
-                ComponentConditions.fkProfile.in_(profiles)
-            ).all()
+                ComponentConditions.fkCatalogueComponent == CatalogueComponents.Id,
+            )
+            .filter(ComponentConditions.fkProfile.in_(profiles))
+            .all()
         )
 
         # part = _epc.query(PartItems).filter(PartItems.ItemNumber == partnumber).one()
@@ -198,45 +264,39 @@ def parts_for_profile(profile):
         #     )
         #     .one()
         # )
-        components = [
+        parts = [
             {
-                "part": {
-                    "id": part.Id,
-                    "code": part.Code,
-                    "itemNumber": part.ItemNumber,
-                    "isSoftware": part.IsSoftware,
-                    "stockRate": part.StockRate,
-                    "unitType": part.UnitType,
-                },
+                # "part": {
+                #     "id": part.Id,
+                #     "code": part.Code,
+                #     "itemNumber": part.ItemNumber,
+                #     "isSoftware": part.IsSoftware,
+                #     "stockRate": part.StockRate,
+                #     "unitType": part.UnitType,
+                # },
                 "component": {
-                    "id": part.CatalogueComponents.Id,
-                    "title": part.CatalogueComponents.title,
+                    "id": comp.Id,
+                    # "title": comp,
                 },
                 "descriptions": [
-                    {}
-                    for desc in
-                    _epc.query(Lexicon)
-                    .outerjoin(
-                        ComponentDescriptions,
-                        ComponentDescriptions.DescriptionId == Lexicon.DescriptionId,
-                    )
-                    .filter(
-                        Lexicon.fkLanguage == language,
-                        ComponentDescriptions.fkCatalogueComponent == part.CatalogueComponents.Id,
-                    )
-                    .all()
-                ]
+                    # {}
+                    # for desc in _epc.query(Lexicon)
+                    # .outerjoin(
+                    #     ComponentDescriptions,
+                    #     ComponentDescriptions.DescriptionId == Lexicon.DescriptionId,
+                    # )
+                    # .filter(
+                    #     Lexicon.fkLanguage == language,
+                    #     ComponentDescriptions.fkCatalogueComponent
+                    #     == part.CatalogueComponents.Id,
+                    # )
+                    # .all()
+                ],
             }
-            for part in _epc.query(PartItems)
-                .outerjoin(CatalogueComponents, CatalogueComponents.fkPartItem == PartItems.Id)
-                .outerjoin(
-                    ComponentConditions,
-                    ComponentConditions.fkCatalogueComponent == CatalogueComponents.Id
-                ).filter(
-                    ComponentConditions.fkProfile.in_(profiles)
-                ).all()
+            for comp in components
         ]
-    return components
+    return parts
+
 
 @blueprint.route("/docsByQual/<profile>", methods=["GET", "POST"])
 def documents_by_qualifier(profile):
@@ -246,23 +306,40 @@ def documents_by_qualifier(profile):
         ]  # (ID, FolderLevel)
 
         quals = _service.query(Qualifier).order_by(Qualifier.qualifierCode).all()
-        qual_cols = request.args['qualCols'].split(",")
-        doc_cols = request.args['docCols'].split(",")
+        qual_cols = request.args["qualCols"].split(",")
+        doc_cols = request.args["docCols"].split(",")
         docs_by_qual = []
         for qual in quals:
             docs = (
                 _service.query(Document)
                 .outerjoin(DocumentProfile, DocumentProfile.fkDocument == Document.id)
-                .filter(DocumentProfile.profileId.in_(profiles), Document.fkQualifier == qual.id)
+                .filter(
+                    DocumentProfile.profileId.in_(profiles),
+                    Document.fkQualifier == qual.id,
+                )
                 .order_by(Document.id)
                 .all()
             )
             if docs:
-                docs_by_qual.append({
-                    'qual': {c.name: getattr(qual, c.name) for c in qual.__table__.columns if c.name in qual_cols},
-                    'docs': [{c.name: getattr(e, c.name) for c in e.__table__.columns if c.name in doc_cols} for e in docs]
-                })
+                docs_by_qual.append(
+                    {
+                        "qual": {
+                            c.name: getattr(qual, c.name)
+                            for c in qual.__table__.columns
+                            if c.name in qual_cols
+                        },
+                        "docs": [
+                            {
+                                c.name: getattr(e, c.name)
+                                for c in e.__table__.columns
+                                if c.name in doc_cols
+                            }
+                            for e in docs
+                        ],
+                    }
+                )
     return docs_by_qual
+
 
 @blueprint.route("/docHtml/<chronicle>/", methods=["GET", "POST"])
 def get_document_html(chronicle):
