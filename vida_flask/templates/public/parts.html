@@ -13,18 +13,24 @@
                     class="btn btn-toggle d-inline-flex text-start rounded border-0"
                     data-bs-toggle="collapse"
                     aria-expanded="false"
-                    data-bind="text: `${el.title} (${el.number})`, attr: { 'data-bs-target': `#part-${el.number}-collapse` }"
+                    data-bind="text: `${el.part.title} (${el.part.number})`, attr: { 'data-bs-target': `#part-${el.part.number}-collapse` }"
                 ></button>
                 <div
                     class="collapse"
-                    data-bind="attr: { id: `part-${el.number}-collapse` }"
+                    data-bind="attr: { id: `part-${el.part.number}-collapse` }"
                 >
                     <ul
                         class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
                     >
-                        <li data-bind="text: el.title"></li>
-                        <li data-bind="text: el.number"></li>
-                        <li>Profiles:</li>
+                        <li>
+                            <b>Title:</b
+                            ><span data-bind="text: el.part.title"></span>
+                        </li>
+                        <li>
+                            <b>P/N:</b
+                            ><span data-bind="text: el.part.number"></span>
+                        </li>
+                        <li><b>Profiles:</b></li>
                         <!-- ko foreach: { data: el.profiles, as: 'prof' } -->
                         <li data-bind="text: prof"></li>
                         <!-- /ko -->
@@ -71,7 +77,7 @@
 
             self.refreshParts = function () {
                 $.ajax({
-                    url: `/Vida/partsForProfile/${self.selectedProfile()}?partCols=id,chronicleId,fkQualifier,title`,
+                    url: `/Vida/partsForProfile/${self.selectedProfile()}`,
                     method: "get",
                     success: resp => {
                         console.log(resp);

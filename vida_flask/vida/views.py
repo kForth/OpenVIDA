@@ -7,6 +7,7 @@ import zipfile
 
 from flask import Blueprint, request, send_file
 from lxml import etree
+from sqlalchemy import asc, or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
@@ -176,48 +177,46 @@ def parts_for_profile(profile, language=15):
         profiles = [e[0] for e in get_valid_profiles_for_selected(_diag, profile)]
         parts = (
             _epc.query(
-                PartItems,
                 CatalogueComponents,
                 ComponentConditions,
+                PartItems,
                 Lexicon,
-            )
-            .outerjoin(
-                CatalogueComponents, CatalogueComponents.fkPartItem == PartItems.Id
             )
             .outerjoin(
                 ComponentConditions,
                 ComponentConditions.fkCatalogueComponent
                 == CatalogueComponents.ParentComponentId,
             )
+            .outerjoin(PartItems, PartItems.Id == CatalogueComponents.fkPartItem)
             .outerjoin(Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId)
             .filter(
                 Lexicon.fkLanguage == language,
-                ComponentConditions.fkProfile.in_(profiles),
+                or_(
+                    ComponentConditions.fkProfile == None,
+                    ComponentConditions.fkProfile.in_(profiles),
+                ),
             )
-            .order_by(PartItems.Id)
+            .order_by(CatalogueComponents.ComponentPath)
             .all()
         )
 
     _parts = {}
-    for part, comp, cond, lexicon in parts:
-        _comp = {
-            "id": comp.Id,
-            "path": comp.ComponentPath,
-            "level": comp.AssemblyLevel,
-            "sequence": comp.SequenceId,
-        }
-        if part.ItemNumber not in _parts:
-            _parts[part.ItemNumber] = {
-                "id": part.Id,
-                "number": part.ItemNumber,
-                "title": lexicon.Description,
-                "components": {comp.Id: _comp},
+    for comp, cond, part, lexicon in parts:
+        if comp.Id not in _parts:
+            _parts[comp.Id] = {
+                "path": comp.ComponentPath,
+                "level": comp.AssemblyLevel,
+                "sequence": comp.SequenceId,
+                "part": {
+                    "id": part.Id,
+                    "number": part.ItemNumber,
+                    "title": lexicon.Description,
+                },
                 "profiles": [cond.fkProfile],
             }
         else:
-            _parts[part.ItemNumber]["components"][comp.Id] = _comp
-            if cond.fkProfile not in _parts[part.ItemNumber]["profiles"]:
-                _parts[part.ItemNumber]["profiles"].append(cond.fkProfile)
+            if cond.fkProfile not in _parts[comp.Id]["profiles"]:
+                _parts[comp.Id]["profiles"].append(cond.fkProfile)
 
     return list(_parts.values())
 
