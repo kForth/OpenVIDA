@@ -7,7 +7,6 @@ import zipfile
 
 from flask import Blueprint, request, send_file
 from lxml import etree
-from sqlalchemy import or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
@@ -171,114 +170,56 @@ def get_special_vehicles():
 
 
 @blueprint.route("/partsForProfile/<profile>", methods=["GET", "POST"])
-def parts_for_profile(profile):
-
-    with BaseDataSession() as _basedata, DiagSession() as _diag, EpcSession() as _epc:
-        language = 15  # TODO
-
-        profile = (
-            _basedata.query(VehicleProfile).filter(VehicleProfile.Id == profile).first()
-        )
-        if profile is None:
-            return []
-
-        profiles = [
-            e[0]
-            for e in (
-                _basedata.query(VehicleProfile.Id)
-                .filter(
-                    or_(
-                        profile.fkVehicleModel is None,
-                        VehicleProfile.fkVehicleModel is None,
-                        profile.fkVehicleModel == VehicleProfile.fkVehicleModel,
-                    ),
-                    or_(
-                        profile.fkModelYear is None,
-                        VehicleProfile.fkModelYear is None,
-                        profile.fkModelYear == VehicleProfile.fkModelYear,
-                    ),
-                    or_(
-                        profile.fkEngine is None,
-                        VehicleProfile.fkEngine is None,
-                        profile.fkEngine == VehicleProfile.fkEngine,
-                    ),
-                    or_(
-                        profile.fkTransmission is None,
-                        VehicleProfile.fkTransmission is None,
-                        profile.fkTransmission == VehicleProfile.fkTransmission,
-                    ),
-                    or_(
-                        profile.fkSteering is None,
-                        VehicleProfile.fkSteering is None,
-                        profile.fkSteering == VehicleProfile.fkSteering,
-                    ),
-                    or_(
-                        profile.fkBodyStyle is None,
-                        VehicleProfile.fkBodyStyle is None,
-                        profile.fkBodyStyle == VehicleProfile.fkBodyStyle,
-                    ),
-                    or_(
-                        profile.fkPartnerGroup is None,
-                        VehicleProfile.fkPartnerGroup is None,
-                        profile.fkPartnerGroup == VehicleProfile.fkPartnerGroup,
-                    ),
-                )
-                .all()
+@blueprint.route("/partsForProfile/<profile>/<int:language>", methods=["GET", "POST"])
+def parts_for_profile(profile, language=15):
+    with DiagSession() as _diag, EpcSession() as _epc:
+        profiles = [e[0] for e in get_valid_profiles_for_selected(_diag, profile)]
+        parts = (
+            _epc.query(
+                PartItems,
+                CatalogueComponents,
+                ComponentConditions,
+                Lexicon,
             )
-        ]
-
-        components = (
-            _epc.query(CatalogueComponents)
-            .outerjoin(PartItems, PartItems.Id == CatalogueComponents.fkPartItem)
+            .outerjoin(
+                CatalogueComponents, CatalogueComponents.fkPartItem == PartItems.Id
+            )
             .outerjoin(
                 ComponentConditions,
-                ComponentConditions.fkCatalogueComponent == CatalogueComponents.Id,
+                ComponentConditions.fkCatalogueComponent
+                == CatalogueComponents.ParentComponentId,
             )
-            .filter(ComponentConditions.fkProfile.in_(profiles))
+            .outerjoin(Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId)
+            .filter(
+                Lexicon.fkLanguage == language,
+                ComponentConditions.fkProfile.in_(profiles),
+            )
+            .order_by(PartItems.Id)
             .all()
         )
 
-        # part = _epc.query(PartItems).filter(PartItems.ItemNumber == partnumber).one()
-        # title = (
-        #     _epc.query(Lexicon)
-        #     .filter(
-        #         Lexicon.DescriptionId == part.DescriptionId,
-        #         Lexicon.fkLanguage == language,
-        #     )
-        #     .one()
-        # )
-        parts = [
-            {
-                # "part": {
-                #     "id": part.Id,
-                #     "code": part.Code,
-                #     "itemNumber": part.ItemNumber,
-                #     "isSoftware": part.IsSoftware,
-                #     "stockRate": part.StockRate,
-                #     "unitType": part.UnitType,
-                # },
-                "component": {
-                    "id": comp.Id,
-                    # "title": comp,
-                },
-                "descriptions": [
-                    # {}
-                    # for desc in _epc.query(Lexicon)
-                    # .outerjoin(
-                    #     ComponentDescriptions,
-                    #     ComponentDescriptions.DescriptionId == Lexicon.DescriptionId,
-                    # )
-                    # .filter(
-                    #     Lexicon.fkLanguage == language,
-                    #     ComponentDescriptions.fkCatalogueComponent
-                    #     == part.CatalogueComponents.Id,
-                    # )
-                    # .all()
-                ],
+    _parts = {}
+    for part, comp, cond, lexicon in parts:
+        _comp = {
+            "id": comp.Id,
+            "path": comp.ComponentPath,
+            "level": comp.AssemblyLevel,
+            "sequence": comp.SequenceId,
+        }
+        if part.ItemNumber not in _parts:
+            _parts[part.ItemNumber] = {
+                "id": part.Id,
+                "number": part.ItemNumber,
+                "title": lexicon.Description,
+                "components": {comp.Id: _comp},
+                "profiles": [cond.fkProfile],
             }
-            for comp in components
-        ]
-    return parts
+        else:
+            _parts[part.ItemNumber]["components"][comp.Id] = _comp
+            if cond.fkProfile not in _parts[part.ItemNumber]["profiles"]:
+                _parts[part.ItemNumber]["profiles"].append(cond.fkProfile)
+
+    return list(_parts.values())
 
 
 @blueprint.route("/docsByQual/<profile>", methods=["GET", "POST"])

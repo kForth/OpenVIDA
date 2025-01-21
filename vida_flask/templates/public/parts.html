@@ -13,26 +13,23 @@
                     class="btn btn-toggle d-inline-flex text-start rounded border-0"
                     data-bs-toggle="collapse"
                     aria-expanded="false"
-                    data-bind="text: el.component.id, attr: { 'data-bs-target': `#part-${el.component.id}-collapse` }"
+                    data-bind="text: `${el.title} (${el.number})`, attr: { 'data-bs-target': `#part-${el.number}-collapse` }"
                 ></button>
-                {#
                 <div
                     class="collapse"
-                    data-bind="attr: { id: `qual-${el.qual.id}-collapse` }"
+                    data-bind="attr: { id: `part-${el.number}-collapse` }"
                 >
                     <ul
                         class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
-                        data-bind="foreach: { data: el.docs, as: 'doc' }"
                     >
-                        <li>
-                            <a
-                                class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                data-bind="text: doc.title, attr: { 'href': `/document/${doc.chronicleId}/` }, click: $root.onPartLinkClick"
-                            ></a>
-                        </li>
+                        <li data-bind="text: el.title"></li>
+                        <li data-bind="text: el.number"></li>
+                        <li>Profiles:</li>
+                        <!-- ko foreach: { data: el.profiles, as: 'prof' } -->
+                        <li data-bind="text: prof"></li>
+                        <!-- /ko -->
                     </ul>
                 </div>
-                #}
             </li>
         </ul>
     </div>
