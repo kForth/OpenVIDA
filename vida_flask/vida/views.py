@@ -176,31 +176,12 @@ def parts_for_profile(profile):
     with BaseDataSession() as _basedata, DiagSession() as _diag, EpcSession() as _epc:
         language = 15  # TODO
 
-        profiles = [
-            e[0] for e in get_valid_profiles_for_selected(_diag, profile)
-        ]  # (ID, FolderLevel)
-
         profile = (
             _basedata.query(VehicleProfile).filter(VehicleProfile.Id == profile).first()
         )
         if profile is None:
             return []
 
-        """
-        SELECT * FROM CatalogueComponents
-        LEFT JOIN PartItems ON PartItems.Id = CatalogueComponents.fkPartItem
-        LEFT JOIN ComponentConditions ON ComponentConditions.fkCatalogueComponent = CatalogueComponents.Id
-        WHERE ComponentConditions.fkProfile IN (
-        SELECT Id FROM [basedata].[dbo].[VehicleProfile]
-        WHERE (fkVehicleModel = 1006 OR fkVehicleModel IS NULL)
-        AND (fkModelYear = 1190 OR fkModelYear IS NULL)
-        AND (fkEngine = 1074 OR fkEngine IS NULL)
-        AND (fkTransmission= 1033 OR fkTransmission IS NULL)
-        AND (fkSteering = 1001 OR fkSteering IS NULL)
-        AND (fkBodyStyle = 1004 OR fkBodyStyle IS NULL)
-        AND (fkPartnerGroup = 1001 OR fkPartnerGroup IS NULL)
-        )
-        """
         profiles = [
             e[0]
             for e in (
