@@ -305,37 +305,33 @@ def documents_by_qualifier(profile):
             e[0] for e in get_valid_profiles_for_selected(_diag, profile)
         ]  # (ID, FolderLevel)
 
-        quals = _service.query(Qualifier).order_by(Qualifier.qualifierCode).all()
-        qual_cols = request.args["qualCols"].split(",")
-        doc_cols = request.args["docCols"].split(",")
+        quals = (
+            _service.query(Qualifier.id, Qualifier.title)
+            .order_by(Qualifier.qualifierCode)
+            .all()
+        )
         docs_by_qual = []
-        for qual in quals:
-            docs = (
-                _service.query(Document)
-                .outerjoin(DocumentProfile, DocumentProfile.fkDocument == Document.id)
-                .filter(
-                    DocumentProfile.profileId.in_(profiles),
-                    Document.fkQualifier == qual.id,
-                )
-                .order_by(Document.id)
-                .all()
+        docs = (
+            _service.query(Document.chronicleId, Document.title, Document.fkQualifier)
+            .outerjoin(DocumentProfile, DocumentProfile.fkDocument == Document.id)
+            .filter(
+                DocumentProfile.profileId.in_(profiles),
+                # Document.fkQualifier == qual[0],
             )
-            if docs:
+            .order_by(Document.id)
+            .all()
+        )
+        for qual in quals:
+            _docs = [
+                dict(zip(("chronicleId", "title"), e[:2]))
+                for e in docs
+                if e[2] == qual[0]
+            ]
+            if _docs:
                 docs_by_qual.append(
                     {
-                        "qual": {
-                            c.name: getattr(qual, c.name)
-                            for c in qual.__table__.columns
-                            if c.name in qual_cols
-                        },
-                        "docs": [
-                            {
-                                c.name: getattr(e, c.name)
-                                for c in e.__table__.columns
-                                if c.name in doc_cols
-                            }
-                            for e in docs
-                        ],
+                        "qual": dict(zip(("id", "title"), qual)),
+                        "docs": _docs,
                     }
                 )
     return docs_by_qual
