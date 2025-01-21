@@ -183,6 +183,8 @@ def parts_for_profile(profile):
         profile = (
             _basedata.query(VehicleProfile).filter(VehicleProfile.Id == profile).first()
         )
+        if profile is None:
+            return []
 
         """
         SELECT * FROM CatalogueComponents
