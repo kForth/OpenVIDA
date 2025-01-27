@@ -5,6 +5,6 @@
         "bootstrap-icons": "^1.11.3",
         "jquery": "^3.7.1",
         "knockout": "^3.5.1",
-        "mathjs": "^14.0.1"
+        "mathjs": "^14.1.0"
     }
 }
