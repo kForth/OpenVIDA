@@ -7,7 +7,7 @@ import zipfile
 
 from flask import Blueprint, request, send_file
 from lxml import etree
-from sqlalchemy import asc, or_
+from sqlalchemy import or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
