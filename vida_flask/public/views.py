@@ -19,7 +19,7 @@ from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
 from vida_py.service import Document, DocumentProfile, Qualifier
 
-from vida_flask.vida.views import get_document_html
+from vida_flask.vida.api import get_document_html
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
