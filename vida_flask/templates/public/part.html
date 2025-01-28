@@ -1,0 +1,20 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <div class="row py-2">
+        <div class="col-xs-12 col-md-6">
+            <img />
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <h3>{{ part.ItemNumber }} - {{ title.Description }}</h3>
+            <h5>Applications ({{ components | length }}):</h5>
+            {% for el in components %} {% set prof = el[0] %} {% set path =
+            el[1] %} {% set comp = el[2] %} {% set desc1 = el[3] %} {% set desc2
+            = el[4] %}
+            <strong>{{ prof.Description }}</strong>
+            {{ path }}
+            <p>{{ desc1.Description }}<br />{{ desc2.Description }}</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
