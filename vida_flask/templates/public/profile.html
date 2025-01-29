@@ -1,162 +1,124 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container-fluid">
-    <div id="dataGrid" class="w-100 vh-100 flex-fill ag-theme-alpine"></div>
+<div class="container">
+    <div class="row g-5 py-2">
+      <div class="col-md-5 col-lg-4 order-md-last">
+        <img />
+      </div>
+      <div class="col-md-7 col-lg-8">
+        <h4 class="mb-3">Vehicle Profile</h4>
+        <form onsubmit="return false;">
+          <div class="row g-3">
+            <div class="col-12 mb-3">
+                <label for="vin" class="form-label">VIN</label>
+                <input type="text" class="form-control" id="vin" data-bind="value: vinNumber">
+            </div>
+            <hr class="mb-3">
+            <div class="col-12">
+                <label for="partnerGroup" class="form-label">Partner Group</label>
+                <select class="form-control" id="partnerGroup" data-bind="value: partnerGroup, options: partnerGroupOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-6">
+              <label for="vehicleModel" class="form-label">Model</label>
+              <select class="form-control" id="vehicleModel" data-bind="value: vehicleModel, options: vehicleModelOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-6">
+              <label for="modelYear" class="form-label">Model Year</label>
+              <select class="form-control" id="modelYear" data-bind="value: modelYear, options: modelYearOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-6">
+              <label for="engine" class="form-label">Engine</label>
+              <select class="form-control" id="engine" data-bind="value: engine, options: engineOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-6">
+              <label for="transmission" class="form-label">Transmission</label>
+              <select class="form-control" id="transmission" data-bind="value: transmission, options: transmissionOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-4">
+              <label for="steering" class="form-label">Steering</label>
+              <select class="form-control" id="steering" data-bind="value: steering, options: steeringOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-4">
+              <label for="bodyStyle" class="form-label">Body Style</label>
+              <select class="form-control" id="bodyStyle" data-bind="value: bodyStyle, options: bodyStyleOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-sm-4">
+              <label for="specialVehicle" class="form-label">Special Vehicle</label>
+              <select class="form-control" id="specialVehicle" data-bind="value: specialVehicle, options: specialVehicleOptions, optionsValue: 'id', optionsText: 'text'"></select>
+            </div>
+            <div class="col-12 col-sm-4 offset-sm-8">
+                <button class="btn btn-primary w-100" data-bind="click: submitProfile">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
 </div>
 {% endblock %} {% block js %}
 <script type="text/javascript">
-    const ListConfig = {
-        rowSelection: "multiple",
-        suppressRowClickSelection: true,
-        // enableCellTextSelection: true,
-        // ensureDomOrder: true,
-        overlayLoadingTemplate:
-            '<span class="ag-overlay-loading-center">Loading Profile List...</span>defaultColDef',
-        suppressMovable: true,
-        resizable: true,
-        sortable: true,
-        editable: false,
-        filter: true,
-        floatingFilter: true,
-        minWidth: 80,
-        columnDefs: [
-            {
-                field: "Id",
-                filter: "agTextColumnFilter",
-                headerName: "Id",
-                flex: 2,
-            },
-            // {
-            //     field: "FolderLevel",
-            //     filter: "agTextColumnFilter",
-            //     headerName: "FolderLevel",
-            //     flex: 2,
-            // },
-            {
-                field: "Description",
-                filter: "agTextColumnFilter",
-                headerName: "Description",
-                flex: 3,
-            },
-            {
-                field: "ChassisNoFrom",
-                filter: "agTextColumnFilter",
-                headerName: "ChassisNoFrom",
-                flex: 2,
-            },
-            {
-                field: "ChassisNoTo",
-                filter: "agTextColumnFilter",
-                headerName: "ChassisNoTo",
-                flex: 2,
-            },
-            {
-                field: "NodeECU",
-                filter: "agTextColumnFilter",
-                headerName: "NodeECU",
-                flex: 2,
-            },
-            {
-                field: "VehicleModel",
-                filter: "agTextColumnFilter",
-                headerName: "VehicleModel",
-                flex: 2,
-            },
-            {
-                field: "BodyStyle",
-                filter: "agTextColumnFilter",
-                headerName: "BodyStyle",
-                flex: 2,
-            },
-            {
-                field: "Steering",
-                filter: "agTextColumnFilter",
-                headerName: "Steering",
-                flex: 2,
-            },
-            {
-                field: "Transmission",
-                filter: "agTextColumnFilter",
-                headerName: "Transmission",
-                flex: 2,
-            },
-            {
-                field: "Suspension",
-                filter: "agTextColumnFilter",
-                headerName: "Suspension",
-                flex: 2,
-            },
-            {
-                field: "Engine",
-                filter: "agTextColumnFilter",
-                headerName: "Engine",
-                flex: 2,
-            },
-            {
-                field: "StructureWeek",
-                filter: "agTextColumnFilter",
-                headerName: "StructureWeek",
-                flex: 2,
-            },
-            {
-                field: "BrakeSystem",
-                filter: "agTextColumnFilter",
-                headerName: "BrakeSystem",
-                flex: 2,
-            },
-            {
-                field: "PartnerGroup",
-                filter: "agTextColumnFilter",
-                headerName: "PartnerGroup",
-                flex: 2,
-            },
-            {
-                field: "ModelYear",
-                filter: "agTextColumnFilter",
-                headerName: "ModelYear",
-                flex: 2,
-            },
-            {
-                field: "SpecialVehicle",
-                filter: "agTextColumnFilter",
-                headerName: "SpecialVehicle",
-                flex: 2,
-            },
-            // {
-            //     field: "ObjVersion",
-            //     filter: "agTextColumnFilter",
-            //     headerName: "ObjVersion",
-            //     flex: 2,
-            // },
-        ],
-    };
+    class ProfileViewModel {
+        constructor() {
+            var self = this;
 
-    const dataTable = $("#dataGrid");
-    const gridOptions = $.extend(ListConfig, {
-        onGridReady: (params) => {
-            params.api.sizeColumnsToFit();
-        },
-        onCellDoubleClicked: (event) => {},
-        // "onRowEditingStarted": (event) => {,
-        //   console.log("onRowEditingStarted", event);
-        // },
-        // "onRowEditingStopped": (event) => {,
-        //   console.log("onRowEditingStopped", event);
-        // },
-    });
+            self.selectedProfile = ko.observable(
+                sessionStorage.getItem("selectedProfile")
+            );
+            self.selectedProfile.subscribe((v) => {
+                sessionStorage.setItem("selectedProfile", v);
+            });
 
-    // eslint-disable-next-line no-unused-vars
-    const dataGrid = new agGrid.createGrid(dataTable[0], gridOptions);
+            self.vinNumber = ko.observable("");
+            self.partnerGroup = ko.observable(null);
+            self.vehicleModel = ko.observable(null);
+            self.modelYear = ko.observable(null);
+            self.engine = ko.observable(null);
+            self.transmission = ko.observable(null);
+            self.steering = ko.observable(null);
+            self.bodyStyle = ko.observable(null);
+            self.specialVehicle = ko.observable(null);
 
-    $.ajax({
-        type: "GET",
-        url: "/Vida/profiles?FolderLevel=2",
-        success: (resp) => {
-            dataGrid.setGridOption("rowData", resp);
-            // gridOptions.columnApi.applyColumnState({
-            //     state: [{ colId: "date_issued", sort: "desc" }],
-            //     defaultState: { sort: null },
-            // });
-        },
-    });
+            self.partnerGroupOptions = ko.observableArray([{id: null, text: ""}]);
+            self.vehicleModelOptions = ko.observableArray([{id: null, text: ""}]);
+            self.modelYearOptions = ko.observableArray([{id: null, text: ""}]);
+            self.engineOptions = ko.observableArray([{id: null, text: ""}]);
+            self.transmissionOptions = ko.observableArray([{id: null, text: ""}]);
+            self.steeringOptions = ko.observableArray([{id: null, text: ""}]);
+            self.bodyStyleOptions = ko.observableArray([{id: null, text: ""}]);
+            self.specialVehicleOptions = ko.observableArray([{id: null, text: ""}]);
+
+            self.pushAll = function (arr1, arr2) { for(let e of arr2) { arr1.push(e); } }
+            $.get("/Vida/partnerGroups", (resp) => self.pushAll(self.partnerGroupOptions, resp));
+            $.get("/Vida/vehicleModels", (resp) => self.pushAll(self.vehicleModelOptions, resp));
+            $.get("/Vida/modelYears", (resp) => self.pushAll(self.modelYearOptions, resp));
+            $.get("/Vida/engines", (resp) => self.pushAll(self.engineOptions, resp));
+            $.get("/Vida/transmissions", (resp) => self.pushAll(self.transmissionOptions, resp));
+            $.get("/Vida/steerings", (resp) => self.pushAll(self.steeringOptions, resp));
+            $.get("/Vida/bodyStyles", (resp) => self.pushAll(self.bodyStyleOptions, resp));
+            $.get("/Vida/specialVehicles", (resp) => self.pushAll(self.specialVehicleOptions, resp));
+
+            self.vinNumber.subscribe(function () {
+                var match = self.vinNumber().match(/^[\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w](\d{6})$/);
+                $("#vin").toggleClass("is-invalid", !match && self.vinNumber().length > 0);
+                if (match) {
+                    // TODO: Update form from VIN
+                }
+            });
+
+            self.submitProfile = function () {
+                // TODO: Validate and set session profile
+                console.log(
+                    self.partnerGroup(),
+                    self.vehicleModel(),
+                    self.modelYear(),
+                    self.engine(),
+                    self.transmission(),
+                    self.steering(),
+                    self.bodyStyle(),
+                    self.specialVehicle(),
+                )
+            };
+        }
+    }
+
+    ko.applyBindings(new ProfileViewModel());
 </script>
 {% endblock %}
