@@ -86,8 +86,8 @@ def get_profiles():
         ]
 
 
-@blueprint.route("/markets", methods=["GET", "POST"])
-def get_markets():
+@blueprint.route("/partnerGroups", methods=["GET", "POST"])
+def get_partner_groups():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description}
@@ -103,8 +103,8 @@ def get_model_years():
         ]
 
 
-@blueprint.route("/models", methods=["GET", "POST"])
-def get_models():
+@blueprint.route("/vehicleModels", methods=["GET", "POST"])
+def get_vehicle_models():
     with BaseDataSession() as _basedata:
         return [
             {"id": e.Id, "text": e.Description}
