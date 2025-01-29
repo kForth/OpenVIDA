@@ -90,7 +90,7 @@ def get_profiles():
 def get_partner_groups():
     with BaseDataSession() as _basedata:
         return [
-            {"id": e.Id, "text": e.Description}
+            {"id": e.Id, "text": f"{e.Description} ({e.Cid})"}
             for e in _basedata.query(PartnerGroup).all()
         ]
 
