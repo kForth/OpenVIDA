@@ -4,11 +4,8 @@
         class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-3"
     >
         <ul class="list-unstyled ps-0">
-            <li
-                class="mb-1"
-                role="presentation"
-                data-bind="foreach: { data: docsByQual, as: 'el' }"
-            >
+            <!-- ko foreach: { data: docsByQual, as: 'el' } -->
+            <li class="mb-1" role="presentation">
                 <button
                     class="btn btn-toggle d-inline-flex text-start rounded border-0"
                     data-bs-toggle="collapse"
@@ -32,6 +29,7 @@
                     </ul>
                 </div>
             </li>
+            <!-- /ko -->
         </ul>
     </div>
     <div
