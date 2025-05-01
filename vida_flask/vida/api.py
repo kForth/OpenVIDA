@@ -19,11 +19,10 @@ from vida_py.basedata import (
     VehicleProfile,
 )
 from vida_py.diag import Session as DiagSession
-from vida_py.diag import get_valid_profiles_for_selected
+from vida_py.diag import get_valid_profiles_for_selected, get_vin_components
 from vida_py.epc import (
     CatalogueComponents,
     ComponentConditions,
-    ComponentDescriptions,
     Lexicon,
     PartItems,
 )
@@ -62,15 +61,27 @@ def image(filename):
     )
 
 
-@blueprint.route("/profiles_from_vin", methods=["GET", "POST"])
-def get_vin_profiles():
-    vin = request.args.get("vin", None)
+@blueprint.route("/decode_vin/<vin>", methods=["GET", "POST"])
+def decode_vin(vin):
     if not vin:
-        return []
-    # VINDecodeVariant
-    # VINDecodeModel
-    # VINVariantCodes
-    return []
+        return {}
+    with BaseDataSession() as _basedata, DiagSession() as _diag:
+        (
+            model_id,
+            model_str,
+            model_year,
+            engine_id,
+            engine_str,
+            transm_id,
+            transm_str,
+        ) = get_vin_components(_diag, vin)[0]
+        return {
+            "model": {"id": model_id, "text": model_str},
+            "year": {"id": model_year, "text": model_year},
+            "engine": {"id": engine_id, "text": engine_str},
+            "transmission": {"id": transm_id, "text": transm_str},
+        }
+    return {}
 
 
 @blueprint.route("/profiles", methods=["GET", "POST"])
