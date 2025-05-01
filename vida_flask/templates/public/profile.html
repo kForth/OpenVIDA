@@ -10,7 +10,10 @@
           <div class="row g-3">
             <div class="col-12 mb-3">
                 <label for="vin" class="form-label">VIN</label>
-                <input type="text" class="form-control" id="vin" data-bind="value: vinNumber">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="vin" data-bind="value: vinNumber">
+                    <button class="btn btn-primary" id="submitVin" data-bind="click: loadProfileFromVin">Submit</button>
+                </div>
             </div>
             <hr class="mb-3">
             <div class="col-12">
@@ -98,10 +101,21 @@
             self.vinNumber.subscribe(function () {
                 var match = self.vinNumber().match(/^[\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w](\d{6})$/);
                 $("#vin").toggleClass("is-invalid", !match && self.vinNumber().length > 0);
-                if (match) {
-                    // TODO: Update form from VIN
-                }
             });
+
+            self.loadProfileFromVin = function() {
+                $.post(`/Vida/decode_vin/${self.vinNumber()}`, function (resp) {
+                    // TODO: Update form from VIN, this doesn't work yet
+                    self.modelYear(resp.year.id);
+                    self.vehicleModel(resp.model.id);
+                    self.transmission(resp.transmission.id);
+                    self.engine(resp.engine.id);
+                    // self.partnerGroup(resp.partnerGroup);
+                    // self.steering(resp.steering);
+                    // self.bodyStyle(resp.bodyStyle);
+                    // self.specialVehicle(resp.specialVehicle);
+                });
+            };
 
             self.submitProfile = function () {
                 // TODO: Validate and set session profile
