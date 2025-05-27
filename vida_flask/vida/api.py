@@ -2,11 +2,14 @@
 """Public section, including homepage and signup."""
 
 import io
+import os
 import re
 import zipfile
 
+from click import style
 from flask import Blueprint, request, send_file
 from lxml import etree
+from numpy import require
 from sqlalchemy import or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
@@ -29,8 +32,7 @@ from vida_py.epc import (
 from vida_py.epc import Session as EpcSession
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
-from vida_py.service import Document, DocumentProfile, Qualifier
-
+from vida_py.service import Document, DocumentProfile, Qualifier, DocumentLink, DocumentLinkTitle
 from vida_flask import settings
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
@@ -52,6 +54,12 @@ def image(filename):
             )
             .filter(Graphics.id == img.fkGraphic)
             .one()
+        )
+    if request.args.get("AsPage", False):
+        return send_file(
+            io.BytesIO(img.imageData),
+            mimetype=f"image/{img_type.description.lower()}",
+            as_attachment=False,
         )
     return send_file(
         io.BytesIO(img.imageData),
@@ -270,24 +278,61 @@ def documents_by_qualifier(profile):
                 )
     return docs_by_qual
 
-
-@blueprint.route("/docHtml/<chronicle>/", methods=["GET", "POST"])
-def get_document_html(chronicle):
+def get_doc_by_chronicle(chronicle):
     with ServiceRepoSession() as _service:
-        doc = _service.query(Document).filter(Document.chronicleId == chronicle).first()
+        return _service.query(Document).filter(Document.chronicleId == chronicle).first()
+
+def get_doc_by_link(elememt_from):
+    with ServiceRepoSession() as _service:
+        return _service.query(
+            Document
+        ).join(
+            DocumentLinkTitle, DocumentLinkTitle.fkDocument == Document.id
+        ).join(
+            DocumentLink, DocumentLink.elementTo == DocumentLinkTitle.element
+        ).filter(
+            DocumentLink.elementFrom == elememt_from
+        ).first()
+
+@blueprint.route("/document/<chronicle>/", methods=["GET", "POST"])
+def get_document_html(chronicle):
+    doc = get_doc_by_chronicle(chronicle)
     if doc is None:
         return None
+    return doc_to_html(doc)
 
+@blueprint.route("/doclink/<element>/", methods=["GET", "POST"])
+def get_doclink_html(element):
+    doc = get_doc_by_link(element)
+    if doc is None:
+        return None
+    return doc_to_html(doc)
+
+def doc_to_html(doc):
     # Extract xml file from zip
     with zipfile.ZipFile(io.BytesIO(doc.XmlContent)) as _zip:
         dom = etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
 
     # Transform xml doc using xslt template
-    xslt = etree.parse(settings.VIDA_XSL_PATH)
+    docType = doc.fkDocumentType
+    stylesheet = "servinfo.xsl"
+    if docType == 2:
+      if doc.conditionType == "special_tool":
+        stylesheet = "specialtool.xsl"
+    elif docType == 4 or docType == 5:
+        if doc.conditionType == "condition":
+            stylesheet = "diagcondition.xsl"
+        elif doc.conditionType == "test":
+            stylesheet = "diagtest.xsl"
+    elif docType == 6:
+        stylesheet = "bulletin.xsl"
+    elif docType == 7:
+        stylesheet = "installationinstr.xsl"
+    xslt = etree.parse(os.path.join(settings.VIDA_XSL_PATH, stylesheet))
     transform = etree.XSLT(xslt)
     html_dom = transform(dom)
 
-    # Add classes to all elements of a type
+    # Add default classes to all elements of a type
     for t, c in (("table", "table table-borderless"), ("td", "px-3"), ("img", "w-100")):
         for e in html_dom.xpath(f"//{t}"):
             e.attrib["class"] = f"{e.attrib.get('class', '')} {c}".strip()
@@ -307,10 +352,4 @@ def get_document_html(chronicle):
     ):
         html_str = re.sub(rf"\b{p}\b", r, html_str)
 
-    # Replace javascript functions
-    html_str = re.sub(
-        r"javascript:openLinkDoc\('([\w\d]*)', '([\w\d]*)', '([\w\d]*)', '([\w\d]*)'\)",
-        r"/document/\1",
-        html_str,
-    )
     return html_str

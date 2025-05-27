@@ -10,6 +10,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    url_for,
 )
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
@@ -35,7 +36,7 @@ from vida_py.epc import Session as EpcSession
 from vida_py.images import LocalizedGraphics
 from vida_py.images import Session as ImageRepoSession
 
-from vida_flask.vida.api import get_document_html
+from vida_flask.vida.api import get_doc_by_link, get_document_html
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -203,5 +204,11 @@ def document(chronicle):
     doc_html = get_document_html(chronicle)
     if doc_html is None:
         return abort(404)
-
     return render_template("public/document.html", content=doc_html)
+
+@blueprint.route("/doclink/<element>/")
+def document2(element):
+    doc = get_doc_by_link(element)
+    if doc is None:
+        return abort(404)
+    return redirect(url_for("public.document", chronicle=doc.chronicleId))
