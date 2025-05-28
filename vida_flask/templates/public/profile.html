@@ -1,59 +1,121 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
     <div class="row g-5 py-2">
-      <div class="col-md-5 col-lg-4 order-md-last">
-        <img />
-      </div>
-      <div class="col-md-7 col-lg-8">
-        <h4 class="mb-3">Vehicle Profile</h4>
-        <form onsubmit="return false;">
-          <div class="row g-3">
-            <div class="col-12 mb-3">
-                <label for="vin" class="form-label">VIN</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="vin" data-bind="value: vinNumber">
-                    <button class="btn btn-primary" id="submitVin" data-bind="click: loadProfileFromVin">Submit</button>
+        <div class="col-md-5 col-lg-4 order-md-last">
+            <img />
+        </div>
+        <div class="col-md-7 col-lg-8">
+            <h4 class="mb-3">Vehicle Profile</h4>
+            <form onsubmit="return false;">
+                <div class="row g-3">
+                    <div class="col-12 mb-3">
+                        <label for="vin" class="form-label">VIN</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="vin"
+                                data-bind="value: vinNumber"
+                            />
+                            <button
+                                class="btn btn-primary"
+                                id="submitVin"
+                                data-bind="click: loadProfileFromVin"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                    <hr class="mb-3" />
+                    <div class="col-12">
+                        <label for="partnerGroup" class="form-label"
+                            >Partner Group</label
+                        >
+                        <select
+                            class="form-control"
+                            id="partnerGroup"
+                            data-bind="value: partnerGroup, options: partnerGroupOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="vehicleModel" class="form-label"
+                            >Model</label
+                        >
+                        <select
+                            class="form-control"
+                            id="vehicleModel"
+                            data-bind="value: vehicleModel, options: vehicleModelOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="modelYear" class="form-label"
+                            >Model Year</label
+                        >
+                        <select
+                            class="form-control"
+                            id="modelYear"
+                            data-bind="value: modelYear, options: modelYearOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="engine" class="form-label">Engine</label>
+                        <select
+                            class="form-control"
+                            id="engine"
+                            data-bind="value: engine, options: engineOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="transmission" class="form-label"
+                            >Transmission</label
+                        >
+                        <select
+                            class="form-control"
+                            id="transmission"
+                            data-bind="value: transmission, options: transmissionOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="steering" class="form-label"
+                            >Steering</label
+                        >
+                        <select
+                            class="form-control"
+                            id="steering"
+                            data-bind="value: steering, options: steeringOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="bodyStyle" class="form-label"
+                            >Body Style</label
+                        >
+                        <select
+                            class="form-control"
+                            id="bodyStyle"
+                            data-bind="value: bodyStyle, options: bodyStyleOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="specialVehicle" class="form-label"
+                            >Special Vehicle</label
+                        >
+                        <select
+                            class="form-control"
+                            id="specialVehicle"
+                            data-bind="value: specialVehicle, options: specialVehicleOptions, optionsValue: 'id', optionsText: 'text'"
+                        ></select>
+                    </div>
+                    <div class="col-12 col-sm-4 offset-sm-8">
+                        <button
+                            class="btn btn-primary w-100"
+                            data-bind="click: submitProfile"
+                        >
+                            Submit
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <hr class="mb-3">
-            <div class="col-12">
-                <label for="partnerGroup" class="form-label">Partner Group</label>
-                <select class="form-control" id="partnerGroup" data-bind="value: partnerGroup, options: partnerGroupOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-6">
-              <label for="vehicleModel" class="form-label">Model</label>
-              <select class="form-control" id="vehicleModel" data-bind="value: vehicleModel, options: vehicleModelOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-6">
-              <label for="modelYear" class="form-label">Model Year</label>
-              <select class="form-control" id="modelYear" data-bind="value: modelYear, options: modelYearOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-6">
-              <label for="engine" class="form-label">Engine</label>
-              <select class="form-control" id="engine" data-bind="value: engine, options: engineOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-6">
-              <label for="transmission" class="form-label">Transmission</label>
-              <select class="form-control" id="transmission" data-bind="value: transmission, options: transmissionOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-4">
-              <label for="steering" class="form-label">Steering</label>
-              <select class="form-control" id="steering" data-bind="value: steering, options: steeringOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-4">
-              <label for="bodyStyle" class="form-label">Body Style</label>
-              <select class="form-control" id="bodyStyle" data-bind="value: bodyStyle, options: bodyStyleOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-sm-4">
-              <label for="specialVehicle" class="form-label">Special Vehicle</label>
-              <select class="form-control" id="specialVehicle" data-bind="value: specialVehicle, options: specialVehicleOptions, optionsValue: 'id', optionsText: 'text'"></select>
-            </div>
-            <div class="col-12 col-sm-4 offset-sm-8">
-                <button class="btn btn-primary w-100" data-bind="click: submitProfile">Submit</button>
-            </div>
-          </div>
-        </form>
-      </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %} {% block js %}
@@ -79,37 +141,108 @@
             self.bodyStyle = ko.observable(null);
             self.specialVehicle = ko.observable(null);
 
-            self.partnerGroupOptions = ko.observableArray([{id: null, text: ""}]);
-            self.vehicleModelOptions = ko.observableArray([{id: null, text: ""}]);
-            self.modelYearOptions = ko.observableArray([{id: null, text: ""}]);
-            self.engineOptions = ko.observableArray([{id: null, text: ""}]);
-            self.transmissionOptions = ko.observableArray([{id: null, text: ""}]);
-            self.steeringOptions = ko.observableArray([{id: null, text: ""}]);
-            self.bodyStyleOptions = ko.observableArray([{id: null, text: ""}]);
-            self.specialVehicleOptions = ko.observableArray([{id: null, text: ""}]);
+            self.partnerGroupOptions = ko.observableArray([
+                { id: null, text: "" },
+            ]);
+            self.vehicleModelOptions = ko.observableArray([
+                { id: null, text: "" },
+            ]);
+            self.modelYearOptions = ko.observableArray([
+                { id: null, text: "" },
+            ]);
+            self.engineOptions = ko.observableArray([{ id: null, text: "" }]);
+            self.transmissionOptions = ko.observableArray([
+                { id: null, text: "" },
+            ]);
+            self.steeringOptions = ko.observableArray([{ id: null, text: "" }]);
+            self.bodyStyleOptions = ko.observableArray([
+                { id: null, text: "" },
+            ]);
+            self.specialVehicleOptions = ko.observableArray([
+                { id: null, text: "" },
+            ]);
 
-            self.pushAll = function (arr1, arr2) { for(let e of arr2) { arr1.push(e); } }
-            $.get("/Vida/partnerGroups", (resp) => self.pushAll(self.partnerGroupOptions, resp));
-            $.get("/Vida/vehicleModels", (resp) => self.pushAll(self.vehicleModelOptions, resp));
-            $.get("/Vida/modelYears", (resp) => self.pushAll(self.modelYearOptions, resp));
-            $.get("/Vida/engines", (resp) => self.pushAll(self.engineOptions, resp));
-            $.get("/Vida/transmissions", (resp) => self.pushAll(self.transmissionOptions, resp));
-            $.get("/Vida/steerings", (resp) => self.pushAll(self.steeringOptions, resp));
-            $.get("/Vida/bodyStyles", (resp) => self.pushAll(self.bodyStyleOptions, resp));
-            $.get("/Vida/specialVehicles", (resp) => self.pushAll(self.specialVehicleOptions, resp));
+            self.pushAll = function (arr1, arr2) {
+                for (let e of arr2) {
+                    arr1.push(e);
+                }
+            };
+            $.get("/Vida/partnerGroups", (resp) =>
+                self.pushAll(self.partnerGroupOptions, resp)
+            );
+            $.get("/Vida/vehicleModels", (resp) =>
+                self.pushAll(self.vehicleModelOptions, resp)
+            );
+            $.get("/Vida/modelYears", (resp) =>
+                self.pushAll(self.modelYearOptions, resp)
+            );
+            $.get("/Vida/engines", (resp) =>
+                self.pushAll(self.engineOptions, resp)
+            );
+            $.get("/Vida/transmissions", (resp) =>
+                self.pushAll(self.transmissionOptions, resp)
+            );
+            $.get("/Vida/steerings", (resp) =>
+                self.pushAll(self.steeringOptions, resp)
+            );
+            $.get("/Vida/bodyStyles", (resp) =>
+                self.pushAll(self.bodyStyleOptions, resp)
+            );
+            $.get("/Vida/specialVehicles", (resp) =>
+                self.pushAll(self.specialVehicleOptions, resp)
+            );
 
             self.vinNumber.subscribe(function () {
-                var match = self.vinNumber().match(/^[\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w](\d{6})$/);
-                $("#vin").toggleClass("is-invalid", !match && self.vinNumber().length > 0);
+                var match = self
+                    .vinNumber()
+                    .match(
+                        /^[\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w][\d\w](\d{6})$/
+                    );
+                $("#vin").toggleClass(
+                    "is-invalid",
+                    !match && self.vinNumber().length > 0
+                );
             });
 
-            self.loadProfileFromVin = function() {
+            self.loadProfileFromVin = function () {
                 $.post(`/Vida/decode_vin/${self.vinNumber()}`, function (resp) {
                     // TODO: Update form from VIN, this doesn't work yet
-                    self.modelYear(resp.year.id);
-                    self.vehicleModel(resp.model.id);
-                    self.transmission(resp.transmission.id);
-                    self.engine(resp.engine.id);
+                    console.log(resp);
+                    if (resp.year.id == null) self.modelYear(null);
+                    else
+                        self.modelYearOptions().forEach((e) => {
+                            if (e.text == resp.year.text) {
+                                console.log(e);
+                                self.modelYear(e.id);
+                            }
+                        });
+
+                    if (resp.model.id == null) self.vehicleModel(null);
+                    else
+                        self.vehicleModelOptions().forEach((e) => {
+                            if (e.text == resp.model.text) {
+                                console.log(e);
+                                self.vehicleModel(e.id);
+                            }
+                        });
+
+                    if (resp.transmission.id == null) self.transmission(null);
+                    else
+                        self.transmissionOptions().forEach((e) => {
+                            if (e.text == resp.transmission.text) {
+                                console.log(e);
+                                self.transmission(e.id);
+                            }
+                        });
+
+                    if (resp.engine.id == null) self.engine(null);
+                    else
+                        self.engineOptions().forEach((e) => {
+                            if (e.text == resp.engine.text) {
+                                self.engine(e.id);
+                            }
+                        });
+
                     // self.partnerGroup(resp.partnerGroup);
                     // self.steering(resp.steering);
                     // self.bodyStyle(resp.bodyStyle);
@@ -119,20 +252,26 @@
 
             self.submitProfile = function () {
                 // TODO: Validate and set session profile
-                console.log(
-                    self.partnerGroup(),
-                    self.vehicleModel(),
-                    self.modelYear(),
-                    self.engine(),
-                    self.transmission(),
-                    self.steering(),
-                    self.bodyStyle(),
-                    self.specialVehicle(),
-                )
+                let data = {
+                    fkPartnerGroup: self.partnerGroup(),
+                    fkVehicleModel: self.vehicleModel(),
+                    fkModelYear: self.modelYear(),
+                    fkEngine: self.engine(),
+                    fkTransmission: self.transmission(),
+                    fkSteering: self.steering(),
+                    fkBodyStyle: self.bodyStyle(),
+                    fkSpecialVehicle: self.specialVehicle(),
+                };
+                $.ajax({
+                    url: "/Vida/profiles",
+                    data: data,
+                    sucess: console.log,
+                });
             };
         }
     }
 
-    ko.applyBindings(new ProfileViewModel());
+    const model = new ProfileViewModel();
+    ko.applyBindings(model);
 </script>
 {% endblock %}

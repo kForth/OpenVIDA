@@ -6,10 +6,8 @@ import os
 import re
 import zipfile
 
-from click import style
 from flask import Blueprint, request, send_file
 from lxml import etree
-from numpy import require
 from sqlalchemy import or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
@@ -23,16 +21,18 @@ from vida_py.basedata import (
 )
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected, get_vin_components
-from vida_py.epc import (
-    CatalogueComponents,
-    ComponentConditions,
-    Lexicon,
-    PartItems,
-)
+from vida_py.epc import CatalogueComponents, ComponentConditions, Lexicon, PartItems
 from vida_py.epc import Session as EpcSession
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
-from vida_py.service import Document, DocumentProfile, Qualifier, DocumentLink, DocumentLinkTitle
+from vida_py.service import (
+    Document,
+    DocumentLink,
+    DocumentLinkTitle,
+    DocumentProfile,
+    Qualifier,
+)
+
 from vida_flask import settings
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
@@ -73,7 +73,7 @@ def image(filename):
 def decode_vin(vin):
     if not vin:
         return {}
-    with BaseDataSession() as _basedata, DiagSession() as _diag:
+    with DiagSession() as _diag:
         (
             model_id,
             model_str,
@@ -95,13 +95,58 @@ def decode_vin(vin):
 @blueprint.route("/profiles", methods=["GET", "POST"])
 def get_profiles():
     with BaseDataSession() as _basedata:
-        profiles = (
-            _basedata.query(VehicleProfile)
-            .filter_by(**{k: v for k, v in request.args.items() if v is not None})
-            .all()
-        )
+        query = _basedata.query(VehicleProfile)
+        if (val := request.args.get("fkPartnerGroup", None)) is not None:
+            query = query.filter(
+                or_(
+                    VehicleProfile.fkPartnerGroup == val,
+                    VehicleProfile.fkPartnerGroup == None,
+                )
+            )
+        if (val := request.args.get("fkVehicleModel", None)) is not None:
+            query = query.filter(
+                or_(
+                    VehicleProfile.fkVehicleModel == val,
+                    VehicleProfile.fkVehicleModel == None,
+                )
+            )
+        if (val := request.args.get("fkModelYear", None)) is not None:
+            query = query.filter(
+                or_(VehicleProfile.fkModelYear == val, VehicleProfile.fkModelYear == None)
+            )
+        if (val := request.args.get("fkEngine", None)) is not None:
+            query = query.filter(
+                or_(VehicleProfile.fkEngine == val, VehicleProfile.fkEngine == None)
+            )
+        if (val := request.args.get("fkTransmission", None)) is not None:
+            query = query.filter(
+                or_(
+                    VehicleProfile.fkTransmission == val,
+                    VehicleProfile.fkTransmission == None,
+                )
+            )
+        if (val := request.args.get("fkSteering", None)) is not None:
+            query = query.filter(
+                or_(VehicleProfile.fkSteering == val, VehicleProfile.fkSteering == None)
+            )
+        if (val := request.args.get("fkBodyStyle", None)) is not None:
+            query = query.filter(
+                or_(VehicleProfile.fkBodyStyle == val, VehicleProfile.fkBodyStyle == None)
+            )
+        if (val := request.args.get("fkSpecialVehicle", None)) is not None:
+            query = query.filter(
+                or_(
+                    VehicleProfile.fkSpecialVehicle == val,
+                    VehicleProfile.fkSpecialVehicle == None,
+                )
+            )
+        # profiles = (
+        #     _basedata.query(VehicleProfile)
+        #     .filter_by(**{k: v for k, v in request.args.items() if v is not None})
+        #     .all()
+        # )
         return [
-            {c.name: getattr(e, c.name) for c in e.__table__.columns} for e in profiles
+            {c.name: getattr(e, c.name) for c in e.__table__.columns} for e in query.all()
         ]
 
 
