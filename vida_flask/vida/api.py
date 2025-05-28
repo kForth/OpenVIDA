@@ -218,6 +218,47 @@ def get_special_vehicles():
             for e in _basedata.query(SpecialVehicle).all()
         ]
 
+@blueprint.route("/parts")
+def get_parts_list():
+    language = request.args.get("language") or 15
+    with EpcSession() as _epc:
+        return [
+            {
+                "id": comp.Id,
+                "path": comp.ComponentPath,
+                "sequence": comp.SequenceId,
+                "text": desc.Description
+            }
+            for comp, desc in (
+                _epc.query(CatalogueComponents, Lexicon)
+                .outerjoin(Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId)
+                .filter(CatalogueComponents.AssemblyLevel == 1, CatalogueComponents.TypeId == 2, Lexicon.fkLanguage == 15)
+                .order_by(CatalogueComponents.SequenceId)
+                .all()
+            )
+        ]
+
+@blueprint.route("/partsByPath")
+@blueprint.route("/partsByPath/<path>")
+def get_parts_by_path(path=None):
+    language = request.args.get("language") or 15
+    print(path)
+    with EpcSession() as _epc:
+        return [
+            {
+                "id": comp.Id,
+                "path": comp.ComponentPath,
+                "sequence": comp.SequenceId,
+                "text": desc.Description,
+            }
+            for comp, desc in (
+                _epc.query(CatalogueComponents, Lexicon)
+                .outerjoin(Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId)
+                .filter(CatalogueComponents.TypeId == 2, Lexicon.fkLanguage == 15, CatalogueComponents.ComponentPath.like(path + ",%"))
+                .order_by(CatalogueComponents.SequenceId)
+                .all()
+            )
+        ]
 
 # TODO: getPartProfiles:
 # (

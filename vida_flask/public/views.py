@@ -2,6 +2,7 @@
 """Public section, including homepage and signup."""
 
 
+from functools import reduce
 from flask import (
     Blueprint,
     abort,
@@ -104,10 +105,10 @@ def part_info(partnumber, language=15):
         desc_lex = aliased(Lexicon)
         parent_desc = aliased(ComponentDescriptions)
         comp_desc = aliased(ComponentDescriptions)
-        components = (  # profile, component, desc1, desc2, attachment
+        components = (  # component, profile, desc1, desc2, attachment
             _epc.query(
-                ComponentConditions.fkProfile,
                 CatalogueComponents,
+                ComponentConditions.fkProfile,
                 parent_lex,
                 desc_lex,
                 AttachmentData.Code,
@@ -156,6 +157,18 @@ def part_info(partnumber, language=15):
             .order_by(CatalogueComponents.Id)
             .all()
         )
+        _components = {}
+        for component, profile, desc1, desc2, attachment in components:
+            if component.Id not in _components:
+                _components[component.Id] = {
+                    "component": component,
+                    "descriptions": {desc1, desc2},
+                    "profiles": [profile],
+                }
+            else:
+                _components[component.Id]["descriptions"].add(desc1, desc2)
+                _components[component.Id]["profiles"].add(profile)
+        print(_components)
         profiles = {
             e.Id: e
             for e in _basedata.query(VehicleProfile)
