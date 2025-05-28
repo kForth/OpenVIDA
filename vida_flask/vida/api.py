@@ -34,6 +34,7 @@ from vida_py.service import (
 )
 
 from vida_flask import settings
+from vida_flask.xslt_extension.table_xslt_extension import TableXsltExtension
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
 
@@ -360,6 +361,12 @@ def doc_to_html(doc):
     # Extract xml file from zip
     with zipfile.ZipFile(io.BytesIO(doc.XmlContent)) as _zip:
         dom = etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
+
+    ext = TableXsltExtension()
+    ns = etree.FunctionNamespace(
+        "xalan://com.ford.vcc.vida.web.xsltextension.TableXsltExtension"
+    )
+    ns["getTableNodes"] = ext.get_table_nodes
 
     # Transform xml doc using xslt template
     doc_type = doc.fkDocumentType
