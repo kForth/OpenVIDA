@@ -2,17 +2,17 @@
 -r prod.txt
 
 # Testing
-factory-boy==3.3.1
-pytest==8.3.4
-pytest-cov==6.0.0
-WebTest==3.0.3
+factory-boy
+pytest
+pytest-cov
+WebTest
 
 # Lint and code style
-black==24.10.0
-flake8-blind-except==0.2.1
-flake8-debugger==4.1.2
-flake8-docstrings==1.7.0
-flake8-isort==6.1.1
-flake8==7.1.1
-isort==6.0.0
-pep8-naming==0.14.1
+black
+flake8-blind-except
+flake8-debugger
+flake8-docstrings
+flake8-isort
+flake8
+isort
+pep8-naming
