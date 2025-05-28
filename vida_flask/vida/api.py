@@ -323,21 +323,22 @@ def documents_by_qualifier(profile):
                 )
     return docs_by_qual
 
+
 def get_doc_by_chronicle(chronicle):
     with ServiceRepoSession() as _service:
         return _service.query(Document).filter(Document.chronicleId == chronicle).first()
 
+
 def get_doc_by_link(elememt_from):
     with ServiceRepoSession() as _service:
-        return _service.query(
-            Document
-        ).join(
-            DocumentLinkTitle, DocumentLinkTitle.fkDocument == Document.id
-        ).join(
-            DocumentLink, DocumentLink.elementTo == DocumentLinkTitle.element
-        ).filter(
-            DocumentLink.elementFrom == elememt_from
-        ).first()
+        return (
+            _service.query(Document)
+            .join(DocumentLinkTitle, DocumentLinkTitle.fkDocument == Document.id)
+            .join(DocumentLink, DocumentLink.elementTo == DocumentLinkTitle.element)
+            .filter(DocumentLink.elementFrom == elememt_from)
+            .first()
+        )
+
 
 @blueprint.route("/document/<chronicle>/", methods=["GET", "POST"])
 def get_document_html(chronicle):
@@ -346,6 +347,7 @@ def get_document_html(chronicle):
         return None
     return doc_to_html(doc)
 
+
 @blueprint.route("/doclink/<element>/", methods=["GET", "POST"])
 def get_doclink_html(element):
     doc = get_doc_by_link(element)
@@ -353,26 +355,28 @@ def get_doclink_html(element):
         return None
     return doc_to_html(doc)
 
+
 def doc_to_html(doc):
     # Extract xml file from zip
     with zipfile.ZipFile(io.BytesIO(doc.XmlContent)) as _zip:
         dom = etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
 
     # Transform xml doc using xslt template
-    docType = doc.fkDocumentType
+    doc_type = doc.fkDocumentType
     stylesheet = "servinfo.xsl"
-    if docType == 2:
-      if doc.conditionType == "special_tool":
-        stylesheet = "specialtool.xsl"
-    elif docType == 4 or docType == 5:
+    if doc_type == 2:
+        if doc.conditionType == "special_tool":
+            stylesheet = "specialtool.xsl"
+    elif doc_type in {4, 5}:
         if doc.conditionType == "condition":
             stylesheet = "diagcondition.xsl"
         elif doc.conditionType == "test":
             stylesheet = "diagtest.xsl"
-    elif docType == 6:
+    elif doc_type == 6:
         stylesheet = "bulletin.xsl"
-    elif docType == 7:
+    elif doc_type == 7:
         stylesheet = "installationinstr.xsl"
+
     xslt = etree.parse(os.path.join(settings.VIDA_XSL_PATH, stylesheet))
     transform = etree.XSLT(xslt)
     html_dom = transform(dom)
