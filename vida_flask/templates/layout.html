@@ -78,10 +78,7 @@
     <body class="{% block body_class %}d-flex flex-column h-100{% endblock %}">
         {% include "color_mode.html" %} {% block body %} {% include "nav.html"
         %}
-
-        <header>{% block header %}{% endblock %}</header>
-
-        <main role="main" class="flex-shrink-0">
+        <main role="main" class="d-flex flex-column flex-fill">
             {% with messages = get_flashed_messages(with_categories=true) %} {%
             if messages %}
             <div class="row">

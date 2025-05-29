@@ -1,21 +1,22 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container-fluid d-flex flex-nowrap overflow-none px-0">
-    <div
-        class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-3"
-    >
-        <ul class="list-unstyled ps-0">
-            <!-- ko foreach: { data: docsByQual, as: 'el' } -->
-            <li class="mb-1" role="presentation">
+<div class="d-flex flex-column flex-fill container-fluid overflow-none px-0">
+    <div class="accordion" id="documentAccordion">
+        <!-- ko foreach: { data: docsByQual, as: 'el' } -->
+        <div class="accordion-item mb-1">
+            <h2 class="accordion-header" id="headingOne">
                 <button
-                    class="btn btn-toggle d-inline-flex text-start rounded border-0"
+                    class="accordion-button collapsed"
+                    type="button"
                     data-bs-toggle="collapse"
-                    aria-expanded="false"
                     data-bind="text: `${el.qual.title} (${el.docs.length})`, attr: { 'data-bs-target': `#qual-${el.qual.id}-collapse` }"
                 ></button>
-                <div
-                    class="collapse"
-                    data-bind="attr: { id: `qual-${el.qual.id}-collapse` }"
-                >
+            </h2>
+            <div
+                class="accordion-collapse collapse"
+                data-bs-parent="#documentAccordion"
+                data-bind="attr: {'id': `qual-${el.qual.id}-collapse` }"
+            >
+                <div class="accordion-body">
                     <ul
                         class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
                         data-bind="foreach: { data: el.docs, as: 'doc' }"
@@ -23,19 +24,15 @@
                         <li>
                             <a
                                 class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                data-bind="text: doc.title, attr: { 'href': `/document/${doc.chronicleId}/` }, click: $root.onDocLinkClick"
+                                data-bind="text: doc.title, attr: { 'href': `/document/${doc.chronicleId}/` }"
                             ></a>
                         </li>
                     </ul>
                 </div>
-            </li>
-            <!-- /ko -->
-        </ul>
+            </div>
+        </div>
+        <!-- /ko -->
     </div>
-    <div
-        class="d-flex flex-column w-100 vh-100 overflow-y-auto"
-        id="docContent"
-    ></div>
 </div>
 {% endblock %} {% block js%}
 <script type="text/javascript">
@@ -52,20 +49,6 @@
             });
 
             self.docsByQual = ko.observableArray();
-
-            self.onDocLinkClick = function (doc, e) {
-                if (e.ctrlKey || e.which == 2 || e.button == 4)
-                    window.open($(e.target).attr("href"), "_blank").focus();
-                else {
-                    $.ajax({
-                        url: `/Vida/document/${doc.chronicleId}/`,
-                        method: "GET",
-                        success: (resp) => {
-                            $("#docContent").html(resp);
-                        },
-                    });
-                }
-            };
 
             self.refreshDocs = function () {
                 $.ajax({
