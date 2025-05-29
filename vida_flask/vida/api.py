@@ -6,9 +6,9 @@ import os
 import re
 import zipfile
 
-from flask import Blueprint, request, send_file
+from flask import Blueprint, abort, request, send_file
 from lxml import etree
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
@@ -18,6 +18,9 @@ from vida_py.basedata import (
     Transmission,
     VehicleModel,
     VehicleProfile,
+    VINDecodeModel,
+    VINDecodeVariant,
+    get_vin_components_by_partner_group_id
 )
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected, get_vin_components
@@ -70,27 +73,44 @@ def image(filename):
     )
 
 
-@blueprint.route("/decode_vin/<vin>", methods=["GET", "POST"])
-def decode_vin(vin):
-    if not vin:
-        return {}
-    with DiagSession() as _diag:
-        (
-            model_id,
-            model_str,
-            model_year,
-            engine_id,
-            engine_str,
-            transm_id,
-            transm_str,
-        ) = get_vin_components(_diag, vin)[0]
-        return {
-            "model": {"id": model_id, "text": model_str},
-            "year": {"id": model_year, "text": model_year},
-            "engine": {"id": engine_id, "text": engine_str},
-            "transmission": {"id": transm_id, "text": transm_str},
-        }
-    return {}
+@blueprint.route("/decode_vin/")
+def decode_vin():
+    vin = request.args.get('vinNumber', False)
+    partnerGroup = int(request.args.get('partnerGroup', 1001))
+    if not vin or len(vin) != 17:
+        return abort(400)
+
+    with BaseDataSession() as _basedata:
+        profiles = get_vin_components_by_partner_group_id(_basedata, vin, partnerGroup)
+
+    if not profiles:
+        return abort(404)
+    (
+        model_id,
+        model_cid,
+        image_path,
+        year_id,
+        body_id,
+        engine_id,
+        transm_id,
+        model_desc,
+        year_desc,
+        body_desc,
+        engine_desc,
+        transm_desc,
+        year_cid,
+        engine_cid,
+        transm_cid
+    ) = profiles[0]
+    return {
+        "image": image_path,
+        "chassis": vin[-6:],
+        "model": model_id,
+        "year": year_id,
+        "engine": engine_id,
+        "transmission": transm_id,
+        "body": body_id,
+    }
 
 
 @blueprint.route("/profiles", methods=["GET", "POST"])
@@ -141,14 +161,11 @@ def get_profiles():
                     VehicleProfile.fkSpecialVehicle == None,
                 )
             )
-        # profiles = (
-        #     _basedata.query(VehicleProfile)
-        #     .filter_by(**{k: v for k, v in request.args.items() if v is not None})
-        #     .all()
-        # )
-        return [
-            {c.name: getattr(e, c.name) for c in e.__table__.columns} for e in query.all()
-        ]
+
+        profile = query.order_by(
+            -VehicleProfile.FolderLevel
+        ).first()
+        return {c.name: getattr(profile, c.name) for c in profile.__table__.columns}
 
 
 @blueprint.route("/partnerGroups", methods=["GET", "POST"])
