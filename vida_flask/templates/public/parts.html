@@ -4,25 +4,28 @@
         class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-3"
     >
         <script type="text/html" id="node">
-        <li class="mb-1" role="presentation">
-            <button
-                class="btn btn-toggle d-inline-flex text-start rounded border-0"
-                data-bs-toggle="collapse"
-                aria-expanded="false"
-                data-bind="text: text, attr: { 'data-bs-target': `#part-${$data.id()}-collapse` }, click: $root.loadChildren"
-            ></button>
-            <div
-                class="collapse"
-                data-bind="attr: { id: `part-${$data.id()}-collapse` }"
-            >
-                <ul
-                    class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
-                    data-bind="template: { name: 'node', foreach: $data.children }"
-                ></ul>
-            </div>
-        </li>
+            <li class="mb-1" role="presentation">
+                <button
+                    class="btn btn-toggle d-inline-flex text-start rounded border-0"
+                    data-bs-toggle="collapse"
+                    aria-expanded="false"
+                    data-bind="text: text, attr: { 'data-bs-target': `#part-${$data.id()}-collapse` }, click: $root.loadChildren"
+                ></button>
+                <div
+                    class="collapse"
+                    data-bind="attr: { id: `part-${$data.id()}-collapse` }"
+                >
+                    <ul
+                        class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
+                        data-bind="template: { name: 'node', foreach: $data.children }"
+                    ></ul>
+                </div>
+            </li>
         </script>
-        <ul class="list-unstyled ps-0" data-bind="template: { name: 'node', foreach: partsTree }"></ul>
+        <ul
+            class="list-unstyled ps-0"
+            data-bind="template: { name: 'node', foreach: partsTree }"
+        ></ul>
     </div>
     <div
         class="d-flex flex-column w-100 vh-100 overflow-y-auto"
@@ -31,14 +34,15 @@
 </div>
 {% endblock %} {% block js%}
 <script type="text/javascript">
-
-    function imgSize() { }
+    function imgSize() {}
 
     class PartsViewModel {
-        constructor () {
+        constructor() {
             var self = this;
 
-            self.selectedProfile = ko.observable(sessionStorage.getItem("selectedProfile"));
+            self.selectedProfile = ko.observable(
+                sessionStorage.getItem("selectedProfile")
+            );
             self.selectedProfile.subscribe((v) => {
                 sessionStorage.setItem("selectedProfile", v);
                 self.refreshParts();
@@ -47,47 +51,48 @@
             self.partsTree = ko.observableArray();
 
             self.onPartLinkClick = function (doc, e) {
-                {# if (e.ctrlKey || e.which == 2 || e.button == 4)
-                    window.open($(e.target).attr("href"), '_blank').focus();
-                else {
-                    $.ajax({
-                        url: `/Vida/partHtml/${doc.chronicleId}/`,
-                        method: 'GET',
-                        success: resp => {
-                            $("#partContent").html(resp)
-                        }
-                    })
-                } #}
+                //if (e.ctrlKey || e.which == 2 || e.button == 4)
+                //    window.open($(e.target).attr("href"), '_blank').focus();
+                //else {
+                //    $.ajax({
+                //        url: `/Vida/partHtml/${doc.chronicleId}/`,
+                //        method: 'GET',
+                //        success: resp => {
+                //            $("#partContent").html(resp)
+                //        }
+                //    })
+                //}
             };
 
             self.refreshParts = function () {
                 $.ajax({
-                    // url: `/Vida/partsForProfile/${self.selectedProfile()}`,
                     url: `/Vida/parts`,
-                    method: "get",
-                    success: resp => {
+                    success: (resp) => {
                         var tree = [];
-                        for (let e of resp){
+                        for (let e of resp) {
                             let obj = ko.mapping.fromJS(e);
                             obj.children = ko.observableArray([]);
                             tree.push(obj);
                         }
                         self.partsTree(tree);
-                    }
+                    },
                 });
-            }
+            };
             self.refreshParts();
 
-            self.pushAll = function (arr1, arr2) { for(let e of arr2) { arr1.push(ko.observable(e)); } }
+            self.pushAll = function (arr1, arr2) {
+                for (let e of arr2) {
+                    arr1.push(ko.observable(e));
+                }
+            };
             self.loadChildren = function (e) {
                 console.log(e.path());
-                if (e.children.length)
-                    return;
+                if (e.children.length) return;
                 $.get(`/Vida/partsByPath/${e.path()}`, function (resp) {
                     console.log("E", e);
                     console.log("partsByPath resp", resp);
                     let children = [];
-                    for (let e of resp){
+                    for (let e of resp) {
                         let obj = ko.mapping.fromJS(e);
                         obj.children = ko.observableArray([]);
                         children.push(obj);
