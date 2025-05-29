@@ -6,7 +6,7 @@ import os
 import re
 import zipfile
 
-from flask import Blueprint, abort, request, send_file
+from flask import Blueprint, abort, request, send_file, url_for
 from lxml import etree
 from sqlalchemy import func, or_
 from vida_py import ServiceRepoSession
@@ -34,6 +34,7 @@ from vida_py.service import (
     DocumentLinkTitle,
     DocumentProfile,
     Qualifier,
+    Resource,
 )
 
 from vida_flask import settings
@@ -342,6 +343,27 @@ def parts_for_profile(profile, language=15):
                 _parts[comp.Id]["profiles"].append(cond.fkProfile)
 
     return list(_parts.values())
+
+@blueprint.route("/resources/")
+def resources():
+    with ServiceRepoSession() as _service:
+        res = _service.query(Resource).all()
+        return [
+            {
+                "id": doc.id,
+                "filename": doc.filename,
+                "type": doc.type.Title,
+                "url": url_for('api.resource_file', id_=doc.id)
+            }
+            for doc in res
+        ]
+
+@blueprint.route("/resource/<int:id_>")
+def resource_file(id_):
+    with ServiceRepoSession() as _service:
+        doc = _service.query(Resource).filter(Resource.id == id_).first()
+
+        return send_file(io.BytesIO(doc.ResourceData), "pdf", download_name=doc.filename)
 
 
 @blueprint.route("/docsByQual/<profile>", methods=["GET", "POST"])

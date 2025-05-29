@@ -207,6 +207,11 @@ def part_info(partnumber, language=15):
     )
 
 
+@blueprint.route("/resources/")
+def resources():
+    return render_template("public/resources.html")
+
+
 @blueprint.route("/documents/")
 def documents():
     return render_template("public/documents.html")

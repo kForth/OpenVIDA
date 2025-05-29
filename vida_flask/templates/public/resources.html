@@ -1,0 +1,52 @@
+{% extends "layout.html" %} {% block content %}
+<div class="d-flex flex-column flex-fill container-fluid overflow-none px-0">
+    <div class="col-12 row p-2">
+        <div class="col-3"><h3>Resource:</h3></div>
+        <div class="col-9">
+            <select
+                class="form-control"
+                data-bind="value: selectedResourcePath,
+            options: resources, optionsText: 'filename', optionsValue: 'url'"
+            ></select>
+        </div>
+    </div>
+    <div class="w-100 h-100 p-2">
+        <iframe
+            class="w-100 h-100 m-0"
+            data-bind="attr: {src: selectedResourcePath}"
+        ></iframe>
+    </div>
+</div>
+{% endblock %} {% block js%}
+<script type="text/javascript">
+    class ResourcesViewModel {
+        constructor() {
+            var self = this;
+
+            self.selectedProfile = ko.observable(
+                sessionStorage.getItem("selectedProfile")
+            );
+            self.selectedProfile.subscribe((v) => {
+                sessionStorage.setItem("selectedProfile", v);
+                self.refresh();
+            });
+
+            self.resources = ko.observableArray();
+            self.selectedResourcePath = ko.observable("about:blank");
+
+            self.refresh = function () {
+                $.ajax({
+                    url: "/Vida/resources/",
+                    method: "get",
+                    success: (resp) => {
+                        self.resources(resp);
+                    },
+                });
+            };
+            self.refresh();
+        }
+    }
+    var model = new ResourcesViewModel();
+    ko.applyBindings(model);
+</script>
+{% endblock %}
