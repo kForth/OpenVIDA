@@ -1,12 +1,11 @@
 {% extends "layout.html" %} {% block content %}
 <div class="d-flex flex-column flex-fill container-fluid overflow-none px-0">
-    <div class="col-12 row p-2">
-        <div class="col-3"><h3>Resource:</h3></div>
-        <div class="col-9">
+    <div class="d-flex p-2">
+        <div class="h3 pe-3">Resource:</div>
+        <div class="flex-fill">
             <select
                 class="form-control"
-                data-bind="value: selectedResourcePath,
-            options: resources, optionsText: 'filename', optionsValue: 'url'"
+                data-bind="value: selectedResourcePath, options: resources, optionsText: 'filename', optionsValue: 'url'"
             ></select>
         </div>
     </div>
