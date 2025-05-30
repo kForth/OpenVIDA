@@ -7,7 +7,7 @@
             <li class="mb-1" role="presentation">
                 <a
                     class="d-inline-flex text-start rounded border-0"
-                    data-bind="text: $root.nodeTitle($data), click: $root.selectComponent"
+                    data-bind="text: $root.linkTitle($data), click: $root.selectComponent"
                 ></a>
             </li>
         </script>
@@ -58,9 +58,10 @@
 
             self.partsTree = ko.observableArray();
 
+            self.nodeTemplate = (e) => (e.type() == 2 ? "node" : "link");
             self.nodeTitle = (e) =>
                 `${e.id().toString().padEnd(4, "\u00a0")} ${e.description()}`;
-            self.nodeTemplate = (e) => (e.type() == 2 ? "node" : "link");
+            self.linkTitle = (e) => e.description();
 
             self.refreshParts = function () {
                 $.ajax({
