@@ -7,11 +7,7 @@ function openLinkDoc(docId, isCallout, targetElement, sourceElement, isButton) {
 }
 
 function openImage(imageURL, imgId) {
-    window.open(
-        `${imageURL}?AsPage=true`,
-        "image",
-        "popup=true,width=400,height=400"
-    );
+    window.open(imageURL, "image", "popup=true,width=400,height=400");
 }
 
 function imgSize(image) {}

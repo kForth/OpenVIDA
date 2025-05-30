@@ -50,11 +50,18 @@ blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/V
 
 
 @blueprint.route("/DataImages/<path:filename>")
-def image(filename):
+def image_by_path(filename):
+    return _send_image(LocalizedGraphics.path == filename)
+
+@blueprint.route("/img/<code>")
+def image_by_code(code):
+    return _send_image(LocalizedGraphics.fkGraphic == code)
+
+def _send_image(filter):
     with ImagesSession() as _images:
         img = (
             _images.query(LocalizedGraphics)
-            .filter(LocalizedGraphics.path == filename)
+            .filter(filter)
             .one()
         )
         img_type = (
@@ -66,17 +73,11 @@ def image(filename):
             .filter(Graphics.id == img.fkGraphic)
             .one()
         )
-    if request.args.get("AsPage", False):
-        return send_file(
-            io.BytesIO(img.imageData),
-            mimetype=f"image/{img_type.description.lower()}",
-            as_attachment=False,
-        )
     return send_file(
         io.BytesIO(img.imageData),
         mimetype=f"image/{img_type.description.lower()}",
-        as_attachment=True,
-        download_name=filename,
+        as_attachment=request.args.get("Download", False),
+        download_name=img.path,
     )
 
 
