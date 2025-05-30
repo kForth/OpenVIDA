@@ -295,6 +295,7 @@ def get_epc_subelements():
             Lexicon.Description,
             CatalogueComponents.AssemblyLevel,
             CatalogueComponents.TypeId,
+            func.dbo.getSectionDocFootnote(CatalogueComponents.Id, language),
         ).join(
             Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
         ).join(
@@ -309,7 +310,7 @@ def get_epc_subelements():
                 CatalogueComponents.ParentComponentId == parent
             )
         ).all()
-    cols = ("id", "description", "assemblyLevel", "type")
+    cols = ("id", "description", "assemblyLevel", "type", "note")
     return [dict(zip(cols, e)) for e in query]
 
 
@@ -323,7 +324,8 @@ def get_epc_parts():
     with EpcSession() as _epc:
         query = _epc.query(
             distinct(CatalogueComponents.Id),
-            Lexicon.Description,
+            func.dbo.GetPartText(CatalogueComponents.Id, language),
+            func.dbo.GetPartNotes(CatalogueComponents.Id, language),
             CatalogueComponents.TypeId,
             PartItems.ItemNumber,
             cast(CatalogueComponents.Quantity, Integer),
@@ -331,17 +333,14 @@ def get_epc_parts():
             AttachmentData.Code,
         ).outerjoin(
             PartItems, PartItems.Id == CatalogueComponents.fkPartItem
-        ).join(
-            Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId
         ).outerjoin(
             ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
         ).outerjoin(
             AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
         ).filter(
-            Lexicon.fkLanguage == language,
             CatalogueComponents.ParentComponentId == parent
         ).all()
-    cols = ("id", "description", "type", "number", "quantity", "key", "attachment")
+    cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment")
     return [dict(zip(cols, e)) for e in query]
 
 @blueprint.route("/resources/")

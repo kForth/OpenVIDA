@@ -51,13 +51,17 @@
         class="d-flex flex-column w-100 h-100 overflow-y-auto"
         id="partContent"
     >
-        <table class="table table-sm table-striped">
+        <table
+            class="table table-sm table-striped"
+            data-bind="attr: {hidden: selectedCatalogue().length == 0}"
+        >
             <thead>
                 <tr>
                     <td>Key</td>
                     <td>Part Number</td>
                     <td>Description</td>
                     <td>Quantity</td>
+                    <td>Note</td>
                 </tr>
             </thead>
             <tbody>
@@ -67,6 +71,7 @@
                     <td data-bind="text: number"></td>
                     <td data-bind="text: description"></td>
                     <td data-bind="text: quantity"></td>
+                    <td data-bind="text: note"></td>
                 </tr>
                 <!-- /ko -->
             </tbody>
@@ -95,7 +100,8 @@
             self.nodeTemplate = (e) => (e.type() == 2 ? "node" : "link");
             self.nodeTitle = (e) =>
                 `${e.id().toString().padEnd(4, "\u00a0")} ${e.description()}`;
-            self.linkTitle = (e) => e.description();
+            self.linkTitle = (e) =>
+                e.note() ? `${e.description()} - ${e.note()}` : e.description();
 
             self.refreshParts = function () {
                 $.ajax({
