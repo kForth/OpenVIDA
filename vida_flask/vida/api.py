@@ -8,7 +8,7 @@ import zipfile
 
 from flask import Blueprint, abort, request, send_file, url_for
 from lxml import etree
-from sqlalchemy import case, desc, distinct, func, or_
+from sqlalchemy import desc, distinct, func, or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
@@ -18,12 +18,10 @@ from vida_py.basedata import (
     Transmission,
     VehicleModel,
     VehicleProfile,
-    VINDecodeModel,
-    VINDecodeVariant,
     get_vin_components_by_partner_group_id
 )
 from vida_py.diag import Session as DiagSession
-from vida_py.diag import get_valid_profiles_for_selected, get_vin_components
+from vida_py.diag import get_valid_profiles_for_selected
 from vida_py.epc import Session as EpcSession
 from vida_py.epc import (
     AttachmentData,
@@ -172,7 +170,7 @@ def get_profiles():
             )
 
         profile = query.order_by(
-            -VehicleProfile.FolderLevel
+            desc(VehicleProfile.FolderLevel)
         ).first()
         return {c.name: getattr(profile, c.name) for c in profile.__table__.columns}
 
