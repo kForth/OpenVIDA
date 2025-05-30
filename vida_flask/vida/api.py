@@ -8,7 +8,7 @@ import zipfile
 
 from flask import Blueprint, abort, request, send_file, url_for
 from lxml import etree
-from sqlalchemy import desc, distinct, func, or_
+from sqlalchemy import Integer, cast, desc, distinct, func, or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
@@ -310,6 +310,38 @@ def get_epc_subelements():
             )
         ).all()
     cols = ("id", "description", "assemblyLevel", "type")
+    return [dict(zip(cols, e)) for e in query]
+
+
+@blueprint.route("/epc/getParts")
+def get_epc_parts():
+    language = request.args.get("language", False) or 15
+    parent = request.args.get("parentId", False)
+    if not parent:
+        return abort(400)
+
+    with EpcSession() as _epc:
+        query = _epc.query(
+            distinct(CatalogueComponents.Id),
+            Lexicon.Description,
+            CatalogueComponents.TypeId,
+            PartItems.ItemNumber,
+            cast(CatalogueComponents.Quantity, Integer),
+            CatalogueComponents.HotspotKey,
+            AttachmentData.Code,
+        ).outerjoin(
+            PartItems, PartItems.Id == CatalogueComponents.fkPartItem
+        ).join(
+            Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId
+        ).outerjoin(
+            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
+        ).outerjoin(
+            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
+        ).filter(
+            Lexicon.fkLanguage == language,
+            CatalogueComponents.ParentComponentId == parent
+        ).all()
+    cols = ("id", "description", "type", "number", "quantity", "key", "attachment")
     return [dict(zip(cols, e)) for e in query]
 
 @blueprint.route("/resources/")

@@ -50,7 +50,28 @@
     <div
         class="d-flex flex-column w-100 h-100 overflow-y-auto"
         id="partContent"
-    ></div>
+    >
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <td>Key</td>
+                    <td>Part Number</td>
+                    <td>Description</td>
+                    <td>Quantity</td>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- ko foreach: selectedCatalogue -->
+                <tr>
+                    <td data-bind="text: key"></td>
+                    <td data-bind="text: number"></td>
+                    <td data-bind="text: description"></td>
+                    <td data-bind="text: quantity"></td>
+                </tr>
+                <!-- /ko -->
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %} {% block js%}
 <script type="text/javascript">
@@ -68,7 +89,8 @@
                 self.refreshParts();
             });
 
-            self.partsTree = ko.observableArray();
+            self.partsTree = ko.observableArray([]);
+            self.selectedCatalogue = ko.observableArray([]);
 
             self.nodeTemplate = (e) => (e.type() == 2 ? "node" : "link");
             self.nodeTitle = (e) =>
@@ -78,9 +100,7 @@
             self.refreshParts = function () {
                 $.ajax({
                     url: `/Vida/epc/topLevelToc/`,
-                    data: {
-                        selectedProfile: self.selectedProfile(),
-                    },
+                    data: { selectedProfile: self.selectedProfile() },
                     success: (resp) => {
                         var tree = [];
                         for (let e of resp) {
@@ -115,8 +135,12 @@
             };
 
             self.selectComponent = function (e) {
-                // TODO: Get component info and show CGM file...
-                console.log(e);
+                self.selectedCatalogue([]);
+                $.ajax({
+                    url: "/Vida/epc/getParts",
+                    data: { parentId: e.id() },
+                    success: (resp) => self.selectedCatalogue(resp),
+                });
             };
 
             // Util
