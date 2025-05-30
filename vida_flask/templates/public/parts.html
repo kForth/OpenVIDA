@@ -3,13 +3,21 @@
     <div
         class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-3"
     >
+        <script type="text/html" id="link">
+            <li class="mb-1" role="presentation">
+                <a
+                    class="d-inline-flex text-start rounded border-0"
+                    data-bind="text: $root.nodeTitle($data), click: $root.selectComponent"
+                ></a>
+            </li>
+        </script>
         <script type="text/html" id="node">
             <li class="mb-1" role="presentation">
                 <button
                     class="btn btn-toggle d-inline-flex text-start rounded border-0"
                     data-bs-toggle="collapse"
                     aria-expanded="false"
-                    data-bind="text: text, attr: { 'data-bs-target': `#part-${$data.id()}-collapse` }, click: $root.loadChildren"
+                    data-bind="text: $root.nodeTitle($data), attr: { 'data-bs-target': `#part-${$data.id()}-collapse` }, click: $root.loadChildren"
                 ></button>
                 <div
                     class="collapse"
@@ -17,7 +25,7 @@
                 >
                     <ul
                         class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
-                        data-bind="template: { name: 'node', foreach: $data.children }"
+                        data-bind="template: { name: $root.nodeTemplate, foreach: $data.children }"
                     ></ul>
                 </div>
             </li>
@@ -50,23 +58,16 @@
 
             self.partsTree = ko.observableArray();
 
-            self.onPartLinkClick = function (doc, e) {
-                //if (e.ctrlKey || e.which == 2 || e.button == 4)
-                //    window.open($(e.target).attr("href"), '_blank').focus();
-                //else {
-                //    $.ajax({
-                //        url: `/Vida/partHtml/${doc.chronicleId}/`,
-                //        method: 'GET',
-                //        success: resp => {
-                //            $("#partContent").html(resp)
-                //        }
-                //    })
-                //}
-            };
+            self.nodeTitle = (e) =>
+                `${e.id().toString().padEnd(4, "\u00a0")} ${e.description()}`;
+            self.nodeTemplate = (e) => (e.type() == 2 ? "node" : "link");
 
             self.refreshParts = function () {
                 $.ajax({
-                    url: `/Vida/parts`,
+                    url: `/Vida/epc/topLevelToc/`,
+                    data: {
+                        selectedProfile: self.selectedProfile(),
+                    },
                     success: (resp) => {
                         var tree = [];
                         for (let e of resp) {
@@ -78,32 +79,40 @@
                     },
                 });
             };
-            self.refreshParts();
 
-            self.pushAll = function (arr1, arr2) {
-                for (let e of arr2) {
-                    arr1.push(ko.observable(e));
-                }
-            };
             self.loadChildren = function (e) {
-                console.log(e.path());
                 if (e.children.length) return;
-                $.get(`/Vida/partsByPath/${e.path()}`, function (resp) {
-                    console.log("E", e);
-                    console.log("partsByPath resp", resp);
-                    let children = [];
-                    for (let e of resp) {
-                        let obj = ko.mapping.fromJS(e);
-                        obj.children = ko.observableArray([]);
-                        children.push(obj);
-                    }
-                    e.children(children);
+                $.ajax({
+                    url: "/Vida/epc/getTocElements",
+                    data: {
+                        selectedProfile: self.selectedProfile(),
+                        parentId: e.id(),
+                        assemblyLevel: e.assemblyLevel(),
+                    },
+                    success: (resp) => {
+                        let children = [];
+                        for (let e of resp) {
+                            let obj = ko.mapping.fromJS(e);
+                            obj.children = ko.observableArray([]);
+                            children.push(obj);
+                        }
+                        e.children(children);
+                    },
                 });
             };
+
+            self.selectComponent = function (e) {
+                // TODO: Get component info and show CGM file...
+                console.log(e);
+            };
+
+            // Util
+            self.pushAll = (a1, a2) =>
+                a2.forEach((e) => a1.push(ko.observable(e)));
+
+            self.refreshParts();
         }
     }
-    const model = new PartsViewModel();
-    ko.applyBindings(model);
-    // $('a[id^="doc-"]').on("click", function (e) { });
+    ko.applyBindings(new PartsViewModel());
 </script>
 {% endblock %}

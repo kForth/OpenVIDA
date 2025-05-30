@@ -8,7 +8,7 @@ import zipfile
 
 from flask import Blueprint, abort, request, send_file, url_for
 from lxml import etree
-from sqlalchemy import func, or_
+from sqlalchemy import case, desc, distinct, func, or_
 from vida_py import ServiceRepoSession
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
@@ -24,8 +24,16 @@ from vida_py.basedata import (
 )
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected, get_vin_components
-from vida_py.epc import CatalogueComponents, ComponentConditions, Lexicon, PartItems
 from vida_py.epc import Session as EpcSession
+from vida_py.epc import (
+    AttachmentData,
+    CatalogueComponents,
+    ComponentAttachments,
+    ComponentConditions,
+    Lexicon,
+    PartItems,
+    VirtualToShared
+)
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
 from vida_py.service import (
@@ -236,113 +244,74 @@ def get_special_vehicles():
             for e in _basedata.query(SpecialVehicle).all()
         ]
 
-@blueprint.route("/parts")
-def get_parts_list():
-    language = request.args.get("language") or 15
+
+@blueprint.route("/epc/topLevelToc/")
+def get_epc_top_level():
+    language = request.args.get("language", False) or 15
+    profile = request.args.get("selectedProfile", False)
+    if not profile:
+        return abort(400)
+
+    with BaseDataSession() as _basedata:
+        valid_profiles = [e[0] for e in get_valid_profiles_for_selected(_basedata, profile)]
     with EpcSession() as _epc:
-        return [
-            {
-                "id": comp.Id,
-                "path": comp.ComponentPath,
-                "sequence": comp.SequenceId,
-                "text": desc.Description
-            }
-            for comp, desc in (
-                _epc.query(CatalogueComponents, Lexicon)
-                .outerjoin(Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId)
-                .filter(CatalogueComponents.AssemblyLevel == 1, CatalogueComponents.TypeId == 2, Lexicon.fkLanguage == 15)
-                .order_by(CatalogueComponents.SequenceId)
-                .all()
-            )
-        ]
+        query = _epc.query(
+            distinct(CatalogueComponents.Id),
+            Lexicon.Description,
+            CatalogueComponents.AssemblyLevel,
+            CatalogueComponents.TypeId,
+            CatalogueComponents.ComponentPath,
+        ).join(
+            Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
+        ).join(
+            VirtualToShared, CatalogueComponents.Id == func.dbo.fn_SplitWithLevel(VirtualToShared.AlternateComponentPath, 0)
+        ).join(
+            ComponentConditions, VirtualToShared.fkCatalogueComponent == ComponentConditions.fkCatalogueComponent
+        ).filter(
+            or_(ComponentConditions.fkProfile is None, ComponentConditions.fkProfile.in_(valid_profiles)),
+            CatalogueComponents.TypeId == 2,
+            Lexicon.fkLanguage == language
+        ).order_by(
+            CatalogueComponents.Id
+        ).all()
 
-@blueprint.route("/partsByPath")
-@blueprint.route("/partsByPath/<path>")
-def get_parts_by_path(path=None):
-    language = request.args.get("language") or 15
-    print(path)
+    cols = ("id", "description", "assemblyLevel", "type", "path")
+    return [dict(zip(cols, e)) for e in query]
+
+
+@blueprint.route("/epc/getTocElements")
+def get_epc_subelements():
+    language = request.args.get("language", False) or 15
+    parent = request.args.get("parentId", False)
+    level = request.args.get("assemblyLevel", False)
+    profile = request.args.get("selectedProfile", False)
+    if not profile or not parent:
+        return abort(400)
+
+    with BaseDataSession() as _basedata:
+        valid_profiles = [e[0] for e in get_valid_profiles_for_selected(_basedata, profile)]
     with EpcSession() as _epc:
-        return [
-            {
-                "id": comp.Id,
-                "path": comp.ComponentPath,
-                "sequence": comp.SequenceId,
-                "text": desc.Description,
-            }
-            for comp, desc in (
-                _epc.query(CatalogueComponents, Lexicon)
-                .outerjoin(Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId)
-                .filter(CatalogueComponents.TypeId == 2, Lexicon.fkLanguage == 15, CatalogueComponents.ComponentPath.like(path + ",%"))
-                .order_by(CatalogueComponents.SequenceId)
-                .all()
+        query = _epc.query(
+            distinct(CatalogueComponents.Id),
+            Lexicon.Description,
+            CatalogueComponents.AssemblyLevel,
+            CatalogueComponents.TypeId,
+        ).join(
+            Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
+        ).join(
+            VirtualToShared, CatalogueComponents.Id == func.dbo.fn_SplitWithLevel(VirtualToShared.AlternateComponentPath, level)
+        ).join(
+            ComponentConditions, VirtualToShared.fkCatalogueComponent == ComponentConditions.fkCatalogueComponent
+        ).filter(
+            or_(ComponentConditions.fkProfile is None, ComponentConditions.fkProfile.in_(valid_profiles)),
+            Lexicon.fkLanguage == language,
+            or_(
+                VirtualToShared.fkCatalogueComponent_Parent == parent,
+                CatalogueComponents.ParentComponentId == parent
             )
-        ]
-
-# TODO: getPartProfiles:
-# (
-#     [
-#         _basedata.query(VehicleProfile)
-#         .filter(VehicleProfile.Id == e.fkProfile)
-#         .one()
-#         for e in _epc.query(ComponentConditions)
-#         .filter(
-#             ComponentConditions.fkCatalogueComponent
-#             == component.ParentComponentId
-#         )
-#         .all()
-#     ]
-# )
-
-
-@blueprint.route("/partsForProfile/<profile>", methods=["GET", "POST"])
-@blueprint.route("/partsForProfile/<profile>/<int:language>", methods=["GET", "POST"])
-def parts_for_profile(profile, language=15):
-    with DiagSession() as _diag, EpcSession() as _epc:
-        profiles = [e[0] for e in get_valid_profiles_for_selected(_diag, profile)]
-        parts = (
-            _epc.query(
-                CatalogueComponents,
-                ComponentConditions,
-                PartItems,
-                Lexicon,
-            )
-            .outerjoin(
-                ComponentConditions,
-                ComponentConditions.fkCatalogueComponent
-                == CatalogueComponents.ParentComponentId,
-            )
-            .outerjoin(PartItems, PartItems.Id == CatalogueComponents.fkPartItem)
-            .outerjoin(Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId)
-            .filter(
-                Lexicon.fkLanguage == language,
-                or_(
-                    ComponentConditions.fkProfile == None,
-                    ComponentConditions.fkProfile.in_(profiles),
-                ),
-            )
-            .order_by(CatalogueComponents.ComponentPath)
-            .all()
-        )
-
-    _parts = {}
-    for comp, cond, part, lexicon in parts:
-        if comp.Id not in _parts:
-            _parts[comp.Id] = {
-                "path": comp.ComponentPath,
-                "level": comp.AssemblyLevel,
-                "sequence": comp.SequenceId,
-                "part": {
-                    "id": part.Id,
-                    "number": part.ItemNumber,
-                    "title": lexicon.Description,
-                },
-                "profiles": [cond.fkProfile],
-            }
-        else:
-            if cond.fkProfile not in _parts[comp.Id]["profiles"]:
-                _parts[comp.Id]["profiles"].append(cond.fkProfile)
-
-    return list(_parts.values())
+        ).all()
+    cols = ("id", "description", "assemblyLevel", "type")
+    return [dict(zip(cols, e)) for e in query]
 
 @blueprint.route("/resources/")
 def resources():
