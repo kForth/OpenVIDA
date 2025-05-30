@@ -1,27 +1,27 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container-fluid d-flex flex-nowrap overflow-none px-0">
-    <div
-        class="d-flex flex-column flex-shrink-0 p-3 vh-100 overflow-y-auto col-sm-4 col-md-3 col-lg-3"
-    >
+<div class="container-fluid d-flex flex-fill flex-nowrap overflow-none px-0">
+    <div id="tocSidebar" class="d-flex flex border-end">
         <script type="text/html" id="link">
             <li class="mb-1" role="presentation">
-                <a
-                    class="d-inline-flex text-start rounded border-0"
+                <button
+                    class="btn btn-link d-inline-flex text-start rounded border-0"
+                    type="button"
                     data-bind="text: $root.linkTitle($data), click: $root.selectComponent"
-                ></a>
+                ></button>
             </li>
         </script>
         <script type="text/html" id="node">
             <li class="mb-1" role="presentation">
                 <button
-                    class="btn btn-toggle d-inline-flex text-start rounded border-0"
-                    data-bs-toggle="collapse"
+                    class="btn btn-toc-node d-inline-flex text-start rounded border-0"
+                    type="button"
                     aria-expanded="false"
-                    data-bind="text: $root.nodeTitle($data), attr: { 'data-bs-target': `#part-${$data.id()}-collapse` }, click: $root.loadChildren"
+                    data-bs-toggle="collapse"
+                    data-bind="text: $root.nodeTitle($data), attr: { 'data-bs-target': `#toc-node-${$data.id()}-collapse` }, click: $root.loadChildren"
                 ></button>
                 <div
                     class="ps-3 collapse"
-                    data-bind="attr: { id: `part-${$data.id()}-collapse` }"
+                    data-bind="attr: { id: `toc-node-${$data.id()}-collapse` }"
                 >
                     <ul
                         class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
@@ -30,13 +30,25 @@
                 </div>
             </li>
         </script>
-        <ul
-            class="list-unstyled ps-0"
-            data-bind="template: { name: 'node', foreach: partsTree }"
-        ></ul>
+        <div
+            class="h-100 overflow-y-auto collpase collapse-horizontal collapse show"
+            id="tocSidebarContent"
+        >
+            <ul
+                class="list-unstyled m-0 p-1"
+                data-bind="template: { name: 'node', foreach: partsTree }"
+            ></ul>
+        </div>
+        <button
+            class="btn btn-sm btn-toc-toggle"
+            type="button"
+            aria-expanded="true"
+            data-bs-toggle="collapse"
+            data-bs-target="#tocSidebarContent"
+        ></button>
     </div>
     <div
-        class="d-flex flex-column w-100 vh-100 overflow-y-auto"
+        class="d-flex flex-column w-100 h-100 overflow-y-auto"
         id="partContent"
     ></div>
 </div>
