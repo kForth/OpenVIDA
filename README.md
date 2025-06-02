@@ -1,5 +1,7 @@
 # VIDA-Flask
 
+Online Parts and Documents catalogue for Volvo vehicles, up to MY2015.
+
 ### Running locally
 
 Run the following commands to bootstrap your environment if you are unable to run the application using Docker
