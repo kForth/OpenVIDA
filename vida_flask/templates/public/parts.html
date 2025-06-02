@@ -67,11 +67,11 @@
             <tbody>
                 <!-- ko foreach: selectedCatalogue -->
                 <tr>
-                    <td data-bind="text: key"></td>
-                    <td data-bind="text: number"></td>
-                    <td data-bind="text: description"></td>
-                    <td data-bind="text: quantity"></td>
-                    <td data-bind="text: note"></td>
+                    <td><span data-bind="text: key"></span></td>
+                    <td><a data-bind="text: number, attr: { href: `/part/${number}` }"></a></td>
+                    <td><span data-bind="text: description"></span></td>
+                    <td><span data-bind="text: quantity"></span></td>
+                    <td><span data-bind="text: note"></span></td>
                 </tr>
                 <!-- /ko -->
             </tbody>

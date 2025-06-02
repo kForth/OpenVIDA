@@ -1,30 +1,50 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container">
-    <div class="row py-2">
-        <div class="col-xs-12 col-md-6">
-            <img />
+<div class="container-fluid row">
+    <div class="col-12 col-xl-4">
+        <div class="row">
+            <div class="col-6 fw-bold">Description:</div>
+            <div class="col-6">{{ part[1] }}</div>
         </div>
-        <div class="col-xs-12 col-md-6">
-            <h5>Applications ({{ usages | length }}):</h5>
-            {{ part }}
-            {{ usages }}
-            {{ profiles }}
-            <ul>
-            {% for el in profiles %} {% set prof = el[0] %}
-            <li>
-                {% set number = el[0] %}
-                {% set description = el[1] %}
-                {% set notes = el[2] %}
-                {% set quantity = el[4] %}
-                {% set attachment = el[5] %}
-                {% set profile = el[6] %}
-                <strong>{{ description }} (x{{quantity}})</strong>
-                <p>{{ notes }}</p>
-                <p>{{profile}}</p>
-            </li>
-            {% endfor %}
-            </ul>
+        <div class="row">
+            <div class="col-6 fw-bold">Number:</div>
+            <div class="col-6">{{ part[0] }}</div>
         </div>
+        <div class="row">
+            <div class="col-6 fw-bold">Is Software:</div>
+            <div class="col-6">{{ part[2] }}</div>
+        </div>
+        <div class="row">
+            <div class="col-6 fw-bold">Stock Rate:</div>
+            <div class="col-6">{{ part[3] }}</div>
+        </div>
+        <div class="row">
+            <div class="col-6 fw-bold">Unit Type:</div>
+            <div class="col-6">{{ part[4] }}</div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-8">
+        <table class="table table-sm table-striped caption-top">
+            {% set numApplications = applications | length %}
+            <caption class="h4">Used in {{ numApplications }} Application{{ '' if numApplications == 1 else 's' }}:</caption>
+            <thead>
+                <tr>
+                    <td>Vehicle</td>
+                    <td>Title</td>
+                    <td>Note</td>
+                    <td>Qty</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for el in applications %}
+                <tr>
+                    <td>{{ el["profile"] }}</td>
+                    <td>{{ el["title"] }}</td>
+                    <td>{{ el["note"] }}</td>
+                    <td>{{ el["qty"] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

@@ -8,11 +8,14 @@ import zipfile
 
 from flask import Blueprint, abort, request, send_file, url_for
 from lxml import etree
-from sqlalchemy import Integer, cast, desc, distinct, func, or_
-from vida_py import ServiceRepoSession
-from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
+from sqlalchemy import  Integer, cast, desc, distinct, func, or_
 from vida_py.basedata import Session as BaseDataSession
 from vida_py.basedata import (
+    BodyStyle,
+    BrakeSystem,
+    Engine,
+    ModelYear,
+    PartnerGroup,
     SpecialVehicle,
     Steering,
     Transmission,
@@ -26,6 +29,7 @@ from vida_py.epc import Session as EpcSession
 from vida_py.epc import (
     AttachmentData,
     CatalogueComponents,
+    CCPartnerGroup,
     ComponentAttachments,
     ComponentConditions,
     Lexicon,
@@ -34,6 +38,7 @@ from vida_py.epc import (
 )
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
+from vida_py.service import Session as ServiceRepoSession
 from vida_py.service import (
     Document,
     DocumentLink,
@@ -346,32 +351,90 @@ def get_epc_parts():
 @blueprint.route("/epc/part/<partnumber>")
 def get_epc_part_info(partnumber):
     language = request.args.get("language", False) or 15
+
+    # Base.metadata.bind = engine
+
     with EpcSession() as _epc:
-        info = _epc.query(
-            distinct(CatalogueComponents.Id),
+        part = _epc.query(
+            PartItems.ItemNumber,
+            Lexicon.Description,
+            PartItems.IsSoftware,
+            PartItems.StockRate,
+            PartItems.UnitType,
+        ).outerjoin(
+            Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId
+        ).filter(
+            PartItems.ItemNumber == partnumber,
+            Lexicon.fkLanguage == language,
+        ).one()
+
+        usages = _epc.query(
+            CatalogueComponents.Id,
             func.dbo.GetPartText(CatalogueComponents.Id, language),
             func.dbo.GetPartNotes(CatalogueComponents.Id, language),
-            CatalogueComponents.TypeId,
-            PartItems.ItemNumber,
-            cast(CatalogueComponents.Quantity, Integer),
-            CatalogueComponents.HotspotKey,
-            AttachmentData.Code,
+            ComponentConditions.fkProfile,
+            func.cast(CatalogueComponents.Quantity, Integer),
         ).outerjoin(
-            PartItems, PartItems.Id == partnumber
+            PartItems, CatalogueComponents.fkPartItem == PartItems.Id
         ).outerjoin(
-            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
+            ComponentConditions, ComponentConditions.fkCatalogueComponent == CatalogueComponents.ParentComponentId
         ).outerjoin(
-            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
-        ).one()
-        print(info)
+            CCPartnerGroup, CCPartnerGroup.fkCatalogueComponent == CatalogueComponents.Id
+        ).filter(
+            PartItems.ItemNumber == partnumber
+        ).all()
+        usage_profiles = set([e[3] for e in usages])
 
-        profiles = _epc.query(
-            CatalogueComponents
-        ).join(
-            PartItems, PartItems.Id == CatalogueComponents.fkPartItem
-        )
+    with BaseDataSession() as _basedata:
+        profile_vals = _basedata.query(
+            VehicleProfile.Id,
+            VehicleModel.Description,
+            ModelYear.Description,
+            Engine.Description,
+            Transmission.Description,
+            BodyStyle.Description,
+            Steering.Description,
+            BrakeSystem.Description,
+            SpecialVehicle.Description,
+            # func.dbo.getProfileFullTitle(VehicleProfile.Id)
+        ).outerjoin(
+            VehicleModel, VehicleModel.Id == VehicleProfile.fkVehicleModel
+        ).outerjoin(
+            ModelYear, ModelYear.Id == VehicleProfile.fkModelYear
+        ).outerjoin(
+            Engine, Engine.Id == VehicleProfile.fkEngine
+        ).outerjoin(
+            Transmission, Transmission.Id == VehicleProfile.fkTransmission
+        ).outerjoin(
+            BodyStyle, BodyStyle.Id == VehicleProfile.fkBodyStyle
+        ).outerjoin(
+            Steering, Steering.Id == VehicleProfile.fkSteering
+        ).outerjoin(
+            BrakeSystem, BrakeSystem.Id == VehicleProfile.fkBrakeSystem
+        ).outerjoin(
+            SpecialVehicle, SpecialVehicle.Id == VehicleProfile.fkSpecialVehicle
+        ).filter(
+            VehicleProfile.Id.in_(usage_profiles)
+        ).all()
+        profile_names = dict([
+            (_id, ", ".join([e for e in info if e]))
+            for _id, *info in profile_vals
+        ])
+        applciations = sorted([
+            {
+                "id": _id,
+                "profile": profile_names[profile],
+                "title": text,
+                "note": note or "",
+                "qty": qty or 0
+            }
+            for (_id, text, note, profile, qty) in usages
+        ], key=lambda x: x["profile"])
 
-    return []
+    return {
+        "part": part,
+        "applications": applciations
+    }
 
 @blueprint.route("/resources/")
 def resources():
