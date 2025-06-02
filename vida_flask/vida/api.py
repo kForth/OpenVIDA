@@ -343,6 +343,36 @@ def get_epc_parts():
     cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment")
     return [dict(zip(cols, e)) for e in query]
 
+@blueprint.route("/epc/part/<partnumber>")
+def get_epc_part_info(partnumber):
+    language = request.args.get("language", False) or 15
+    with EpcSession() as _epc:
+        info = _epc.query(
+            distinct(CatalogueComponents.Id),
+            func.dbo.GetPartText(CatalogueComponents.Id, language),
+            func.dbo.GetPartNotes(CatalogueComponents.Id, language),
+            CatalogueComponents.TypeId,
+            PartItems.ItemNumber,
+            cast(CatalogueComponents.Quantity, Integer),
+            CatalogueComponents.HotspotKey,
+            AttachmentData.Code,
+        ).outerjoin(
+            PartItems, PartItems.Id == partnumber
+        ).outerjoin(
+            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
+        ).outerjoin(
+            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
+        ).one()
+        print(info)
+
+        profiles = _epc.query(
+            CatalogueComponents
+        ).join(
+            PartItems, PartItems.Id == CatalogueComponents.fkPartItem
+        )
+
+    return []
+
 @blueprint.route("/resources/")
 def resources():
     with ServiceRepoSession() as _service:

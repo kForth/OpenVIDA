@@ -5,15 +5,25 @@
             <img />
         </div>
         <div class="col-xs-12 col-md-6">
-            <h3>{{ part.ItemNumber }} - {{ title.Description }}</h3>
-            <h5>Applications ({{ components | length }}):</h5>
-            {% for el in components %} {% set prof = el[0] %} {% set path =
-            el[1] %} {% set comp = el[2] %} {% set desc1 = el[3] %} {% set desc2
-            = el[4] %}
-            <strong>{{ prof.Description }}</strong>
-            {{ path }}
-            <p>{{ desc1.Description }}<br />{{ desc2.Description }}</p>
+            <h5>Applications ({{ usages | length }}):</h5>
+            {{ part }}
+            {{ usages }}
+            {{ profiles }}
+            <ul>
+            {% for el in profiles %} {% set prof = el[0] %}
+            <li>
+                {% set number = el[0] %}
+                {% set description = el[1] %}
+                {% set notes = el[2] %}
+                {% set quantity = el[4] %}
+                {% set attachment = el[5] %}
+                {% set profile = el[6] %}
+                <strong>{{ description }} (x{{quantity}})</strong>
+                <p>{{ notes }}</p>
+                <p>{{profile}}</p>
+            </li>
             {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
