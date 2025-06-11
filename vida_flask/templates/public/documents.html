@@ -1,37 +1,56 @@
 {% extends "layout.html" %} {% block content %}
-<div class="d-flex flex-column flex-fill container-fluid overflow-none px-0">
-    <div class="accordion" id="documentAccordion">
-        <!-- ko foreach: { data: docsByQual, as: 'el' } -->
-        <div class="accordion-item mb-1">
-            <h2 class="accordion-header" id="headingOne">
-                <button
-                    class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bind="text: `${el.qual.title} (${el.docs.length})`, attr: { 'data-bs-target': `#qual-${el.qual.id}-collapse` }"
-                ></button>
-            </h2>
-            <div
-                class="accordion-collapse collapse"
-                data-bs-parent="#documentAccordion"
-                data-bind="attr: {'id': `qual-${el.qual.id}-collapse` }"
-            >
-                <div class="accordion-body">
-                    <ul
-                        class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
-                        data-bind="foreach: { data: el.docs, as: 'doc' }"
+<div class="container-fluid d-flex flex-fill flex-nowrap overflow-none px-0">
+    <div id="tocSidebar" class="d-flex flex border-end">
+        <div
+            class="h-100 overflow-y-auto collpase collapse-horizontal collapse show"
+            id="tocSidebarContent"
+        >
+            <div class="accordion" id="documentAccordion">
+                <!-- ko foreach: { data: docsByQual, as: 'el' } -->
+                <div class="accordion-item mb-1">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bind="text: `${el.qual.title} (${el.docs.length})`, attr: { 'data-bs-target': `#qual-${el.qual.id}-collapse` }"
+                        ></button>
+                    </h2>
+                    <div
+                        class="accordion-collapse collapse"
+                        data-bs-parent="#documentAccordion"
+                        data-bind="attr: {'id': `qual-${el.qual.id}-collapse` }"
                     >
-                        <li>
-                            <a
-                                class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                data-bind="text: doc.title, attr: { 'href': `/document/${doc.chronicleId}/` }"
-                            ></a>
-                        </li>
-                    </ul>
+                        <div class="accordion-body">
+                            <ul
+                                class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
+                                data-bind="foreach: { data: el.docs, as: 'doc' }"
+                            >
+                                <li>
+                                    <a
+                                        class="link-body-emphasis d-inline-flex text-decoration-none rounded"
+                                        data-bind="text: doc.title, click: $root.selectDocument"
+                                    ></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+                <!-- /ko -->
             </div>
         </div>
-        <!-- /ko -->
+        <button
+            class="btn btn-sm btn-toc-toggle"
+            type="button"
+            aria-expanded="true"
+            data-bs-toggle="collapse"
+            data-bs-target="#tocSidebarContent"
+        ></button>
+    </div>
+    <div
+        class="d-flex flex-column w-100 h-100 overflow-y-auto"
+        id="docContent"
+    >
     </div>
 </div>
 {% endblock %} {% block js%}
@@ -60,32 +79,58 @@
                 });
             };
             self.refreshDocs();
+
+            self.selectDocument = function (e) {
+                openLinkDoc(e.chronicleId);
+            }
+
+            window.addEventListener('popstate', function(e) {
+                if (e.state == null) return;
+                openLinkDoc(
+                    e.state.docId,
+                    e.state.isCallout,
+                    e.state.targetElement,
+                    e.state.sourceElement,
+                    e.state.isButton,
+                    true
+                );
+            });
         }
     }
-    var model = new DocumentsViewModel();
-    ko.applyBindings(model);
+    ko.applyBindings(new DocumentsViewModel());
 
     function openLinkDoc(
         docId,
         isCallout,
         targetElement,
         sourceElement,
-        isButton
+        isButton,
+        noHistory,
     ) {
         var url;
-        if (docId !== null && docId.length != 0) {
+        if (docId != null && docId.length != 0) {
             url = `/Vida/document/${docId}`;
-        } else if (sourceElement !== null && sourceElement.length != 0) {
+        } else if (sourceElement != null && sourceElement.length != 0) {
             url = `/Vida/doclink/${sourceElement}`;
         }
+        else return;
+
         $.ajax({
             url: url,
             method: "GET",
             success: (resp) => {
                 $("#docContent").html(resp);
+                if (!noHistory)
+                    window.history.pushState({
+                        docId: docId,
+                        isCallout: isCallout,
+                        targetElement: targetElement,
+                        sourceElement: sourceElement,
+                        isButton: isButton
+                    }, undefined, window.location);
             },
         });
-    }
+}
 
     function openImage(imageURL, imgId) {
         window.open(imageURL, "image", "popup=true,width=400,height=400");
