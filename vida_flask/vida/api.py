@@ -502,13 +502,12 @@ def get_doc_by_chronicle(chronicle):
         return _service.query(Document).filter(Document.chronicleId == chronicle).first()
 
 
-def get_doc_by_link(elememt_from):
+def get_doc_by_link(element_from):
     with ServiceRepoSession() as _service:
         return (
             _service.query(Document)
-            .join(DocumentLinkTitle, DocumentLinkTitle.fkDocument == Document.id)
-            .join(DocumentLink, DocumentLink.elementTo == DocumentLinkTitle.element)
-            .filter(DocumentLink.elementFrom == elememt_from)
+            .join(DocumentLink, Document.projectDocumentId == DocumentLink.projectDocumentTo)
+            .filter(DocumentLink.elementFrom == element_from)
             .first()
         )
 
