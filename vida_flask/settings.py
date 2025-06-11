@@ -23,5 +23,4 @@ CACHE_TYPE = (
     "flask_caching.backends.SimpleCache"  # Can be "MemcachedCache", "RedisCache", etc.
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-VIDA_PATH = env.str("VIDA_PATH")
 VIDA_XSL_PATH = env.str("VIDA_XSL_PATH")
