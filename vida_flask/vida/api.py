@@ -525,7 +525,7 @@ def get_document_html(chronicle):
 def get_doclink_html(element):
     doc = get_doc_by_link(element)
     if doc is None:
-        return None
+        return "Error."
     return doc_to_html(doc)
 
 
