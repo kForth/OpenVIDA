@@ -1,3 +1,8 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container"></div>
+{% endblock %}{% block js%}
+<script
+    type="text/javascript"
+    src="{{ url_for('static', filename='js/home.js') }}"
+></script>
 {% endblock %}
