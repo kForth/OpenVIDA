@@ -66,6 +66,11 @@
         <link
             rel="stylesheet"
             type="text/css"
+            href="{{ url_for('static', filename='css/vendor/jquery-ui.min.css') }}"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
             href="{{ url_for('static', filename='css/vendor/ag-theme-alpine.min.css') }}"
         />
         <link
@@ -107,6 +112,7 @@
 
         <!-- JavaScript at the bottom for fast page loading -->
         <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/jquery-ui.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/knockout-latest.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/knockout.mapping-latest.js') }}"></script>

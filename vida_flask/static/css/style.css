@@ -78,6 +78,18 @@
     background-color: var(--bs-tertiary-bg);
 }
 
+/* jQuery-ui */
+ul.ui-autocomplete {
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: var(--bs-border-radius);
+}
+[data-bs-theme="dark"] ul.ui-autocomplete {
+    background-color: var(--bs-tertiary-bg);
+    color: rgba(var(--bs-emphasis-color-rgb), .85);
+}
+
 /* Color Mode */
 .btn-bd-primary {
     outline: 0;
