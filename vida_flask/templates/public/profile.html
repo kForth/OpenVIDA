@@ -42,39 +42,40 @@
                         <label for="vehicleModel" class="form-label"
                             >Model</label
                         >
-                        <select
-                            class="form-control"
+                        <input
                             id="vehicleModel"
-                            data-bind="value: vehicleModel, options: vehicleModelOptions, optionsValue: 'id', optionsText: 'text'"
-                        ></select>
+                            type="text"
+                            class="form-control"
+                            data-bind="jqAuto: {value: vehicleModel, source: vehicleModelOptions, valueProp: 'id', labelProp: 'text', options: {minLength: 0}}"
+                        />
                     </div>
                     <div class="col-sm-6">
                         <label for="modelYear" class="form-label"
                             >Model Year</label
                         >
-                        <select
+                        <input
                             class="form-control"
                             id="modelYear"
-                            data-bind="value: modelYear, options: modelYearOptions, optionsValue: 'id', optionsText: 'text'"
-                        ></select>
+                            data-bind="jqAuto: {value: modelYear, source: modelYearOptions, valueProp: 'id', labelProp: 'text', options: {minLength: 0}}"
+                        />
                     </div>
                     <div class="col-sm-6">
                         <label for="engine" class="form-label">Engine</label>
-                        <select
+                        <input
                             class="form-control"
                             id="engine"
-                            data-bind="value: engine, options: engineOptions, optionsValue: 'id', optionsText: 'text'"
-                        ></select>
+                            data-bind="jqAuto: {value: engine, source: engineOptions, valueProp: 'id', labelProp: 'text', options: {minLength: 0}}"
+                        />
                     </div>
                     <div class="col-sm-6">
                         <label for="transmission" class="form-label"
                             >Transmission</label
                         >
-                        <select
+                        <input
                             class="form-control"
                             id="transmission"
-                            data-bind="value: transmission, options: transmissionOptions, optionsValue: 'id', optionsText: 'text'"
-                        ></select>
+                            data-bind="jqAuto: {value: transmission, source: transmissionOptions, valueProp: 'id', labelProp: 'text', options: {minLength: 0}}"
+                        />
                     </div>
                     <div class="col-sm-4">
                         <label for="steering" class="form-label"
@@ -272,5 +273,11 @@
     }
 
     ko.applyBindings(new ProfileViewModel());
+
+    // Show autocomplete options on focus
+    $(".ui-autocomplete-input").on("focus", (e1) => {
+        if (!$(e1.currentTarget).val())
+            $(e1.currentTarget).autocomplete("search", "");
+    });
 </script>
 {% endblock %}
