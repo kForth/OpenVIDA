@@ -9,5 +9,16 @@ class VidaBaseModel {
             sessionStorage.setItem("selectedProfile", v);
             self.refreshDocs();
         });
+        self.profileInfo = ko.observable({});
+
+        if (self.selectedProfile()) {
+            $.ajax({
+                url: "/Vida/profiles",
+                data: {
+                    Id: self.selectedProfile(),
+                },
+                success: (resp) => self.profileInfo(resp),
+            });
+        }
     }
 }

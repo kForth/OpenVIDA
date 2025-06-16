@@ -131,24 +131,18 @@ class ProfileViewModel extends VidaBaseModel {
             });
         };
 
-        if (self.selectedProfile()) {
-            $.ajax({
-                url: "/Vida/profiles",
-                data: {
-                    Id: self.selectedProfile(),
-                },
-                success: (resp) => {
-                    self.partnerGroup(resp.fkPartnerGroup);
-                    self.vehicleModel(resp.fkVehicleModel);
-                    self.modelYear(resp.fkModelYear);
-                    self.engine(resp.fkEngine);
-                    self.transmission(resp.fkTransmission);
-                    self.steering(resp.fkSteering);
-                    self.bodyStyle(resp.fkBodyStyle);
-                    self.specialVehicle(resp.fkSpecialVehicle);
-                },
-            });
-        }
+        self.profileInfo.subscribe(() => {
+            if (self.profileInfo()) {
+                self.partnerGroup(self.profileInfo().fkPartnerGroup);
+                self.vehicleModel(self.profileInfo().fkVehicleModel);
+                self.modelYear(self.profileInfo().fkModelYear);
+                self.engine(self.profileInfo().fkEngine);
+                self.transmission(self.profileInfo().fkTransmission);
+                self.steering(self.profileInfo().fkSteering);
+                self.bodyStyle(self.profileInfo().fkBodyStyle);
+                self.specialVehicle(self.profileInfo().fkSpecialVehicle);
+            }
+        });
     }
 }
 
