@@ -1,8 +1,13 @@
-// class VidaModel {
-//     constructor() {
-//         var self = this;
-//     }
-// }
+class VidaBaseModel {
+    constructor() {
+        var self = this;
 
-// var model = new VidaModel();
-// ko.applyBindings(model);
+        self.selectedProfile = ko.observable(
+            sessionStorage.getItem("selectedProfile")
+        );
+        self.selectedProfile.subscribe((v) => {
+            sessionStorage.setItem("selectedProfile", v);
+            self.refreshDocs();
+        });
+    }
+}

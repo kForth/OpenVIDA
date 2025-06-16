@@ -1,14 +1,7 @@
-class DocumentsViewModel {
+class DocumentsViewModel extends VidaBaseModel {
     constructor() {
+        super();
         var self = this;
-
-        self.selectedProfile = ko.observable(
-            sessionStorage.getItem("selectedProfile")
-        );
-        self.selectedProfile.subscribe((v) => {
-            sessionStorage.setItem("selectedProfile", v);
-            self.refreshDocs();
-        });
 
         self.docsByQual = ko.observableArray();
 

@@ -1,14 +1,7 @@
-class ResourcesViewModel {
+class ResourcesViewModel extends VidaBaseModel {
     constructor() {
+        super();
         var self = this;
-
-        self.selectedProfile = ko.observable(
-            sessionStorage.getItem("selectedProfile")
-        );
-        self.selectedProfile.subscribe((v) => {
-            sessionStorage.setItem("selectedProfile", v);
-            self.refresh();
-        });
 
         self.resources = ko.observableArray();
         self.selectedResourcePath = ko.observable("about:blank");

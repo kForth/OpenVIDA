@@ -1,13 +1,7 @@
-class ProfileViewModel {
+class ProfileViewModel extends VidaBaseModel {
     constructor() {
+        super();
         var self = this;
-
-        self.selectedProfile = ko.observable(
-            sessionStorage.getItem("selectedProfile")
-        );
-        self.selectedProfile.subscribe((v) => {
-            sessionStorage.setItem("selectedProfile", v);
-        });
 
         self.imagePath = ko.observable("");
         self.vinNumber = ko.observable("");

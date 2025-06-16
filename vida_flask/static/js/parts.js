@@ -1,16 +1,9 @@
 function imgSize() {}
 
-class PartsViewModel {
+class PartsViewModel extends VidaBaseModel {
     constructor() {
+        super();
         var self = this;
-
-        self.selectedProfile = ko.observable(
-            sessionStorage.getItem("selectedProfile")
-        );
-        self.selectedProfile.subscribe((v) => {
-            sessionStorage.setItem("selectedProfile", v);
-            self.refreshParts();
-        });
 
         self.partsTree = ko.observableArray([]);
         self.selectedCatalogue = ko.observableArray([]);
