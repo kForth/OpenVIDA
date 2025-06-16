@@ -130,6 +130,25 @@ class ProfileViewModel extends VidaBaseModel {
                 success: (resp) => self.selectedProfile(resp.Id),
             });
         };
+
+        if (self.selectedProfile()) {
+            $.ajax({
+                url: "/Vida/profiles",
+                data: {
+                    Id: self.selectedProfile(),
+                },
+                success: (resp) => {
+                    self.partnerGroup(resp.fkPartnerGroup);
+                    self.vehicleModel(resp.fkVehicleModel);
+                    self.modelYear(resp.fkModelYear);
+                    self.engine(resp.fkEngine);
+                    self.transmission(resp.fkTransmission);
+                    self.steering(resp.fkSteering);
+                    self.bodyStyle(resp.fkBodyStyle);
+                    self.specialVehicle(resp.fkSpecialVehicle);
+                },
+            });
+        }
     }
 }
 
