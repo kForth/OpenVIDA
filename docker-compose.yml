@@ -40,8 +40,10 @@ services:
         image: vida_flask-development
         ports:
             - 5000:5000
-            - 2992:2992
         environment:
+            FLASK_ENV: development
+            FLASK_DEBUG: 1
+            LOG_LEVEL: debug
             GUNICORN_WORKERS: 4
             <<: *db_paths
         depends_on:
