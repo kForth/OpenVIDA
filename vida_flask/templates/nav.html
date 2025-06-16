@@ -30,19 +30,29 @@
                     <a class="nav-link" href="/resources/">Resources</a>
                 </li>
             </ul>
-            <form
-                class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3"
-                role="profile"
-            >
-                <input
-                    id="profile-id"
-                    type="text"
-                    class="form-control"
-                    placeholder="Profile ID"
-                    aria-label="profile"
-                    data-bind="value: profileInfo().Description"
-                />
-            </form>
+            <div class="flex-shrink-0 dropdown">
+                <a
+                    href="#"
+                    class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    <img
+                        src="https://github.com/kForth.png"
+                        alt="kForth"
+                        width="32"
+                        height="32"
+                        class="rounded-circle"
+                    />
+                </a>
+                <ul class="dropdown-menu text-small shadow" style="">
+                    <li>
+                        <span
+                            data-bind="text: profileInfo().Description"
+                        ></span>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>
