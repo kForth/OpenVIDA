@@ -7,16 +7,15 @@ x-default-volumes: &default_volumes
         - C:/VIDA/jboss/standalone/deployments/VidaEar.ear/VidaWeb.war/WEB-INF/classes:/xsl
 
 x-db-paths: &db_paths
-    VIDA_ACCESS_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/AccessServer?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_BASEDATA_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/basedata?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_CARCOM_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/carcom?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_DIAG_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/DiagSwdlRepository?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_SESSION_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/DiagSwdlSession?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_TIMING_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/DiceTiming?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_EPC_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/epc?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_IMAGES_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/ImageRepository?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_SERVICE_DB_URI: "mssql+pyodbc://vida_flask:vida_flask@localhost/servicerep_en-US?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_XSL_PATH: /xsl
+    VIDA_ACCESS_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/AccessServer?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_BASEDATA_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/basedata?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_CARCOM_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/carcom?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_DIAG_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/DiagSwdlRepository?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_SESSION_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/DiagSwdlSession?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_TIMING_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/DiceTiming?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_EPC_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/epc?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_IMAGES_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/ImageRepository?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_SERVICE_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/servicerep_en-US?driver=ODBC+Driver+17+for+SQL+Server"
 
 services:
     db:
