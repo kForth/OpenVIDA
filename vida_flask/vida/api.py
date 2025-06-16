@@ -130,6 +130,13 @@ def decode_vin():
 def get_profiles():
     with BaseDataSession() as _basedata:
         query = _basedata.query(VehicleProfile)
+        if (val := request.args.get("Id", None)) is not None:
+            query = query.filter(
+                or_(
+                    VehicleProfile.Id == val,
+                    VehicleProfile.Id == None,
+                )
+            )
         if (val := request.args.get("fkPartnerGroup", None)) is not None:
             query = query.filter(
                 or_(
