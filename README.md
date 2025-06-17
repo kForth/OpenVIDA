@@ -4,11 +4,10 @@ Online parts catalogue and document repository for maintenance and repair of Vol
 
 ### Running locally
 
-Run the following commands to bootstrap your environment if you are unable to run the application using Docker
+Run the development image using docker-compose:
 
 ```bash
-pip install -r requirements/dev.txt
-flask run --debug
+docker-compose up -d flask-dev
 ```
 
 Go to `http://localhost:5000`. You will see a pretty welcome screen.
