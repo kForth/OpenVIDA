@@ -1,6 +1,6 @@
 # OpenVIDA
 
-Online Parts and Documents catalogue for Volvo vehicles, up to MY2015.
+Online parts catalogue and document repository for maintenance and repair of Volvo vehicles, up to MY2016.
 
 ### Running locally
 
