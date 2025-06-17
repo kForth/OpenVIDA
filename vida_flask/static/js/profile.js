@@ -125,7 +125,7 @@ class ProfileViewModel extends VidaBaseModel {
                 fkSpecialVehicle: self.specialVehicle(),
             };
             $.ajax({
-                url: "/Vida/profiles",
+                url: "/Vida/profile",
                 data: data,
                 success: (resp) => self.selectedProfile(resp.Id),
             });

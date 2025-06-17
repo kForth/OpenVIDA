@@ -13,7 +13,7 @@ class VidaBaseModel {
 
         if (self.selectedProfile()) {
             $.ajax({
-                url: "/Vida/profiles",
+                url: "/Vida/profile",
                 data: {
                     Id: self.selectedProfile(),
                 },

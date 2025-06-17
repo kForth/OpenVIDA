@@ -138,8 +138,8 @@ def decode_vin():
     }
 
 
-@blueprint.route("/profiles", methods=["GET", "POST"])
-def get_profiles():
+@blueprint.route("/profile", methods=["GET", "POST"])
+def get_profile():
     with BaseDataSession() as _basedata:
         query = _basedata.query(VehicleProfile)
 
