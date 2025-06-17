@@ -7,7 +7,6 @@ class VidaBaseModel {
         );
         self.selectedProfile.subscribe((v) => {
             sessionStorage.setItem("selectedProfile", v);
-            self.refreshDocs();
         });
         self.profileInfo = ko.observable({});
 
