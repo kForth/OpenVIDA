@@ -12,7 +12,7 @@ from flask import (
     request,
     url_for,
 )
-from vida_flask.vida import api
+from openvida.vida import api
 from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
 from vida_py.basedata import Session as BaseDataSession
 from vida_py.basedata import (
@@ -24,8 +24,8 @@ from vida_py.basedata import (
 from vida_py.epc import Session as EpcSession
 from vida_py.images import Session as ImageRepoSession
 
-from vida_flask.extensions import db
-from vida_flask.vida.api import get_doc_by_link, get_document_html
+from openvida.extensions import db
+from openvida.vida.api import get_doc_by_link, get_document_html
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 

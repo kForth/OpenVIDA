@@ -5,12 +5,12 @@ import sys
 
 from flask import Flask, render_template
 
-from vida_flask import public, vida
-from vida_flask.extensions import cache, db, debug_toolbar
-from vida_flask.filters import FilterModule
+from openvida import public, vida
+from openvida.extensions import cache, db, debug_toolbar
+from openvida.filters import FilterModule
 
 
-def create_app(config_object="vida_flask.settings"):
+def create_app(config_object="openvida.settings"):
     """Create application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/.
 
     :param config_object: The configuration object to use.

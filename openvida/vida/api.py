@@ -48,8 +48,8 @@ from vida_py.service import (
     Resource,
 )
 
-from vida_flask import settings
-from vida_flask.xslt_extension.table_xslt_extension import TableXsltExtension
+from openvida import settings
+from openvida.xslt_extension.table_xslt_extension import TableXsltExtension
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
 

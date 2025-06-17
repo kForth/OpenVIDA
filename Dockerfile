@@ -18,7 +18,7 @@ RUN pip install --no-cache -r requirements/prod.txt
 
 # COPY webpack.config.js autoapp.py ./
 COPY autoapp.py ./
-COPY vida_flask vida_flask
+COPY openvida openvida
 # COPY assets assets
 COPY .env.example .env
 
@@ -32,7 +32,7 @@ RUN chown -R sid:sid /app
 USER sid
 ENV PATH="/home/sid/.local/bin:${PATH}"
 
-COPY --from=builder --chown=sid:sid /app/vida_flask/static /app/vida_flask/static
+COPY --from=builder --chown=sid:sid /app/openvida/static /app/openvida/static
 COPY requirements requirements
 RUN pip install --no-cache --user -r requirements/prod.txt
 RUN pip freeze > reqs.txt

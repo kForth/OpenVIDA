@@ -36,7 +36,7 @@ services:
             target: development
             args:
                 <<: *build_args
-        image: vida_flask-development
+        image: openvida-development
         ports:
             - 5000:5000
         environment:
@@ -55,7 +55,7 @@ services:
             target: production
             args:
                 <<: *build_args
-        image: vida_flask-production
+        image: openvida-production
         restart: always
         ports:
             - 5000:5000
@@ -79,7 +79,7 @@ services:
         environment:
             FLASK_ENV: production
             FLASK_DEBUG: 0
-        image: vida_flask-manage
+        image: openvida-manage
         stdin_open: true
         tty: true
         <<: *default_volumes
