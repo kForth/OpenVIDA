@@ -1,3 +1,11 @@
+{% macro nav_link(path, text) -%} {%- set active = (path|length == 1 and
+request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
+<a
+    class="nav-link {% if active %}link-secondary{% else %}link-body-emphasis{% endif %}"
+    href="{{ path }}"
+    >{{ text }}</a
+>
+{%- endmacro %}
 <header class="p-2 border-bottom">
     <div class="container-fluid">
         <div
@@ -12,29 +20,11 @@
             <ul
                 class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
             >
-                <li>
-                    <a class="nav-link link-secondary" href="/">Home</a>
-                </li>
-                <li>
-                    <a class="nav-link link-body-emphasis" href="/profile/"
-                        >Profile</a
-                    >
-                </li>
-                <li>
-                    <a class="nav-link link-body-emphasis" href="/parts/"
-                        >Parts</a
-                    >
-                </li>
-                <li>
-                    <a class="nav-link link-body-emphasis" href="/documents/"
-                        >Documents</a
-                    >
-                </li>
-                <li>
-                    <a class="nav-link link-body-emphasis" href="/resources/"
-                        >Resources</a
-                    >
-                </li>
+                <li>{{ nav_link("/", "Home") }}</li>
+                <li>{{ nav_link("/profile/", "Profile") }}</li>
+                <li>{{ nav_link("/parts/", "Parts") }}</li>
+                <li>{{ nav_link("/documents/", "Documents") }}</li>
+                <li>{{ nav_link("/resources/", "Resources") }}</li>
             </ul>
             <div class="dropdown text-end">
                 <a
