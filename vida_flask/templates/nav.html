@@ -5,6 +5,11 @@ request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
     href="{{ path }}"
     >{{ text }}</a
 >
+{%- endmacro %} {% macro info_row(obj, title) %}
+<tr class="text-nowrap" data-bind="attr: {hidden: !profileInfo().{{ obj }} }">
+    <td class="fw-bold">{{ title }}:</td>
+    <td data-bind="text: profileInfo().{{ obj }}"></td>
+</tr>
 {%- endmacro %}
 <header class="p-2 border-bottom">
     <div class="container-fluid">
@@ -28,7 +33,7 @@ request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
                 <li>{{ nav_link("/documents/", "Documents") }}</li>
                 <li>{{ nav_link("/resources/", "Resources") }}</li>
             </ul>
-            <div class="dropdown text-end me-2">
+            <div class="dropdown text-end ms-2">
                 <a
                     href="#"
                     class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -36,7 +41,7 @@ request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
                     aria-expanded="false"
                 >
                     <img
-                        height="32"
+                        height="42"
                         class="rounded"
                         data-bind="attr: {src: `/Vida/ProfileImg/${selectedProfile()}`}"
                     />
@@ -44,82 +49,19 @@ request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
                 <div class="dropdown-menu">
                     <table class="table table-sm table-borderless">
                         <tbody>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().PartnerGroup }"
-                            >
-                                <td class="fw-bold">Partner Group:</td>
-                                <td
-                                    data-bind="text: profileInfo().PartnerGroup"
-                                ></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().VehicleModel }"
-                            >
-                                <td class="fw-bold">Vehicle Model:</td>
-                                <td
-                                    data-bind="text: profileInfo().VehicleModel"
-                                ></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().ModelYear }"
-                            >
-                                <td class="fw-bold">Model Year:</td>
-                                <td
-                                    data-bind="text: profileInfo().ModelYear"
-                                ></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().Engine }"
-                            >
-                                <td class="fw-bold">Engine:</td>
-                                <td data-bind="text: profileInfo().Engine"></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().Transmission }"
-                            >
-                                <td class="fw-bold">Transmission:</td>
-                                <td
-                                    data-bind="text: profileInfo().Transmission"
-                                ></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().Steering }"
-                            >
-                                <td class="fw-bold">Steering:</td>
-                                <td
-                                    data-bind="text: profileInfo().Steering"
-                                ></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().BodyStyle }"
-                            >
-                                <td class="fw-bold">Body Style:</td>
-                                <td
-                                    data-bind="text: profileInfo().BodyStyle"
-                                ></td>
-                            </tr>
-                            <tr
-                                class="text-nowrap"
-                                data-bind="attr: {hidden: !profileInfo().SpecialVehicle }"
-                            >
-                                <td class="fw-bold">Special Vehicle:</td>
-                                <td
-                                    data-bind="text: profileInfo().SpecialVehicle"
-                                ></td>
-                            </tr>
+                            {{ info_row("PartnerGroup", "Partner Group") }} {{
+                            info_row("VehicleModel", "Vehicle Model") }} {{
+                            info_row("ModelYear", "Model Year") }} {{
+                            info_row("Engine", "Engine") }} {{
+                            info_row("Steering", "Steering") }} {{
+                            info_row("BodyStyle", "Body Style") }} {{
+                            info_row("SpecialVehicle", "Special Vehicle") }}
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="me-2">{% include "color_mode.html" %}</div>
-            <div class="px-2">
+            <div class="ms-2">{% include "color_mode.html" %}</div>
+            <div class="ms-2 ps-2">
                 <a
                     class="p-3 ps-0 text-body-secondary"
                     href="https://github.com/kForth/OpenVIDA"
