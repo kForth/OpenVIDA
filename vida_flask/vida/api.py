@@ -62,6 +62,18 @@ def image_by_path(filename):
 def image_by_code(code):
     return _send_image(LocalizedGraphics.fkGraphic == code)
 
+@blueprint.route("/ProfileImg/<profile>")
+def profile_img(profile):
+    with BaseDataSession() as _basedata:
+        path = _basedata.query(
+            VehicleModel.ImagePath
+        ).outerjoin(
+            VehicleProfile, VehicleProfile.fkVehicleModel == VehicleModel.Id
+        ).filter(
+            VehicleProfile.Id == profile
+        ).one()[0]
+    return image_by_path(path)
+
 def _send_image(filter):
     with ImagesSession() as _images:
         img = (
