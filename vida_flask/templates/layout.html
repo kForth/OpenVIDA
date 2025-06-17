@@ -86,8 +86,7 @@
         {% block css %}{% endblock %}
     </head>
     <body class="{% block body_class %}d-flex flex-column vh-100{% endblock %}">
-        {% include "color_mode.html" %} {% block body %} {% include "nav.html"
-        %}
+        {% block body %} {% include "nav.html" %}
         <main role="main" class="d-flex flex-fill overflow-y-auto">
             {% with messages = get_flashed_messages(with_categories=true) %} {%
             if messages %}
