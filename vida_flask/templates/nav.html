@@ -26,7 +26,7 @@ request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
                 <li>{{ nav_link("/documents/", "Documents") }}</li>
                 <li>{{ nav_link("/resources/", "Resources") }}</li>
             </ul>
-            <div class="dropdown text-end">
+            <div class="dropdown text-end me-2">
                 <a
                     href="#"
                     class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -115,6 +115,15 @@ request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div class="me-2">{% include "color_mode.html" %}</div>
+            <div class="px-2">
+                <a
+                    class="p-3 ps-0 text-body-secondary"
+                    href="https://github.com/kForth/OpenVIDA"
+                    target="_blank"
+                    ><i class="bi bi-github"></i
+                ></a>
             </div>
         </div>
     </div>

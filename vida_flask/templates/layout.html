@@ -112,8 +112,6 @@
             {% endif %} {% endwith %} {% block content %}{% endblock %}
         </main>
 
-        {% include "footer.html" %}
-
         <!-- JavaScript at the bottom for fast page loading -->
         <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/jquery-ui.min.js') }}"></script>
