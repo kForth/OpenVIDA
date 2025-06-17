@@ -113,6 +113,17 @@ class ProfileViewModel extends VidaBaseModel {
             });
         };
 
+        self.clearProfile = function () {
+            self.partnerGroup("");
+            self.vehicleModel("");
+            self.modelYear("");
+            self.engine("");
+            self.transmission("");
+            self.steering("");
+            self.bodyStyle("");
+            self.specialVehicle("");
+        };
+
         self.submitProfile = function () {
             let data = {
                 fkPartnerGroup: self.partnerGroup(),

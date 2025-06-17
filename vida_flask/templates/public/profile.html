@@ -107,7 +107,15 @@
                             data-bind="value: specialVehicle, options: specialVehicleOptions, optionsValue: 'id', optionsText: 'text'"
                         ></select>
                     </div>
-                    <div class="col-12 col-sm-4 offset-sm-8">
+                    <div class="col-12 col-sm-4 offset-sm-4">
+                        <button
+                            class="btn btn-danger w-100"
+                            data-bind="click: clearProfile"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                    <div class="col-12 col-sm-4">
                         <button
                             class="btn btn-primary w-100"
                             data-bind="click: submitProfile"
