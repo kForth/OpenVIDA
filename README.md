@@ -1,4 +1,4 @@
-# VIDA-Flask
+# OpenVIDA
 
 Online Parts and Documents catalogue for Volvo vehicles, up to MY2015.
 
@@ -15,7 +15,7 @@ Go to `http://localhost:5000`. You will see a pretty welcome screen.
 
 ## License
 
-VIDA-Flask
+OpenVIDA
 Copyright (C) 2025 Kestin Goforth
 
 This program is free software: you can redistribute it and/or modify
