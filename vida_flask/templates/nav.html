@@ -49,14 +49,82 @@
                         data-bind="attr: {src: `/Vida/ProfileImg/${selectedProfile()}`}"
                     />
                 </a>
-                <ul class="dropdown-menu text-small">
-                    <li>
-                        <span
-                            class="dropdown-item"
-                            data-bind="text: profileInfo().Description"
-                        ></span>
-                    </li>
-                </ul>
+                <div class="dropdown-menu">
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().PartnerGroup }"
+                            >
+                                <td class="fw-bold">Partner Group:</td>
+                                <td
+                                    data-bind="text: profileInfo().PartnerGroup"
+                                ></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().VehicleModel }"
+                            >
+                                <td class="fw-bold">Vehicle Model:</td>
+                                <td
+                                    data-bind="text: profileInfo().VehicleModel"
+                                ></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().ModelYear }"
+                            >
+                                <td class="fw-bold">Model Year:</td>
+                                <td
+                                    data-bind="text: profileInfo().ModelYear"
+                                ></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().Engine }"
+                            >
+                                <td class="fw-bold">Engine:</td>
+                                <td data-bind="text: profileInfo().Engine"></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().Transmission }"
+                            >
+                                <td class="fw-bold">Transmission:</td>
+                                <td
+                                    data-bind="text: profileInfo().Transmission"
+                                ></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().Steering }"
+                            >
+                                <td class="fw-bold">Steering:</td>
+                                <td
+                                    data-bind="text: profileInfo().Steering"
+                                ></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().BodyStyle }"
+                            >
+                                <td class="fw-bold">Body Style:</td>
+                                <td
+                                    data-bind="text: profileInfo().BodyStyle"
+                                ></td>
+                            </tr>
+                            <tr
+                                class="text-nowrap"
+                                data-bind="attr: {hidden: !profileInfo().SpecialVehicle }"
+                            >
+                                <td class="fw-bold">Special Vehicle:</td>
+                                <td
+                                    data-bind="text: profileInfo().SpecialVehicle"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
