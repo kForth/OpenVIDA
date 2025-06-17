@@ -1,36 +1,42 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+<header class="p-2 border-bottom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">VIDA-Flask</a>
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarCollapse"
-            aria-controls="navbarCollapse"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
+        <div
+            class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
         >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/">Home</a>
+            <a
+                href="/"
+                class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
+            >
+                <a class="navbar-brand" href="#">VIDA-Flask</a>
+            </a>
+            <ul
+                class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+            >
+                <li>
+                    <a class="nav-link link-secondary" href="/">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile/">Profile</a>
+                <li>
+                    <a class="nav-link link-body-emphasis" href="/profile/"
+                        >Profile</a
+                    >
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/parts/">Parts</a>
+                <li>
+                    <a class="nav-link link-body-emphasis" href="/parts/"
+                        >Parts</a
+                    >
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/documents/">Documents</a>
+                <li>
+                    <a class="nav-link link-body-emphasis" href="/documents/"
+                        >Documents</a
+                    >
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/resources/">Resources</a>
+                <li>
+                    <a class="nav-link link-body-emphasis" href="/resources/"
+                        >Resources</a
+                    >
                 </li>
             </ul>
-            <div class="flex-shrink-0 dropdown">
+            <div class="dropdown text-end">
                 <a
                     href="#"
                     class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -38,16 +44,15 @@
                     aria-expanded="false"
                 >
                     <img
-                        src="https://github.com/kForth.png"
-                        alt="kForth"
-                        width="32"
                         height="32"
-                        class="rounded-circle"
+                        class="rounded"
+                        data-bind="attr: {src: `/Vida/ProfileImg/${selectedProfile()}`}"
                     />
                 </a>
-                <ul class="dropdown-menu text-small shadow" style="">
+                <ul class="dropdown-menu text-small">
                     <li>
                         <span
+                            class="dropdown-item"
                             data-bind="text: profileInfo().Description"
                         ></span>
                     </li>
@@ -55,4 +60,4 @@
             </div>
         </div>
     </div>
-</nav>
+</header>
