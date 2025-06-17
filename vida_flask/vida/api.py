@@ -142,62 +142,50 @@ def decode_vin():
 def get_profiles():
     with BaseDataSession() as _basedata:
         query = _basedata.query(VehicleProfile)
-        if (val := request.args.get("Id", None)) is not None:
-            query = query.filter(
-                or_(
-                    VehicleProfile.Id == val,
-                    VehicleProfile.Id == None,
-                )
-            )
-        if (val := request.args.get("fkPartnerGroup", None)) is not None:
-            query = query.filter(
-                or_(
-                    VehicleProfile.fkPartnerGroup == val,
-                    VehicleProfile.fkPartnerGroup == None,
-                )
-            )
-        if (val := request.args.get("fkVehicleModel", None)) is not None:
-            query = query.filter(
-                or_(
-                    VehicleProfile.fkVehicleModel == val,
-                    VehicleProfile.fkVehicleModel == None,
-                )
-            )
-        if (val := request.args.get("fkModelYear", None)) is not None:
-            query = query.filter(
-                or_(VehicleProfile.fkModelYear == val, VehicleProfile.fkModelYear == None)
-            )
-        if (val := request.args.get("fkEngine", None)) is not None:
-            query = query.filter(
-                or_(VehicleProfile.fkEngine == val, VehicleProfile.fkEngine == None)
-            )
-        if (val := request.args.get("fkTransmission", None)) is not None:
-            query = query.filter(
-                or_(
-                    VehicleProfile.fkTransmission == val,
-                    VehicleProfile.fkTransmission == None,
-                )
-            )
-        if (val := request.args.get("fkSteering", None)) is not None:
-            query = query.filter(
-                or_(VehicleProfile.fkSteering == val, VehicleProfile.fkSteering == None)
-            )
-        if (val := request.args.get("fkBodyStyle", None)) is not None:
-            query = query.filter(
-                or_(VehicleProfile.fkBodyStyle == val, VehicleProfile.fkBodyStyle == None)
-            )
-        if (val := request.args.get("fkSpecialVehicle", None)) is not None:
-            query = query.filter(
-                or_(
-                    VehicleProfile.fkSpecialVehicle == val,
-                    VehicleProfile.fkSpecialVehicle == None,
-                )
-            )
 
+        def _arg_filter(query, field, key):
+            if (val := request.args.get(key, None)) is None:
+                return query
+            return query.filter(or_(field == val, field == None))
+
+        query = _arg_filter(query, VehicleProfile.Id, "Id")
+        query = _arg_filter(query, VehicleProfile.fkPartnerGroup, "fkPartnerGroup")
+        query = _arg_filter(query, VehicleProfile.fkVehicleModel, "fkVehicleModel")
+        query = _arg_filter(query, VehicleProfile.fkModelYear, "fkModelYear")
+        query = _arg_filter(query, VehicleProfile.fkEngine, "fkEngine")
+        query = _arg_filter(query, VehicleProfile.fkTransmission, "fkTransmission")
+        query = _arg_filter(query, VehicleProfile.fkSteering, "fkSteering")
+        query = _arg_filter(query, VehicleProfile.fkBodyStyle, "fkBodyStyle")
+        query = _arg_filter(query, VehicleProfile.fkSpecialVehicle, "fkSpecialVehicle")
         profile = query.order_by(
             desc(VehicleProfile.FolderLevel)
         ).first()
-        return {c.name: getattr(profile, c.name) for c in profile.__table__.columns}
+        return {
+            "Id": profile.Id,
+            "FolderLevel": profile.FolderLevel,
+            "Description": profile.Description,
+            "Title": profile.Title,
+            "ChassisNoFrom": profile.ChassisNoFrom,
+            "ChassisNoTo": profile.ChassisNoTo,
+            "fkNodeECU": profile.fkNodeECU,
+            "fkPartnerGroup": profile.fkPartnerGroup,
+            "fkVehicleModel": profile.fkVehicleModel,
+            "fkModelYear": profile.fkModelYear,
+            "fkEngine": profile.fkEngine,
+            "fkTransmission": profile.fkTransmission,
+            "fkSteering": profile.fkSteering,
+            "fkBodyStyle": profile.fkBodyStyle,
+            "fkSpecialVehicle": profile.fkSpecialVehicle,
+            "NodeECU": e.Description if (e := profile.NodeECU) is not None else "",
+            "PartnerGroup": e.Description if (e := profile.PartnerGroup) is not None else "",
+            "VehicleModel": e.Description if (e := profile.VehicleModel) is not None else "",
+            "ModelYear": e.Description if (e := profile.ModelYear) is not None else "",
+            "Engine": e.Description if (e := profile.Engine) is not None else "",
+            "Transmission": e.Description if (e := profile.Transmission) is not None else "",
+            "Steering": e.Description if (e := profile.Steering) is not None else "",
+            "BodyStyle": e.Description if (e := profile.BodyStyle) is not None else "",
+            "SpecialVehicle": e.Description if (e := profile.SpecialVehicle) is not None else "",
+        }
 
 
 @blueprint.route("/partnerGroups", methods=["GET", "POST"])
