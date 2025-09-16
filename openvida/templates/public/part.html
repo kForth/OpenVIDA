@@ -1,6 +1,6 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container-fluid row">
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-6">
         <div class="row">
             <div class="col-6 fw-bold">Description:</div>
             <div class="col-6">{{ part[1] }}</div>
@@ -22,10 +22,13 @@
             <div class="col-6">{{ part[4] }}</div>
         </div>
     </div>
-    <div class="col-12 col-xl-8">
-        <table class="table table-sm table-striped caption-top">
+    <div class="row">
+        <table class="table table-sm table-striped caption-top m-2">
             {% set numApplications = applications | length %}
-            <caption class="h4">Used in {{ numApplications }} Application{{ '' if numApplications == 1 else 's' }}:</caption>
+            <caption class="h4">
+                Used in {{ numApplications }} Application{{ '' if
+                numApplications == 1 else 's' }}:
+            </caption>
             <thead>
                 <tr>
                     <td>Vehicle</td>
