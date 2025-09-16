@@ -6,7 +6,7 @@ import os
 import re
 import zipfile
 
-from flask import Blueprint, abort, request, send_file, url_for
+from flask import Blueprint, abort, request, send_file, url_for, send_from_directory
 from lxml import etree
 from sqlalchemy import  Integer, cast, desc, distinct, func, or_
 from vida_py.basedata import Session as BaseDataSession
@@ -64,6 +64,8 @@ def image_by_code(code):
 
 @blueprint.route("/ProfileImg/<profile>")
 def profile_img(profile):
+    if profile == "null":
+        return send_from_directory("static", "img/ProfileImgPlaceholder.png")
     with BaseDataSession() as _basedata:
         path = _basedata.query(
             VehicleModel.ImagePath
