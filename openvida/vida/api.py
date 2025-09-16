@@ -392,11 +392,11 @@ def get_epc_part_info(partnumber):
         ).filter(
             PartItems.ItemNumber == partnumber
         ).all()
-        usage_profiles = set([e[3] for e in usages])
+        usage_profiles = list(set([e[3] for e in usages]))
 
     with BaseDataSession() as _basedata:
-        profile_vals = _basedata.query(
-            VehicleProfile.Id,
+        profile_query = select(
+            VehicleProfile.Id.label("ProfileId"),
             VehicleModel.Description,
             ModelYear.Description,
             Engine.Description,
@@ -422,9 +422,12 @@ def get_epc_part_info(partnumber):
             BrakeSystem, BrakeSystem.Id == VehicleProfile.fkBrakeSystem
         ).outerjoin(
             SpecialVehicle, SpecialVehicle.Id == VehicleProfile.fkSpecialVehicle
-        ).filter(
-            VehicleProfile.Id.in_(usage_profiles)
-        ).all()
+        ).subquery()
+        profile_vals = []
+        # Execute query in batches of 1000 usage profiles
+        for i in range(0, len(usage_profiles), 1000):
+            stmt = select(profile_query).filter(profile_query.c.ProfileId.in_(usage_profiles[i:i + 1000]))
+            profile_vals.extend(_basedata.execute(stmt).all())
         profile_names = dict([
             (_id, ", ".join([e for e in info if e]))
             for _id, *info in profile_vals
@@ -432,7 +435,7 @@ def get_epc_part_info(partnumber):
         applciations = sorted([
             {
                 "id": _id,
-                "profile": profile_names[profile],
+                "profile": profile_names.get(profile, "??"),
                 "title": text,
                 "note": note or "",
                 "qty": qty or 0
