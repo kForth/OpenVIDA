@@ -18,12 +18,13 @@ x-db-paths: &db_paths
     VIDA_SERVICE_DB_URI: "mssql+pyodbc://${VIDA_DB_USER}:${VIDA_DB_PASS}@host.docker.internal/servicerep_en-US?driver=ODBC+Driver+17+for+SQL+Server"
 
 services:
-    db:
+    vida-db:
         image: mcr.microsoft.com/mssql/server:2022-latest
-        container_name: db
+        container_name: vida-db
         restart: always
         environment:
             ACCEPT_EULA: "Y"
+            MSSQL_SA_PASSWORD: "VidaFlask.123"
         ports:
             - 1433:1433
         volumes:
@@ -46,7 +47,7 @@ services:
             GUNICORN_WORKERS: 4
             <<: *db_paths
         depends_on:
-            - db
+            - vida-db
         <<: *default_volumes
 
     flask-prod:
@@ -66,7 +67,7 @@ services:
             GUNICORN_WORKERS: 4
             <<: *db_paths
         depends_on:
-            - db
+            - vida-db
         <<: *default_volumes
 
     manage:
