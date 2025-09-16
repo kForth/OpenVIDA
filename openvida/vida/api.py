@@ -8,7 +8,7 @@ import zipfile
 
 from flask import Blueprint, abort, request, send_file, send_from_directory, url_for
 from lxml import etree
-from sqlalchemy import  Integer, cast, desc, distinct, func, or_
+from sqlalchemy import  Integer, cast, desc, distinct, func, or_, select
 from vida_py.basedata import Session as BaseDataSession
 from vida_py.basedata import (
     BodyStyle,
@@ -383,6 +383,7 @@ def get_epc_part_info(partnumber):
             func.dbo.GetPartNotes(CatalogueComponents.Id, language),
             ComponentConditions.fkProfile,
             func.cast(CatalogueComponents.Quantity, Integer),
+            CatalogueComponents.ComponentPath,
         ).outerjoin(
             PartItems, CatalogueComponents.fkPartItem == PartItems.Id
         ).outerjoin(
@@ -393,6 +394,18 @@ def get_epc_part_info(partnumber):
             PartItems.ItemNumber == partnumber
         ).all()
         usage_profiles = list(set([e[3] for e in usages]))
+
+        paths = list(set(sum([e[-1].split(",") for e in usages], start=[])))
+        path_items = _epc.query(
+            distinct(CatalogueComponents.Id),
+            Lexicon.Description,
+        ).join(
+            Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
+        ).filter(
+            CatalogueComponents.Id.in_(paths),
+            Lexicon.fkLanguage == language,
+        ).all()
+        path_names = dict(path_items)
 
     with BaseDataSession() as _basedata:
         profile_query = select(
@@ -432,20 +445,22 @@ def get_epc_part_info(partnumber):
             (_id, ", ".join([e for e in info if e]))
             for _id, *info in profile_vals
         ])
-        applciations = sorted([
+
+        applications = sorted([
             {
                 "id": _id,
                 "profile": profile_names.get(profile, "??"),
                 "title": text,
                 "note": note or "",
-                "qty": qty or 0
+                "qty": qty or 0,
+                "path": " > ".join(path_names.get(int(e), "??") for e in path.split(",")[:1])
             }
-            for (_id, text, note, profile, qty) in usages
+            for (_id, text, note, profile, qty, path) in usages
         ], key=lambda x: x["profile"])
 
     return {
         "part": part,
-        "applications": applciations
+        "applications": applications
     }
 
 @blueprint.route("/resources/")
