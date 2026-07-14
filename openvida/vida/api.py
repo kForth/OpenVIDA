@@ -17,8 +17,7 @@ from flask import (
     url_for,
 )
 from lxml import etree
-from sqlalchemy import  Integer, cast, desc, distinct, func, or_, select
-from vida_py.basedata import Session as BaseDataSession
+from sqlalchemy import Integer, cast, desc, distinct, func, or_, select
 from vida_py.basedata import (
     BodyStyle,
     BrakeSystem,
@@ -30,11 +29,11 @@ from vida_py.basedata import (
     Transmission,
     VehicleModel,
     VehicleProfile,
-    get_vin_components_by_partner_group_id
+    get_vin_components_by_partner_group_id,
 )
+from vida_py.basedata import Session as BaseDataSession
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
-from vida_py.epc import Session as EpcSession
 from vida_py.epc import (
     AttachmentData,
     CatalogueComponents,
@@ -43,11 +42,11 @@ from vida_py.epc import (
     ComponentConditions,
     Lexicon,
     PartItems,
-    VirtualToShared
+    VirtualToShared,
 )
+from vida_py.epc import Session as EpcSession
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
-from vida_py.service import Session as ServiceRepoSession
 from vida_py.service import (
     Document,
     DocumentLink,
@@ -56,6 +55,7 @@ from vida_py.service import (
     Qualifier,
     Resource,
 )
+from vida_py.service import Session as ServiceRepoSession
 
 from openvida import settings
 from openvida.xslt_extension.table_xslt_extension import TableXsltExtension
@@ -294,21 +294,26 @@ def get_epc_top_level():
             CatalogueComponents.AssemblyLevel,
             CatalogueComponents.TypeId,
             CatalogueComponents.ComponentPath,
+            AttachmentData.Code,
         ).join(
             Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
         ).join(
             VirtualToShared, CatalogueComponents.Id == func.dbo.fn_SplitWithLevel(VirtualToShared.AlternateComponentPath, 0)
         ).join(
             ComponentConditions, VirtualToShared.fkCatalogueComponent == ComponentConditions.fkCatalogueComponent
+        ).outerjoin(
+            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
+        ).outerjoin(
+            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
         ).filter(
             or_(ComponentConditions.fkProfile is None, ComponentConditions.fkProfile.in_(valid_profiles)),
+            Lexicon.fkLanguage == language,
             CatalogueComponents.TypeId == 2,
-            Lexicon.fkLanguage == language
         ).order_by(
             CatalogueComponents.Id
         ).all()
 
-    cols = ("id", "description", "assemblyLevel", "type", "path")
+    cols = ("id", "description", "assemblyLevel", "type", "path", "attachment")
     return [dict(zip(cols, e)) for e in query]
 
 
@@ -330,12 +335,17 @@ def get_epc_subelements():
             CatalogueComponents.AssemblyLevel,
             CatalogueComponents.TypeId,
             func.dbo.getSectionDocFootnote(CatalogueComponents.Id, language),
+            AttachmentData.Code,
         ).join(
             Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
         ).join(
             VirtualToShared, CatalogueComponents.Id == func.dbo.fn_SplitWithLevel(VirtualToShared.AlternateComponentPath, level)
         ).join(
             ComponentConditions, VirtualToShared.fkCatalogueComponent == ComponentConditions.fkCatalogueComponent
+        ).outerjoin(
+            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
+        ).outerjoin(
+            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
         ).filter(
             or_(ComponentConditions.fkProfile is None, ComponentConditions.fkProfile.in_(valid_profiles)),
             Lexicon.fkLanguage == language,
@@ -344,7 +354,7 @@ def get_epc_subelements():
                 CatalogueComponents.ParentComponentId == parent
             )
         ).all()
-    cols = ("id", "description", "assemblyLevel", "type", "note")
+    cols = ("id", "description", "assemblyLevel", "type", "note", "attachment")
     return [dict(zip(cols, e)) for e in query]
 
 
