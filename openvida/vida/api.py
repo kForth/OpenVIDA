@@ -6,7 +6,16 @@ import os
 import re
 import zipfile
 
-from flask import Blueprint, abort, request, send_file, send_from_directory, url_for
+import cgm.extract as cgm
+from flask import (
+    Blueprint,
+    Response,
+    abort,
+    request,
+    send_file,
+    send_from_directory,
+    url_for,
+)
 from lxml import etree
 from sqlalchemy import  Integer, cast, desc, distinct, func, or_, select
 from vida_py.basedata import Session as BaseDataSession
@@ -62,6 +71,10 @@ def image_by_path(filename):
 def image_by_code(code):
     return _send_image(LocalizedGraphics.fkGraphic == code)
 
+@blueprint.route("/img_raw/<code>")
+def raw_image_by_code(code):
+    return _send_image(LocalizedGraphics.fkGraphic == code, True)
+
 @blueprint.route("/ProfileImg/<profile>")
 def profile_img(profile):
     if profile == "null":
@@ -76,7 +89,7 @@ def profile_img(profile):
         ).one()[0]
     return image_by_path(path)
 
-def _send_image(filter):
+def _send_image(filter, raw=False):
     with ImagesSession() as _images:
         img = (
             _images.query(LocalizedGraphics)
@@ -91,6 +104,13 @@ def _send_image(filter):
             )
             .filter(Graphics.id == img.fkGraphic)
             .one()
+        )
+    if img_type.description.lower() == "cgm" and not raw:
+        svg_str = cgm.extract_vector_svg_from_bytes(img.imageData)
+        # io.BytesIO
+        return Response(
+            svg_str,
+            mimetype="image/svg+xml",
         )
     return send_file(
         io.BytesIO(img.imageData),
