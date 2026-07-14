@@ -292,7 +292,7 @@ def get_epc_top_level():
     return [dict(zip(cols, e)) for e in query]
 
 
-@blueprint.route("/epc/getTocElements")
+@blueprint.route("/epc/getTocElements/")
 def get_epc_subelements():
     language = request.args.get("language", False) or 15
     parent = request.args.get("parentId", False)
@@ -328,7 +328,7 @@ def get_epc_subelements():
     return [dict(zip(cols, e)) for e in query]
 
 
-@blueprint.route("/epc/getParts")
+@blueprint.route("/epc/getParts/")
 def get_epc_parts():
     language = request.args.get("language", False) or 15
     parent = request.args.get("parentId", False)
