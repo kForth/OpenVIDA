@@ -12,19 +12,22 @@ from flask import (
     request,
     url_for,
 )
-from openvida.vida import api
-from vida_py.basedata import BodyStyle, Engine, ModelYear, PartnerGroup
-from vida_py.basedata import Session as BaseDataSession
 from vida_py.basedata import (
+    BodyStyle,
+    Engine,
+    ModelYear,
+    PartnerGroup,
     SpecialVehicle,
     Steering,
     Transmission,
     VehicleModel,
 )
+from vida_py.basedata import Session as BaseDataSession
 from vida_py.epc import Session as EpcSession
 from vida_py.images import Session as ImageRepoSession
 
 from openvida.extensions import db
+from openvida.vida import api
 from openvida.vida.api import get_doc_by_link, get_document_html
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
