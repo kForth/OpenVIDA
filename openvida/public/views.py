@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Public section, including homepage and signup."""
 
-
 from flask import (
     Blueprint,
     abort,
@@ -27,6 +26,7 @@ from vida_py.basedata import Session as BaseDataSession
 from openvida.vida.api import get_doc_by_link, get_document_html, get_epc_part_info
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
+
 
 @blueprint.route("/", methods=["GET", "POST"])
 def home():
@@ -100,6 +100,7 @@ def document(chronicle):
     if doc_html is None:
         return abort(404)
     return render_template("public/document.html", content=doc_html)
+
 
 @blueprint.route("/doclink/<element>/")
 def document2(element):

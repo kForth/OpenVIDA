@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
+
 import logging
 import sys
 

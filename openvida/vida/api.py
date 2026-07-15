@@ -61,35 +61,34 @@ blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/V
 def image_by_path(filename):
     return _send_image(LocalizedGraphics.path == filename)
 
+
 @blueprint.route("/img/<code>")
 def image_by_code(code):
     return _send_image(LocalizedGraphics.fkGraphic == code)
 
+
 @blueprint.route("/img_raw/<code>")
 def raw_image_by_code(code):
     return _send_image(LocalizedGraphics.fkGraphic == code, True)
+
 
 @blueprint.route("/ProfileImg/<profile>")
 def profile_img(profile):
     if profile == "null":
         return send_from_directory("static", "img/ProfileImgPlaceholder.png")
     with BaseDataSession() as _basedata:
-        path = _basedata.query(
-            VehicleModel.ImagePath
-        ).outerjoin(
-            VehicleProfile, VehicleProfile.fkVehicleModel == VehicleModel.Id
-        ).filter(
-            VehicleProfile.Id == profile
-        ).one()[0]
+        path = (
+            _basedata.query(VehicleModel.ImagePath)
+            .outerjoin(VehicleProfile, VehicleProfile.fkVehicleModel == VehicleModel.Id)
+            .filter(VehicleProfile.Id == profile)
+            .one()[0]
+        )
     return image_by_path(path)
+
 
 def _send_image(filter, raw=False):
     with ImagesSession() as _images:
-        img = (
-            _images.query(LocalizedGraphics)
-            .filter(filter)
-            .one()
-        )
+        img = _images.query(LocalizedGraphics).filter(filter).one()
         img_type = (
             _images.query(GraphicFormats)
             .outerjoin(
@@ -116,8 +115,8 @@ def _send_image(filter, raw=False):
 
 @blueprint.route("/decode_vin/")
 def decode_vin():
-    vin = request.args.get('vinNumber', False)
-    partnerGroup = int(request.args.get('partnerGroup', 1001))
+    vin = request.args.get("vinNumber", False)
+    partnerGroup = int(request.args.get("partnerGroup", 1001))
     if not vin or len(vin) != 17:
         return abort(400)
 
@@ -141,7 +140,7 @@ def decode_vin():
         transm_desc,
         year_cid,
         engine_cid,
-        transm_cid
+        transm_cid,
     ) = profiles[0]
     return {
         "image": image_path,
@@ -173,9 +172,7 @@ def get_profile():
         query = _arg_filter(query, VehicleProfile.fkSteering, "fkSteering")
         query = _arg_filter(query, VehicleProfile.fkBodyStyle, "fkBodyStyle")
         query = _arg_filter(query, VehicleProfile.fkSpecialVehicle, "fkSpecialVehicle")
-        profile = query.order_by(
-            desc(VehicleProfile.FolderLevel)
-        ).first()
+        profile = query.order_by(desc(VehicleProfile.FolderLevel)).first()
         return {
             "Id": profile.Id,
             "FolderLevel": profile.FolderLevel,
@@ -216,60 +213,44 @@ def get_partner_groups():
 @blueprint.route("/modelYears", methods=["GET", "POST"])
 def get_model_years():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description} for e in _basedata.query(ModelYear).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(ModelYear).all()]
 
 
 @blueprint.route("/vehicleModels", methods=["GET", "POST"])
 def get_vehicle_models():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description}
-            for e in _basedata.query(VehicleModel).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(VehicleModel).all()]
 
 
 @blueprint.route("/engines", methods=["GET", "POST"])
 def get_engines():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description} for e in _basedata.query(Engine).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(Engine).all()]
 
 
 @blueprint.route("/transmissions", methods=["GET", "POST"])
 def get_transmissions():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description}
-            for e in _basedata.query(Transmission).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(Transmission).all()]
 
 
 @blueprint.route("/steerings", methods=["GET", "POST"])
 def get_steerings():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description} for e in _basedata.query(Steering).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(Steering).all()]
 
 
 @blueprint.route("/bodyStyles", methods=["GET", "POST"])
 def get_body_styles():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description} for e in _basedata.query(BodyStyle).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(BodyStyle).all()]
 
 
 @blueprint.route("/specialVehicles", methods=["GET", "POST"])
 def get_special_vehicles():
     with BaseDataSession() as _basedata:
-        return [
-            {"id": e.Id, "text": e.Description}
-            for e in _basedata.query(SpecialVehicle).all()
-        ]
+        return [{"id": e.Id, "text": e.Description} for e in _basedata.query(SpecialVehicle).all()]
+
 
 @blueprint.route("/epc/getComponents/")
 def get_epc_components():
@@ -288,20 +269,23 @@ def get_epc_components():
         return get_epc_subelements(id_, level, profile, language)
     return get_epc_parts(id_, language)
 
+
 @blueprint.route("/epc/getPartByPath/")
 def epc_get_part_by_path():
     language = request.args.get("language", False) or 15
     path = request.args.get("path", False)
     if not path:
-        return { "type": 2, "path": "" }
+        return {"type": 2, "path": ""}
         # return abort(400)
     return get_epc_part_by_path(path, language)
+
 
 @blueprint.route("/epc/part/<partnumber>")
 def epc_get_part_info(partnumber):
     language = request.args.get("language", False) or 15
     part, applications = get_epc_part_info(partnumber, language)
-    return { "part": part, "applications": applications }
+    return {"part": part, "applications": applications}
+
 
 @blueprint.route("/resources/")
 def resources():
@@ -312,10 +296,11 @@ def resources():
                 "id": doc.id,
                 "filename": doc.filename,
                 "type": doc.type.Title,
-                "url": url_for('api.resource_file', id_=doc.id)
+                "url": url_for("api.resource_file", id_=doc.id),
             }
             for doc in res
         ]
+
 
 @blueprint.route("/resource/<int:id_>")
 def resource_file(id_):
@@ -333,9 +318,7 @@ def documents_by_qualifier(profile):
         ]  # (ID, FolderLevel)
 
         quals = (
-            _service.query(Qualifier.id, Qualifier.title)
-            .order_by(Qualifier.qualifierCode)
-            .all()
+            _service.query(Qualifier.id, Qualifier.title).order_by(Qualifier.qualifierCode).all()
         )
         docs_by_qual = []
         docs = (
@@ -349,11 +332,7 @@ def documents_by_qualifier(profile):
             .all()
         )
         for qual in quals:
-            _docs = [
-                dict(zip(("chronicleId", "title"), e[:2]))
-                for e in docs
-                if e[2] == qual[0]
-            ]
+            _docs = [dict(zip(("chronicleId", "title"), e[:2])) for e in docs if e[2] == qual[0]]
             if _docs:
                 docs_by_qual.append(
                     {
@@ -386,9 +365,7 @@ def doc_to_html(doc):
         dom = etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
 
     ext = TableXsltExtension()
-    ns = etree.FunctionNamespace(
-        "xalan://com.ford.vcc.vida.web.xsltextension.TableXsltExtension"
-    )
+    ns = etree.FunctionNamespace("xalan://com.ford.vcc.vida.web.xsltextension.TableXsltExtension")
     ns["getTableNodes"] = ext.get_table_nodes
 
     # Transform xml doc using xslt template

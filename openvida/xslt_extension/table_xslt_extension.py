@@ -160,9 +160,7 @@ class TableXsltExtension:
 
         return node
 
-    def get_td(
-        self, row: etree._Element, moreRow: str, specNumber: int
-    ) -> etree._Element:
+    def get_td(self, row: etree._Element, moreRow: str, specNumber: int) -> etree._Element:
         node = etree.SubElement(row, "td")
         if moreRow is not None:
             moreRowValue = int(moreRow)
@@ -287,11 +285,7 @@ class TableXsltExtension:
                     align, valign, colsep2, rowsep2, count, lastRow
                 )
                 self.adopt_nodes(n2, node)
-            elif (
-                count + current_counter == 0
-                and name_start is not None
-                and colname is None
-            ):
+            elif count + current_counter == 0 and name_start is not None and colname is None:
                 start_pos = self.get_colspec_pos_by_name(name_start)
                 end_pos = self.get_colspec_pos_by_name(name_end)
 
@@ -327,8 +321,6 @@ class TableXsltExtension:
 
         for start_pos in (count, self.num_colspecs):
             node = self.get_empty_td(row, count)
-            node.attrib["style"] = self.get_style(
-                align, valign, colsep2, rowsep2, count, lastRow
-            )
+            node.attrib["style"] = self.get_style(align, valign, colsep2, rowsep2, count, lastRow)
 
         self.row_count += 1

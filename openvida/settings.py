@@ -6,6 +6,7 @@ Most configuration is set via environment variables.
 For local development, use a .env file to set
 environment variables.
 """
+
 from environs import Env
 
 env = Env()
@@ -19,8 +20,6 @@ SEND_FILE_MAX_AGE_DEFAULT = env.int("SEND_FILE_MAX_AGE_DEFAULT")
 BCRYPT_LOG_ROUNDS = env.int("BCRYPT_LOG_ROUNDS", default=13)
 DEBUG_TB_ENABLED = DEBUG
 DEBUG_TB_INTERCEPT_REDIRECTS = False
-CACHE_TYPE = (
-    "flask_caching.backends.SimpleCache"  # Can be "MemcachedCache", "RedisCache", etc.
-)
+CACHE_TYPE = "flask_caching.backends.SimpleCache"  # Can be "MemcachedCache", "RedisCache", etc.
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 VIDA_XSL_PATH = env.str("VIDA_XSL_PATH")
