@@ -58,3 +58,14 @@ package-lock.json
 
 # Development database
 *.db
+
+# caching
+.mypy_cache/
+.ruff_cache/
+
+# IDE settings
+.vscode/
+.idea/
+
+# TODO File
+TODO
