@@ -24,18 +24,16 @@
     </div>
     <div class="row">
         <table class="table table-sm table-striped caption-top m-2">
-            {% set numApplications = applications | length %}
             <caption class="h4">
-                Used in {{ numApplications }} Application{{ '' if
-                numApplications == 1 else 's' }}:
+                Usages:
             </caption>
             <thead>
                 <tr>
                     <td>Vehicle</td>
                     <td>Title</td>
                     <td>Note</td>
-                    <td>Location</td>
                     <td>Qty</td>
+                    <td>Path</td>
                 </tr>
             </thead>
             <tbody>
@@ -44,8 +42,10 @@
                     <td>{{ el["profile"] }}</td>
                     <td>{{ el["title"] }}</td>
                     <td>{{ el["note"] }}</td>
-                    <td>{{ el["path"] }}</td>
                     <td>{{ el["qty"] }}</td>
+                    <td>
+                        <a href="/parts/{{el['path']}}">{{ el['location'] }}</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -17,10 +17,9 @@ from flask import (
     url_for,
 )
 from lxml import etree
-from sqlalchemy import Integer, cast, desc, distinct, func, or_, select
+from sqlalchemy import desc, or_
 from vida_py.basedata import (
     BodyStyle,
-    BrakeSystem,
     Engine,
     ModelYear,
     PartnerGroup,
@@ -34,22 +33,10 @@ from vida_py.basedata import (
 from vida_py.basedata import Session as BaseDataSession
 from vida_py.diag import Session as DiagSession
 from vida_py.diag import get_valid_profiles_for_selected
-from vida_py.epc import (
-    AttachmentData,
-    CatalogueComponents,
-    CCPartnerGroup,
-    ComponentAttachments,
-    ComponentConditions,
-    Lexicon,
-    PartItems,
-    VirtualToShared,
-)
-from vida_py.epc import Session as EpcSession
 from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
 from vida_py.images import Session as ImagesSession
 from vida_py.service import (
     Document,
-    DocumentLink,
     DocumentProfile,
     Qualifier,
     Resource,
@@ -57,6 +44,14 @@ from vida_py.service import (
 from vida_py.service import Session as ServiceRepoSession
 
 from openvida import settings
+from openvida.vida.epc import (
+    get_epc_part_by_path,
+    get_epc_part_info,
+    get_epc_parts,
+    get_epc_subelements,
+    get_epc_top_level,
+)
+from openvida.vida.service import get_doc_by_chronicle, get_doc_by_link
 from openvida.xslt_extension.table_xslt_extension import TableXsltExtension
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
@@ -276,10 +271,6 @@ def get_special_vehicles():
             for e in _basedata.query(SpecialVehicle).all()
         ]
 
-def _get_valid_profiles(profile):
-    with BaseDataSession() as _basedata:
-        return [e[0] for e in get_valid_profiles_for_selected(_basedata, profile)]
-
 @blueprint.route("/epc/getComponents/")
 def get_epc_components():
     profile = request.args.get("selectedProfile", False)
@@ -289,238 +280,28 @@ def get_epc_components():
     path = request.args.get("path", "")
     if not path:
         return get_epc_top_level(profile, language)
-    component = _get_epc_part_by_path(path, language)
+    component = get_epc_part_by_path(path, language)
     level = component["assemblyLevel"]
     id_ = component["id"]
     # if level in (1, 2):
     if component["type"] in (1, 2):
-        return _get_epc_subelements(id_, level, profile, language)
-    return _get_epc_parts(id_, language)
-
-def get_epc_top_level(profile, language):
-    valid_profiles = _get_valid_profiles(profile)
-    with EpcSession() as _epc:
-        query = _epc.query(
-            distinct(CatalogueComponents.Id),
-            Lexicon.Description,
-            CatalogueComponents.AssemblyLevel,
-            CatalogueComponents.TypeId,
-            CatalogueComponents.ComponentPath,
-            AttachmentData.Code,
-        ).join(
-            Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
-        ).join(
-            VirtualToShared, CatalogueComponents.Id == func.dbo.fn_SplitWithLevel(VirtualToShared.AlternateComponentPath, 0)
-        ).join(
-            ComponentConditions, VirtualToShared.fkCatalogueComponent == ComponentConditions.fkCatalogueComponent
-        ).outerjoin(
-            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
-        ).outerjoin(
-            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
-        ).filter(
-            or_(ComponentConditions.fkProfile is None, ComponentConditions.fkProfile.in_(valid_profiles)),
-            Lexicon.fkLanguage == language,
-            CatalogueComponents.TypeId == 2,
-        ).order_by(
-            CatalogueComponents.Id
-        ).all()
-
-    cols = ("id", "description", "assemblyLevel", "type", "path", "attachment")
-    return [dict(zip(cols, e)) for e in query]
-
-def _get_epc_subelements(parent, level, profile, language):
-    valid_profiles = _get_valid_profiles(profile)
-    with EpcSession() as _epc:
-        query = _epc.query(
-            distinct(CatalogueComponents.Id),
-            Lexicon.Description,
-            CatalogueComponents.AssemblyLevel,
-            CatalogueComponents.TypeId,
-            CatalogueComponents.ComponentPath,
-            AttachmentData.Code,
-            func.dbo.getSectionDocFootnote(CatalogueComponents.Id, language),
-        ).join(
-            Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
-        ).join(
-            VirtualToShared, CatalogueComponents.Id == func.dbo.fn_SplitWithLevel(VirtualToShared.AlternateComponentPath, level)
-        ).join(
-            ComponentConditions, VirtualToShared.fkCatalogueComponent == ComponentConditions.fkCatalogueComponent
-        ).outerjoin(
-            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
-        ).outerjoin(
-            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
-        ).filter(
-            or_(ComponentConditions.fkProfile is None, ComponentConditions.fkProfile.in_(valid_profiles)),
-            Lexicon.fkLanguage == language,
-            or_(
-                VirtualToShared.fkCatalogueComponent_Parent == parent,
-                CatalogueComponents.ParentComponentId == parent
-            )
-        ).all()
-    cols = ("id", "description", "assemblyLevel", "type", "path", "attachment", "note")
-    return [dict(zip(cols, e)) for e in query]
-
-def _get_epc_parts(parent, language):
-    with EpcSession() as _epc:
-        query = _epc.query(
-            distinct(CatalogueComponents.Id),
-            func.dbo.GetPartText(CatalogueComponents.Id, language),
-            func.dbo.GetPartNotes(CatalogueComponents.Id, language),
-            CatalogueComponents.TypeId,
-            PartItems.ItemNumber,
-            cast(CatalogueComponents.Quantity, Integer),
-            CatalogueComponents.HotspotKey,
-            AttachmentData.Code,
-            CatalogueComponents.ComponentPath
-        ).outerjoin(
-            PartItems, PartItems.Id == CatalogueComponents.fkPartItem
-        ).outerjoin(
-            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
-        ).outerjoin(
-            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
-        ).filter(
-            CatalogueComponents.ParentComponentId == parent
-        ).all()
-    cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment", "path")
-    return [dict(zip(cols, e)) for e in query]
+        return get_epc_subelements(id_, level, profile, language)
+    return get_epc_parts(id_, language)
 
 @blueprint.route("/epc/getPartByPath/")
-def get_epc_part_by_path():
+def epc_get_part_by_path():
     language = request.args.get("language", False) or 15
     path = request.args.get("path", False)
     if not path:
         return { "type": 2, "path": "" }
         # return abort(400)
-    return _get_epc_part_by_path(path, language)
-
-def _get_epc_part_by_path(path, language):
-    with EpcSession() as _epc:
-        query = _epc.query(
-            distinct(CatalogueComponents.Id),
-            func.dbo.GetPartText(CatalogueComponents.Id, language),
-            func.dbo.GetPartNotes(CatalogueComponents.Id, language),
-            CatalogueComponents.TypeId,
-            PartItems.ItemNumber,
-            cast(CatalogueComponents.Quantity, Integer),
-            CatalogueComponents.HotspotKey,
-            AttachmentData.Code,
-            CatalogueComponents.ComponentPath,
-            CatalogueComponents.AssemblyLevel
-        ).outerjoin(
-            PartItems, PartItems.Id == CatalogueComponents.fkPartItem
-        ).outerjoin(
-            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
-        ).outerjoin(
-            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
-        ).filter(
-            CatalogueComponents.ComponentPath == path.replace("/", ",")
-        ).one()
-    cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment", "path", "assemblyLevel")
-    return dict(zip(cols, query))
+    return get_epc_part_by_path(path, language)
 
 @blueprint.route("/epc/part/<partnumber>")
-def get_epc_part_info(partnumber):
+def epc_get_part_info(partnumber):
     language = request.args.get("language", False) or 15
-
-    with EpcSession() as _epc:
-        part = _epc.query(
-            PartItems.ItemNumber,
-            Lexicon.Description,
-            PartItems.IsSoftware,
-            PartItems.StockRate,
-            PartItems.UnitType,
-        ).outerjoin(
-            Lexicon, Lexicon.DescriptionId == PartItems.DescriptionId
-        ).filter(
-            PartItems.ItemNumber == partnumber,
-            Lexicon.fkLanguage == language,
-        ).one()
-
-        usages = _epc.query(
-            CatalogueComponents.Id,
-            func.dbo.GetPartText(CatalogueComponents.Id, language),
-            func.dbo.GetPartNotes(CatalogueComponents.Id, language),
-            ComponentConditions.fkProfile,
-            func.cast(CatalogueComponents.Quantity, Integer),
-            CatalogueComponents.ComponentPath,
-        ).outerjoin(
-            PartItems, CatalogueComponents.fkPartItem == PartItems.Id
-        ).outerjoin(
-            ComponentConditions, ComponentConditions.fkCatalogueComponent == CatalogueComponents.ParentComponentId
-        ).outerjoin(
-            CCPartnerGroup, CCPartnerGroup.fkCatalogueComponent == CatalogueComponents.Id
-        ).filter(
-            PartItems.ItemNumber == partnumber
-        ).all()
-        usage_profiles = list(set([e[3] for e in usages]))
-
-        paths = list(set(sum([e[-1].split(",") for e in usages], start=[])))
-        path_items = _epc.query(
-            distinct(CatalogueComponents.Id),
-            Lexicon.Description,
-        ).join(
-            Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
-        ).filter(
-            CatalogueComponents.Id.in_(paths),
-            Lexicon.fkLanguage == language,
-        ).all()
-        path_names = dict(path_items)
-
-    with BaseDataSession() as _basedata:
-        profile_query = select(
-            VehicleProfile.Id.label("ProfileId"),
-            VehicleModel.Description,
-            ModelYear.Description,
-            Engine.Description,
-            Transmission.Description,
-            BodyStyle.Description,
-            Steering.Description,
-            BrakeSystem.Description,
-            SpecialVehicle.Description,
-            # func.dbo.getProfileFullTitle(VehicleProfile.Id)
-        ).outerjoin(
-            VehicleModel, VehicleModel.Id == VehicleProfile.fkVehicleModel
-        ).outerjoin(
-            ModelYear, ModelYear.Id == VehicleProfile.fkModelYear
-        ).outerjoin(
-            Engine, Engine.Id == VehicleProfile.fkEngine
-        ).outerjoin(
-            Transmission, Transmission.Id == VehicleProfile.fkTransmission
-        ).outerjoin(
-            BodyStyle, BodyStyle.Id == VehicleProfile.fkBodyStyle
-        ).outerjoin(
-            Steering, Steering.Id == VehicleProfile.fkSteering
-        ).outerjoin(
-            BrakeSystem, BrakeSystem.Id == VehicleProfile.fkBrakeSystem
-        ).outerjoin(
-            SpecialVehicle, SpecialVehicle.Id == VehicleProfile.fkSpecialVehicle
-        ).subquery()
-        profile_vals = []
-        # Execute query in batches of 1000 usage profiles
-        for i in range(0, len(usage_profiles), 1000):
-            stmt = select(profile_query).filter(profile_query.c.ProfileId.in_(usage_profiles[i:i + 1000]))
-            profile_vals.extend(_basedata.execute(stmt).all())
-        profile_names = dict([
-            (_id, ", ".join([e for e in info if e]))
-            for _id, *info in profile_vals
-        ])
-
-        applications = sorted([
-            {
-                "id": _id,
-                "profile": profile_names.get(profile, "??"),
-                "title": text,
-                "note": note or "",
-                "qty": qty or 0,
-                "path": " > ".join(path_names.get(int(e), "??") for e in path.split(",")[:1])
-            }
-            for (_id, text, note, profile, qty, path) in usages
-        ], key=lambda x: x["profile"])
-
-    return {
-        "part": part,
-        "applications": applications
-    }
+    part, applications = get_epc_part_info(partnumber, language)
+    return { "part": part, "applications": applications }
 
 @blueprint.route("/resources/")
 def resources():
@@ -581,21 +362,6 @@ def documents_by_qualifier(profile):
                     }
                 )
     return docs_by_qual
-
-
-def get_doc_by_chronicle(chronicle):
-    with ServiceRepoSession() as _service:
-        return _service.query(Document).filter(Document.chronicleId == chronicle).first()
-
-
-def get_doc_by_link(element_from):
-    with ServiceRepoSession() as _service:
-        return (
-            _service.query(Document)
-            .join(DocumentLink, Document.projectDocumentId == DocumentLink.projectDocumentTo)
-            .filter(DocumentLink.elementFrom == element_from)
-            .first()
-        )
 
 
 @blueprint.route("/document/<chronicle>/", methods=["GET", "POST"])

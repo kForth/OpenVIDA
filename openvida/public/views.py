@@ -23,12 +23,8 @@ from vida_py.basedata import (
     VehicleModel,
 )
 from vida_py.basedata import Session as BaseDataSession
-from vida_py.epc import Session as EpcSession
-from vida_py.images import Session as ImageRepoSession
 
-from openvida.extensions import db
-from openvida.vida import api
-from openvida.vida.api import _get_epc_part_by_path, get_doc_by_link, get_document_html
+from openvida.vida.api import get_doc_by_link, get_document_html, get_epc_part_info
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -84,8 +80,8 @@ def part_list(path=""):
 
 @blueprint.route("/part/<partnumber>")
 def part_info(partnumber):
-    info = api.get_epc_part_info(partnumber)
-    return render_template("public/part.html", part=info['part'], applications=info['applications'])
+    part, applications = get_epc_part_info(partnumber, 15)
+    return render_template("public/part.html", part=part, applications=applications)
 
 
 @blueprint.route("/resources/")
