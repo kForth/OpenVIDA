@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Public section, including homepage and signup."""
 
 from vida_py.service import Document, DocumentLink

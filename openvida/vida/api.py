@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Public section, including homepage and signup."""
 
 import io
@@ -100,7 +99,6 @@ def _send_image(filter, raw=False):
         )
     if img_type.description.lower() == "cgm" and not raw:
         svg_str = cgm.extract_vector_svg_from_bytes(img.imageData)
-        # io.BytesIO
         return Response(
             svg_str,
             mimetype="image/svg+xml",
