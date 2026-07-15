@@ -50,7 +50,6 @@ from vida_py.images import Session as ImagesSession
 from vida_py.service import (
     Document,
     DocumentLink,
-    DocumentLinkTitle,
     DocumentProfile,
     Qualifier,
     Resource,
@@ -277,16 +276,29 @@ def get_special_vehicles():
             for e in _basedata.query(SpecialVehicle).all()
         ]
 
+def _get_valid_profiles(profile):
+    with BaseDataSession() as _basedata:
+        return [e[0] for e in get_valid_profiles_for_selected(_basedata, profile)]
 
-@blueprint.route("/epc/topLevelToc/")
-def get_epc_top_level():
-    language = request.args.get("language", False) or 15
+@blueprint.route("/epc/getComponents/")
+def get_epc_components():
     profile = request.args.get("selectedProfile", False)
     if not profile:
         return abort(400)
+    language = request.args.get("language", False) or 15
+    path = request.args.get("path", "")
+    if not path:
+        return get_epc_top_level(profile, language)
+    component = _get_epc_part_by_path(path, language)
+    level = component["assemblyLevel"]
+    id_ = component["id"]
+    # if level in (1, 2):
+    if component["type"] in (1, 2):
+        return _get_epc_subelements(id_, level, profile, language)
+    return _get_epc_parts(id_, language)
 
-    with BaseDataSession() as _basedata:
-        valid_profiles = [e[0] for e in get_valid_profiles_for_selected(_basedata, profile)]
+def get_epc_top_level(profile, language):
+    valid_profiles = _get_valid_profiles(profile)
     with EpcSession() as _epc:
         query = _epc.query(
             distinct(CatalogueComponents.Id),
@@ -316,26 +328,17 @@ def get_epc_top_level():
     cols = ("id", "description", "assemblyLevel", "type", "path", "attachment")
     return [dict(zip(cols, e)) for e in query]
 
-
-@blueprint.route("/epc/getTocElements/")
-def get_epc_subelements():
-    language = request.args.get("language", False) or 15
-    parent = request.args.get("parentId", False)
-    level = request.args.get("assemblyLevel", False)
-    profile = request.args.get("selectedProfile", False)
-    if not profile or not parent:
-        return abort(400)
-
-    with BaseDataSession() as _basedata:
-        valid_profiles = [e[0] for e in get_valid_profiles_for_selected(_basedata, profile)]
+def _get_epc_subelements(parent, level, profile, language):
+    valid_profiles = _get_valid_profiles(profile)
     with EpcSession() as _epc:
         query = _epc.query(
             distinct(CatalogueComponents.Id),
             Lexicon.Description,
             CatalogueComponents.AssemblyLevel,
             CatalogueComponents.TypeId,
-            func.dbo.getSectionDocFootnote(CatalogueComponents.Id, language),
+            CatalogueComponents.ComponentPath,
             AttachmentData.Code,
+            func.dbo.getSectionDocFootnote(CatalogueComponents.Id, language),
         ).join(
             Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
         ).join(
@@ -354,17 +357,10 @@ def get_epc_subelements():
                 CatalogueComponents.ParentComponentId == parent
             )
         ).all()
-    cols = ("id", "description", "assemblyLevel", "type", "note", "attachment")
+    cols = ("id", "description", "assemblyLevel", "type", "path", "attachment", "note")
     return [dict(zip(cols, e)) for e in query]
 
-
-@blueprint.route("/epc/getParts/")
-def get_epc_parts():
-    language = request.args.get("language", False) or 15
-    parent = request.args.get("parentId", False)
-    if not parent:
-        return abort(400)
-
+def _get_epc_parts(parent, language):
     with EpcSession() as _epc:
         query = _epc.query(
             distinct(CatalogueComponents.Id),
@@ -375,6 +371,7 @@ def get_epc_parts():
             cast(CatalogueComponents.Quantity, Integer),
             CatalogueComponents.HotspotKey,
             AttachmentData.Code,
+            CatalogueComponents.ComponentPath
         ).outerjoin(
             PartItems, PartItems.Id == CatalogueComponents.fkPartItem
         ).outerjoin(
@@ -384,14 +381,46 @@ def get_epc_parts():
         ).filter(
             CatalogueComponents.ParentComponentId == parent
         ).all()
-    cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment")
+    cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment", "path")
     return [dict(zip(cols, e)) for e in query]
+
+@blueprint.route("/epc/getPartByPath/")
+def get_epc_part_by_path():
+    language = request.args.get("language", False) or 15
+    path = request.args.get("path", False)
+    if not path:
+        return { "type": 2, "path": "" }
+        # return abort(400)
+    return _get_epc_part_by_path(path, language)
+
+def _get_epc_part_by_path(path, language):
+    with EpcSession() as _epc:
+        query = _epc.query(
+            distinct(CatalogueComponents.Id),
+            func.dbo.GetPartText(CatalogueComponents.Id, language),
+            func.dbo.GetPartNotes(CatalogueComponents.Id, language),
+            CatalogueComponents.TypeId,
+            PartItems.ItemNumber,
+            cast(CatalogueComponents.Quantity, Integer),
+            CatalogueComponents.HotspotKey,
+            AttachmentData.Code,
+            CatalogueComponents.ComponentPath,
+            CatalogueComponents.AssemblyLevel
+        ).outerjoin(
+            PartItems, PartItems.Id == CatalogueComponents.fkPartItem
+        ).outerjoin(
+            ComponentAttachments, ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id
+        ).outerjoin(
+            AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData
+        ).filter(
+            CatalogueComponents.ComponentPath == path.replace("/", ",")
+        ).one()
+    cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment", "path", "assemblyLevel")
+    return dict(zip(cols, query))
 
 @blueprint.route("/epc/part/<partnumber>")
 def get_epc_part_info(partnumber):
     language = request.args.get("language", False) or 15
-
-    # Base.metadata.bind = engine
 
     with EpcSession() as _epc:
         part = _epc.query(

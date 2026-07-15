@@ -28,7 +28,7 @@ from vida_py.images import Session as ImageRepoSession
 
 from openvida.extensions import db
 from openvida.vida import api
-from openvida.vida.api import get_doc_by_link, get_document_html
+from openvida.vida.api import _get_epc_part_by_path, get_doc_by_link, get_document_html
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -77,8 +77,9 @@ def profile_select():
 
 
 @blueprint.route("/parts/")
-def part_list():
-    return render_template("public/parts.html")
+@blueprint.route("/parts/<path:path>/")
+def part_list(path=""):
+    return render_template("public/parts.html", path=path)
 
 
 @blueprint.route("/part/<partnumber>")

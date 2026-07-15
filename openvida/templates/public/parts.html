@@ -1,88 +1,85 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container-fluid d-flex flex-fill flex-nowrap overflow-none px-0">
-    <div id="tocSidebar" class="d-flex flex border-end">
-        <script type="text/html" id="link">
-            <li class="mb-1" role="presentation">
-                <button
-                    class="btn btn-link d-inline-flex text-start rounded border-0"
-                    type="button"
-                    data-bind="text: $root.linkTitle($data), click: $root.selectComponent"
-                ></button>
-            </li>
-        </script>
-        <script type="text/html" id="node">
-            <li class="mb-1" role="presentation">
-                <button
-                    class="btn btn-toc-node d-inline-flex text-start rounded border-0"
-                    type="button"
-                    aria-expanded="false"
-                    data-bs-toggle="collapse"
-                    data-bind="text: $root.nodeTitle($data), attr: { 'data-bs-target': `#toc-node-${$data.id()}-collapse` }, click: $root.loadChildren"
-                ></button>
-                <div
-                    class="ps-3 collapse"
-                    data-bind="attr: { id: `toc-node-${$data.id()}-collapse` }"
-                >
-                    <ul
-                        class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
-                        data-bind="template: { name: $root.nodeTemplate, foreach: $data.children }"
-                    ></ul>
-                </div>
-            </li>
-        </script>
+    <script type="text/html" id="panels">
         <div
-            class="h-100 overflow-y-auto collpase collapse-horizontal collapse show"
-            id="tocSidebarContent"
+            class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 p-3"
+            data-bind="foreach: $root.catalogue()"
         >
-            <ul
-                class="list-unstyled m-0 p-1"
-                data-bind="template: { name: 'node', foreach: partsTree }"
-            ></ul>
+            <div class="col">
+                <a
+                    class="card shadow-sm clickable text-decoration-none"
+                    data-bind="attr: {href: $parent.componentPath($data)}"
+                >
+                    <!--data-bind="click: $root.loadChildren"-->
+                    <img
+                        class="bd-placeholder-img card-img-top bg-secondary"
+                        width="100%"
+                        height="200px"
+                        role="img"
+                        data-bind="attr: {src: $root.attachmentPath($data)}"
+                    />
+                    <div class="card-body">
+                        <b
+                            class="card-text"
+                            data-bind="text: $data.description"
+                        ></b>
+                        <p class="card-text" data-bind="text: $data.note"></p>
+                    </div>
+                </a>
+            </div>
         </div>
-        <button
-            class="btn btn-sm btn-toc-toggle"
-            type="button"
-            aria-expanded="true"
-            data-bs-toggle="collapse"
-            data-bs-target="#tocSidebarContent"
-        ></button>
-    </div>
+    </script>
+    <script type="text/html" id="table">
+        <div class="row row-cols-1 row-cols-lg-2 g-3 p-3">
+            <div class="col order-lg-2">
+                <img
+                    class="bd-placeholder-img card-img-top bg-secondary"
+                    width="100%"
+                    height="500px"
+                    role="img"
+                    data-bind="attr: {src: attachmentPath(component())}"
+                />
+            </div>
+            <div class="col order-lg-1">
+                <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <td>Key</td>
+                            <td>Part Number</td>
+                            <td>Description</td>
+                            <td>Quantity</td>
+                            <td>Note</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- ko foreach: catalogue -->
+                        <tr>
+                            <td><span data-bind="text: key"></span></td>
+                            <td>
+                                <a
+                                    data-bind="text: number, attr: { href: `/part/${number()}` }"
+                                ></a>
+                            </td>
+                            <td><span data-bind="text: description"></span></td>
+                            <td><span data-bind="text: quantity"></span></td>
+                            <td><span data-bind="text: note"></span></td>
+                        </tr>
+                        <!-- /ko -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </script>
     <div
         class="d-flex flex-column w-100 h-100 overflow-y-auto"
         id="partContent"
-    >
-        <table
-            class="table table-sm table-striped"
-            data-bind="attr: {hidden: selectedCatalogue().length == 0}"
-        >
-            <thead>
-                <tr>
-                    <td>Key</td>
-                    <td>Part Number</td>
-                    <td>Description</td>
-                    <td>Quantity</td>
-                    <td>Note</td>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- ko foreach: selectedCatalogue -->
-                <tr>
-                    <td><span data-bind="text: key"></span></td>
-                    <td>
-                        <a
-                            data-bind="text: number, attr: { href: `/part/${number}` }"
-                        ></a>
-                    </td>
-                    <td><span data-bind="text: description"></span></td>
-                    <td><span data-bind="text: quantity"></span></td>
-                    <td><span data-bind="text: note"></span></td>
-                </tr>
-                <!-- /ko -->
-            </tbody>
-        </table>
-    </div>
+        data-bind="template: { name: layoutTemplate(), data: $root}"
+    ></div>
 </div>
 {% endblock %} {% block js%}
+<script type="text/javascript">
+    const COMPONENT_PATH = {{path | tojson }};
+</script>
 <script
     type="text/javascript"
     src="{{ url_for('static', filename='js/parts.js') }}"

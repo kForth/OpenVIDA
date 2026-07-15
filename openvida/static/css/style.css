@@ -116,3 +116,10 @@ ul.ui-autocomplete {
         display: block !important;
     }
 }
+
+
+/* Misc */
+
+.clickable:hover {
+    cursor: pointer;
+}
