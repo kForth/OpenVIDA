@@ -85,9 +85,9 @@ def profile_img(profile):
     return image_by_path(path)
 
 
-def _send_image(filter, raw=False):
+def _send_image(query_filter, raw=False):
     with ImagesSession() as _images:
-        img = _images.query(LocalizedGraphics).filter(filter).one()
+        img = _images.query(LocalizedGraphics).filter(query_filter).one()
         img_type = (
             _images.query(GraphicFormats)
             .outerjoin(
@@ -114,31 +114,31 @@ def _send_image(filter, raw=False):
 @blueprint.route("/decode_vin/")
 def decode_vin():
     vin = request.args.get("vinNumber", False)
-    partnerGroup = int(request.args.get("partnerGroup", 1001))
+    partner_group = int(request.args.get("partnerGroup", 1001))
     if not vin or len(vin) != 17:
         return abort(400)
 
     with BaseDataSession() as _basedata:
-        profiles = get_vin_components_by_partner_group_id(_basedata, vin, partnerGroup)
+        profiles = get_vin_components_by_partner_group_id(_basedata, vin, partner_group)
 
     if not profiles:
         return abort(404)
     (
         model_id,
-        model_cid,
+        _,  # model_cid
         image_path,
         year_id,
         body_id,
         engine_id,
         transm_id,
-        model_desc,
-        year_desc,
-        body_desc,
-        engine_desc,
-        transm_desc,
-        year_cid,
-        engine_cid,
-        transm_cid,
+        _,  # model_desc
+        _,  # year_desc
+        _,  # body_desc
+        _,  # engine_desc
+        _,  # transm_desc
+        _,  # year_cid
+        _,  # engine_cid
+        _,  # transm_cid
     ) = profiles[0]
     return {
         "image": image_path,

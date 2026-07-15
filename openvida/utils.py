@@ -1,7 +1,12 @@
 """Helper utilities and decorators."""
 
+from collections.abc import Callable
+from typing import Any, TypeVar
+
 from flask import flash
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
+
+R = TypeVar("R")
 
 
 def flash_errors(form, category="warning"):
@@ -53,14 +58,17 @@ def compress_years(years):
     return ", ".join(ranges)
 
 
-def with_session(session_type: sessionmaker):
-    def decorator(func):
-        def wrapper(*a, session: sessionmaker = None):
+def with_session(
+    session_maker: sessionmaker,
+) -> Callable[[Callable[..., R]], Callable[..., R]]:
+    """Automatically create a new session if we don't pass an existing one."""
+
+    def decorator(func: Callable[..., R]) -> Callable[..., R]:
+        def wrapper(*a: Any, session: Session | None = None) -> R:
             if session is None:
-                with session_type() as session_:
+                with session_maker() as session_:
                     return func(*a, session=session_)
-            else:
-                return func(*a, session=session)
+            return func(*a, session=session)
 
         return wrapper
 

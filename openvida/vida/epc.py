@@ -2,8 +2,10 @@
 
 from functools import reduce
 from operator import iadd
+from typing import Any
 
 from sqlalchemy import Integer, cast, distinct, func, or_
+from sqlalchemy.orm import Session
 from vida_py.epc import (
     AttachmentData,
     CatalogueComponents,
@@ -16,12 +18,14 @@ from vida_py.epc import (
 )
 from vida_py.epc import Session as EpcSession
 
-import openvida.vida.basedata as basedata
 from openvida.utils import compress_years, with_session
+from openvida.vida import basedata
 
 
 @with_session(EpcSession)
-def get_epc_top_level(profile, language, *, session: EpcSession = None):
+def get_epc_top_level(
+    profile: str, language: int, *, session: Session | None = None
+) -> list[dict[str, Any]]:
     valid_profiles = basedata.get_valid_profiles(profile, session=None)
     query = (
         session.query(
@@ -64,7 +68,9 @@ def get_epc_top_level(profile, language, *, session: EpcSession = None):
 
 
 @with_session(EpcSession)
-def get_epc_subelements(parent, level, profile, language, *, session: EpcSession = None):
+def get_epc_subelements(
+    parent: int, level: int, profile: str, language: int, *, session: Session | None = None
+) -> list[dict[str, Any]]:
     valid_profiles = basedata.get_valid_profiles(profile, session=None)
     query = (
         session.query(
@@ -109,7 +115,9 @@ def get_epc_subelements(parent, level, profile, language, *, session: EpcSession
 
 
 @with_session(EpcSession)
-def get_epc_parts(parent, language, *, session: EpcSession = None):
+def get_epc_parts(
+    parent: int, language: int, *, session: Session | None = None
+) -> list[dict[str, Any]]:
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -136,7 +144,9 @@ def get_epc_parts(parent, language, *, session: EpcSession = None):
 
 
 @with_session(EpcSession)
-def get_epc_part_by_path(path, language, *, session: EpcSession = None):
+def get_epc_part_by_path(
+    path: str, language: int, *, session: Session | None = None
+) -> dict[str, Any]:
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -175,8 +185,10 @@ def get_epc_part_by_path(path, language, *, session: EpcSession = None):
 
 
 @with_session(EpcSession)
-def get_part_item(partnumber, language, *, session: EpcSession = None):
-    return (
+def get_part_item(
+    partnumber: str, language: int, *, session: Session | None = None
+) -> tuple[str, str, bool, int, str]:
+    result = (
         session.query(
             PartItems.ItemNumber,
             Lexicon.Description,
@@ -191,11 +203,14 @@ def get_part_item(partnumber, language, *, session: EpcSession = None):
         )
         .one()
     )
+    return tuple(result)
 
 
 @with_session(EpcSession)
-def get_part_usages(partnumber, language, *, session: EpcSession = None):
-    return (
+def get_part_usages(
+    partnumber: str, language: int, *, session: Session | None = None
+) -> list[tuple[int, str, str, int, int, str]]:
+    return list(
         session.query(
             CatalogueComponents.Id,
             func.dbo.GetPartText(CatalogueComponents.Id, language),
@@ -216,14 +231,16 @@ def get_part_usages(partnumber, language, *, session: EpcSession = None):
 
 
 @with_session(EpcSession)
-def get_epc_part_info(partnumber, language, *, session: EpcSession = None):
+def get_epc_part_info(
+    partnumber: str, language: int, *, session: Session | None = None
+) -> tuple[dict[str, Any], list[dict[str, str]]]:
     part = get_part_item(partnumber, language, session=session)
     usages = get_part_usages(partnumber, language, session=session)
 
     usage_profiles = list({e[3] for e in usages})
     profile_keys, profile_values = basedata.get_profile_values(usage_profiles, session=None)
 
-    usage_paths = list(set(reduce(iadd, [e[-1].split(",") for e in usages], [])))
+    usage_paths: list[str] = list(set(reduce(iadd, [e[-1].split(",") for e in usages], [])))
     path_items = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -239,7 +256,7 @@ def get_epc_part_info(partnumber, language, *, session: EpcSession = None):
     path_names = dict(path_items)
     profile_names = [dict(zip(profile_keys, info)) for info in profile_values]
 
-    usage_tree = {}
+    usage_tree: dict[str, Any] = {}
     for item in profile_names:
         current = usage_tree
         for i, key in enumerate(profile_keys):
@@ -254,7 +271,7 @@ def get_epc_part_info(partnumber, language, *, session: EpcSession = None):
             if i == len(profile_keys) - 1:
                 current.append(item[key])
 
-    def generate_profile_names(tree):
+    def generate_profile_names(tree: dict[str, Any]) -> dict[str, str]:
         names = {}
 
         def _explore_branches(branches, prefix="", i=0):
@@ -273,7 +290,7 @@ def get_epc_part_info(partnumber, language, *, session: EpcSession = None):
         _explore_branches(tree)
         return names
 
-    profile_names = generate_profile_names(usage_tree)
+    profile_names: dict[str, str] = generate_profile_names(usage_tree)
 
     applications = {}
     for _id, text, note, profile, qty, path in usages:
@@ -287,6 +304,5 @@ def get_epc_part_info(partnumber, language, *, session: EpcSession = None):
                 "path": "/".join(path.split(",")[:-1]),
                 "location": " > ".join(path_names.get(int(e), "??") for e in path.split(",")[:1]),
             }
-    applications = sorted(applications.values(), key=lambda x: x["profile"])
 
-    return part, applications
+    return part, sorted(applications.values(), key=lambda x: x["profile"])

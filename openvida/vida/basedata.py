@@ -1,6 +1,9 @@
 """Public section, including homepage and signup."""
 
+from typing import Any
+
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 from vida_py.basedata import (
     BodyStyle,
     BrakeSystem,
@@ -19,12 +22,14 @@ from openvida.utils import with_session
 
 
 @with_session(BaseDataSession)
-def get_valid_profiles(profile, *, session: BaseDataSession = None):
+def get_valid_profiles(profile: str, *, session: Session | None = None) -> list[str]:
     return [e[0] for e in get_valid_profiles_for_selected(session, profile)]
 
 
 @with_session(BaseDataSession)
-def get_profile_values(profiles, *, session: BaseDataSession = None):
+def get_profile_values(
+    profiles: str, *, session: Session | None = None
+) -> tuple[tuple[str, ...], list[tuple[Any, ...]]]:
     # These keys should always match the query below.
     profile_keys = (
         "model",
@@ -37,7 +42,10 @@ def get_profile_values(profiles, *, session: BaseDataSession = None):
         "year",
         "id",
     )
-    profile_query = (
+    if session is None:
+        return profile_keys, []
+
+    query = (
         select(
             VehicleModel.Description,
             Engine.Description,
@@ -64,7 +72,7 @@ def get_profile_values(profiles, *, session: BaseDataSession = None):
     profile_values = []
     # Execute query in batches of 1000 usage profiles
     for i in range(0, len(profiles), 1000):
-        stmt = select(profile_query).filter(profile_query.c.ProfileId.in_(profiles[i : i + 1000]))
+        stmt = select(query).filter(query.c.ProfileId.in_(profiles[i : i + 1000]))
         profile_values.extend(session.execute(stmt).all())
 
     return profile_keys, profile_values

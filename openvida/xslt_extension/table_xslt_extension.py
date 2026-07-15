@@ -1,6 +1,7 @@
 # Translated from `com.ford.vcc.vida.web.xsltextension.TabelXsltExtension.class`
 
 import traceback
+from typing import Any
 
 from lxml import etree
 
@@ -27,7 +28,7 @@ class TableXsltExtension:
     more_rows: dict[int, int]
     spanspec: dict[str, Spanspec]
 
-    def get_table_nodes(self, _, els: list[etree._Element]) -> etree._Element:
+    def get_table_nodes(self, _: Any, els: list[etree._Element]) -> etree._Element:
         try:
             self.row_count = 0
             self.num_colspecs = 0
@@ -55,7 +56,7 @@ class TableXsltExtension:
 
         return [self.root]
 
-    def get_metadata(self, to_node: etree._Element, n: etree._Element):
+    def get_metadata(self, to_node: etree._Element, n: etree._Element) -> None:
         colsep = n.attrib.get("colsep", "1")
         rowsep = n.attrib.get("rowsep", "1")
 
@@ -223,7 +224,7 @@ class TableXsltExtension:
 
         return style
 
-    def adopt_nodes(self, fromNode: etree._Element, toNode: etree._Element):
+    def adopt_nodes(self, fromNode: etree._Element, toNode: etree._Element) -> None:
         toNode.append(fromNode)
         for n2 in fromNode.iter("entry"):
             if len(n2) <= 0:
@@ -239,7 +240,7 @@ class TableXsltExtension:
         colsep: str,
         rowsep: str,
         lastRow: bool,
-    ):
+    ) -> None:
         row = etree.SubElement(toNode, "tr")
         current_counter = self.more_rows.get(self.row_count, 0)
         count = current_counter
