@@ -1,83 +1,108 @@
-{% macro nav_link(path, text) -%} {%- set active = (path|length == 1 and
-request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
+{% macro nav_link(path, text) -%}
+{%- set active = (path|length == 1 and request.path == path) or (path|length > 1 and request.path.startswith(path)) %}
 <a
-    class="nav-link {% if active %}link-secondary{% else %}link-body-emphasis{% endif %}"
+    class="nav-link px-3 py-2 rounded-3 link-body-emphasis{% if active %} fw-semibold text-body-secondary{% endif %}"
+    {% if active %}aria-current="page"{% endif %}
     href="{{ path }}"
     >{{ text }}</a
 >
-{%- endmacro %} {% macro info_row(obj, title) %}
+{%- endmacro %}
+{% macro info_row(obj, title) %}
 <tr class="text-nowrap" data-bind="attr: {hidden: !profileInfo().{{ obj }} }">
     <td class="fw-bold">{{ title }}:</td>
     <td data-bind="text: profileInfo().{{ obj }}"></td>
 </tr>
 {%- endmacro %}
-<header class="p-2 border-bottom">
-    <div class="container-fluid">
-        <div
-            class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
-        >
+<header class="border-bottom bg-body-tertiary shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light py-2">
+        <div class="container-fluid px-3 px-lg-4">
             <a
                 href="/"
-                class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
+                class="navbar-brand d-flex align-items-center fw-semibold link-body-emphasis text-decoration-none"
             >
-                <a class="navbar-brand" href="#">
-                    <i class="bi bi-gender-male me-1"></i> OpenVIDA
-                </a>
+                <span class="d-inline-flex align-items-center justify-content-center p-2">
+                    <i class="bi bi-gender-male"></i>
+                </span>
+                <span>OpenVIDA</span>
             </a>
-            <ul
-                class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-            >
-                <li>{{ nav_link("/", "Home") }}</li>
-                <li>{{ nav_link("/profile/", "Profile") }}</li>
-                <li>{{ nav_link("/parts/", "Parts") }}</li>
-                <li>{{ nav_link("/documents/", "Documents") }}</li>
-                <li>{{ nav_link("/resources/", "Resources") }}</li>
-                <li>{{ nav_link("/about/", "About") }}</li>
-            </ul>
-            <div class="dropdown text-end ms-2">
-                <a
-                    href="#"
-                    class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                >
-                    <img
-                        height="42"
-                        class="rounded"
-                        data-bind="attr: {src: `/Vida/ProfileImg/${selectedProfile()}`}"
-                    />
-                </a>
-                <div class="dropdown-menu">
-                    <table class="table table-sm table-borderless">
-                        <tbody>
-                            {{ info_row("PartnerGroup", "Partner Group") }} {{
-                            info_row("VehicleModel", "Vehicle Model") }} {{
-                            info_row("ModelYear", "Model Year") }} {{
-                            info_row("Engine", "Engine") }} {{
-                            info_row("Steering", "Steering") }} {{
-                            info_row("BodyStyle", "Body Style") }} {{
-                            info_row("SpecialVehicle", "Special Vehicle") }}
-                        </tbody>
-                    </table>
+
+            <div class="ms-auto me-2 d-flex align-items-center gap-1 gap-sm-2 me-2 me-lg-0 order-lg-3 flex-shrink-0">
+                <ul class="navbar-nav flex-row me-auto mb-3 mb-lg-0 gap-1 pt-3 pt-lg-0">
+                    <li class="nav-item">
+                        <a
+                            class="btn btn-outline-secondary p-2 d-inline-flex align-items-center justify-content-center p-0"
+                            href="https://github.com/kForth/OpenVIDA"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open GitHub repository"
+                        ><i class="bi bi-github"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a
+                            class="btn btn-outline-secondary p-2 d-inline-flex align-items-center justify-content-center p-0"
+                            href="https://ko-fi.com/kestin"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Support on Ko-fi"
+                        ><i class="bi bi-cup-hot"></i></a>
+                    </li>
+                </ul>
+                {% include "color_mode.html" %}
+                <div class="dropdown d-inline-flex align-items-center" style="height: 42px">
+                    <a
+                        href="#"
+                        class="d-inline-flex align-items-center h-100 link-secondary text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <img
+                            height="42"
+
+                            class="object-fit-contain rounded border bg-body-secondary"
+                            alt="Selected vehicle profile"
+                            data-bind="attr: {src: `/Vida/ProfileImg/${selectedProfile()}` }"
+                        />
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end p-2">
+                        <div class="small fw-semibold px-2 pb-1 text-body-secondary">Selected Profile</div>
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                {{ info_row("PartnerGroup", "Partner Group") }}
+                                {{ info_row("VehicleModel", "Vehicle Model") }}
+                                {{ info_row("ModelYear", "Model Year") }}
+                                {{ info_row("Engine", "Engine") }}
+                                {{ info_row("Steering", "Steering") }}
+                                {{ info_row("BodyStyle", "Body Style") }}
+                                {{ info_row("SpecialVehicle", "Special Vehicle") }}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="ms-2">{% include "color_mode.html" %}</div>
-            <div class="ms-2 ps-2">
-                <a
-                    class="p-3 ps-0 text-body-secondary"
-                    href="https://github.com/kForth/OpenVIDA"
-                    target="_blank"
-                    ><i class="bi bi-github"></i
-                ></a>
-            </div>
-            <div class="ms-2">
-                <a
-                    class="p-3 ps-0 text-body-secondary"
-                    href="https://ko-fi.com/kestin"
-                    target="_blank"
-                    ><i class="bi bi-cup-hot"></i
-                ></a>
+
+            <button
+                class="navbar-toggler btn btn-outline-secondary px-2 flex-shrink-0"
+                style="height: 42px"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon s2x2"></span>
+            </button>
+
+            <div class="collapse navbar-collapse order-lg-2 flex-grow-1" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-3 mb-lg-0 gap-1 pt-3 pt-lg-0">
+                    <li class="nav-item">{{ nav_link("/", "Home") }}</li>
+                    <li class="nav-item">{{ nav_link("/profile/", "Profile") }}</li>
+                    <li class="nav-item">{{ nav_link("/parts/", "Parts") }}</li>
+                    <li class="nav-item">{{ nav_link("/documents/", "Documents") }}</li>
+                    <li class="nav-item">{{ nav_link("/resources/", "Resources") }}</li>
+                    <li class="nav-item">{{ nav_link("/about/", "About") }}</li>
+                </ul>
             </div>
         </div>
-    </div>
+    </nav>
 </header>
