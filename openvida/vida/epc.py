@@ -25,7 +25,7 @@ from openvida.vida import basedata
 @with_session(EpcSession)
 def get_epc_top_level(
     profile: str, language: int, *, session: Session | None = None
-) -> list[dict[str, Any]]:
+) -> list[dict[str, int | str]]:
     valid_profiles = basedata.get_valid_profiles(profile, session=None)
     query = (
         session.query(
@@ -70,7 +70,7 @@ def get_epc_top_level(
 @with_session(EpcSession)
 def get_epc_subelements(
     parent: int, level: int, profile: str, language: int, *, session: Session | None = None
-) -> list[dict[str, Any]]:
+) -> list[dict[str, int | str]]:
     valid_profiles = basedata.get_valid_profiles(profile, session=None)
     query = (
         session.query(
@@ -117,7 +117,7 @@ def get_epc_subelements(
 @with_session(EpcSession)
 def get_epc_parts(
     parent: int, language: int, *, session: Session | None = None
-) -> list[dict[str, Any]]:
+) -> list[dict[str, int | str]]:
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -146,7 +146,7 @@ def get_epc_parts(
 @with_session(EpcSession)
 def get_epc_part_by_path(
     path: str, language: int, *, session: Session | None = None
-) -> dict[str, Any]:
+) -> dict[str, int | str]:
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -233,7 +233,7 @@ def get_part_usages(
 @with_session(EpcSession)
 def get_epc_part_info(
     partnumber: str, language: int, *, session: Session | None = None
-) -> tuple[dict[str, Any], list[dict[str, str]]]:
+) -> tuple[dict[str, int | str], list[dict[str, str]]]:
     part = get_part_item(partnumber, language, session=session)
     usages = get_part_usages(partnumber, language, session=session)
 
