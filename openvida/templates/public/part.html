@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "layout.html" %}
+{% block page_title %} - {{ part["description"]  }} #{{ part["itemNumber"] }}{%endblock%}
+{% block content %}
 <div class="container-fluid row">
     <div class="row">
         <h2>{{ part["description"]  }}<small> - {{ part["itemNumber"] }}</small></h2>
