@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "layout.html" %}
+{% block page_title %} Parts{% if part["description"] %} - {{ part["description"] }}{% endif %}{%endblock%}
+{% block content %}
 <div class="container-fluid d-flex flex-fill flex-nowrap overflow-none px-0">
     <script type="text/html" id="panels">
         <div
@@ -78,6 +80,7 @@
 </div>
 {% endblock %} {% block js%}
 <script type="text/javascript">
+    const COMPONENT = {{ part | tojson }};
     const COMPONENT_PATH = {{path | tojson }};
 </script>
 <script

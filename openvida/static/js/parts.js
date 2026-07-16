@@ -5,7 +5,7 @@ class PartsViewModel extends VidaBaseModel {
         super();
         var self = this;
 
-        self.component = ko.observable({ type: ko.observable(2) });
+        self.component = ko.observable(ko.mapping.fromJS(COMPONENT));
         self.catalogue = ko.observableArray([]);
 
         self.layoutTemplate = () =>
@@ -14,15 +14,6 @@ class PartsViewModel extends VidaBaseModel {
         self.attachmentPath = (el) =>
             el.attachment() ? `/Vida/img/${el.attachment()}` : null;
 
-        // Load info about the current path
-        $.ajax({
-            url: "/Vida/epc/getPartByPath",
-            data: {
-                path: COMPONENT_PATH,
-                selectedProfile: self.selectedProfile(),
-            },
-            success: (resp) => self.component(ko.mapping.fromJS(resp)),
-        });
         // Load component list for current catalogue
         $.ajax({
             url: "/Vida/epc/getComponents",

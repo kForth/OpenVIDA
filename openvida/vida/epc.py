@@ -147,6 +147,21 @@ def get_epc_parts(
 def get_epc_part_by_path(
     path: str, language: int, *, session: Session | None = None
 ) -> dict[str, int | str]:
+    cols = (
+        "id",
+        "description",
+        "note",
+        "type",
+        "number",
+        "quantity",
+        "key",
+        "attachment",
+        "path",
+        "assemblyLevel",
+    )
+    if not path:
+        return dict.fromkeys(cols, "")
+    # TODO: This does not return text or descriptions
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -168,18 +183,6 @@ def get_epc_part_by_path(
         .outerjoin(AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData)
         .filter(CatalogueComponents.ComponentPath == path.replace("/", ","))
         .one()
-    )
-    cols = (
-        "id",
-        "description",
-        "note",
-        "type",
-        "number",
-        "quantity",
-        "key",
-        "attachment",
-        "path",
-        "assemblyLevel",
     )
     return dict(zip(cols, query))
 

@@ -23,6 +23,7 @@ from vida_py.basedata import (
 from vida_py.basedata import Session as BaseDataSession
 
 from openvida.vida.api import get_doc_by_link, get_document_html, get_epc_part_info
+from openvida.vida.epc import get_epc_part_by_path
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -74,7 +75,8 @@ def profile_select():
 @blueprint.route("/parts/")
 @blueprint.route("/parts/<path:path>/")
 def part_list(path=""):
-    return render_template("public/parts.html", path=path)
+    part = get_epc_part_by_path(path, 15)
+    return render_template("public/parts.html", path=path, part=part)
 
 
 @blueprint.route("/part/<partnumber>")
