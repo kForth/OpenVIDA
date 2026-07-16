@@ -8,11 +8,15 @@ class PartsViewModel extends VidaBaseModel {
         self.component = ko.observable(ko.mapping.fromJS(COMPONENT));
         self.catalogue = ko.observableArray([]);
 
-        self.layoutTemplate = () =>
-            self.component().type() == 2 ? "panels" : "table";
-        self.componentPath = (el) => `/parts/${el.path().replace(",", "/")}/`;
-        self.attachmentPath = (el) =>
-            el.attachment() ? `/Vida/img/${el.attachment()}` : null;
+        self.layoutTemplate = function () {
+            return self.component().type() == 3 ? "table" : "panels";
+        }
+        self.componentPath = function (el) {
+            return `/parts/${el.path().replace(",", "/")}/`;
+        }
+        self.attachmentPath = function (el) {
+            return el.attachment() ? `/Vida/img/${el.attachment()}` : null;
+        }
 
         // Load component list for current catalogue
         $.ajax({
