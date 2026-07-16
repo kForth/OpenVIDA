@@ -187,7 +187,8 @@ def get_epc_part_by_path(
 @with_session(EpcSession)
 def get_part_item(
     partnumber: str, language: int, *, session: Session | None = None
-) -> tuple[str, str, bool, int, str]:
+) -> dict[str, str | bool | int]:
+    keys = ("itemNumber", "description", "isSoftware", "stockRate", "unitType")
     result = (
         session.query(
             PartItems.ItemNumber,
@@ -203,14 +204,15 @@ def get_part_item(
         )
         .one()
     )
-    return tuple(result)
+    return dict(zip(keys, result))
 
 
 @with_session(EpcSession)
 def get_part_usages(
     partnumber: str, language: int, *, session: Session | None = None
-) -> list[tuple[int, str, str, int, int, str]]:
-    return list(
+) -> list[dict[str, int | str]]:
+    keys = ("id", "description", "notes", "profileId", "quantity", "path")
+    usages = (
         session.query(
             CatalogueComponents.Id,
             func.dbo.GetPartText(CatalogueComponents.Id, language),
@@ -228,6 +230,7 @@ def get_part_usages(
         .filter(PartItems.ItemNumber == partnumber)
         .all()
     )
+    return [dict(zip(keys, row)) for row in usages]
 
 
 @with_session(EpcSession)
@@ -237,10 +240,10 @@ def get_epc_part_info(
     part = get_part_item(partnumber, language, session=session)
     usages = get_part_usages(partnumber, language, session=session)
 
-    usage_profiles = list({e[3] for e in usages})
+    usage_profiles = list({e["profileId"] for e in usages})
     profile_keys, profile_values = basedata.get_profile_values(usage_profiles, session=None)
 
-    usage_paths: list[str] = list(set(reduce(iadd, [e[-1].split(",") for e in usages], [])))
+    usage_paths: list[str] = list(set(reduce(iadd, [e["path"].split(",") for e in usages], [])))
     path_items = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -293,14 +296,16 @@ def get_epc_part_info(
     profile_names: dict[str, str] = generate_profile_names(usage_tree)
 
     applications = {}
-    for _id, text, note, profile, qty, path in usages:
+    for usage in usages:
+        _id = usage["id"]
         if _id not in applications:
+            path = usage["path"]
             applications[_id] = {
                 "id": _id,
-                "profile": profile_names.get(profile, "??"),
-                "title": text,
-                "note": note or "",
-                "qty": qty or 0,
+                "profile": profile_names.get(usage["profileId"], "??"),
+                "title": usage["description"],
+                "note": usage["notes"] or "",
+                "qty": usage["quantity"] or 0,
                 "path": "/".join(path.split(",")[:-1]),
                 "location": " > ".join(path_names.get(int(e), "??") for e in path.split(",")[:1]),
             }
