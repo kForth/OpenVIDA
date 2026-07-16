@@ -1,5 +1,3 @@
-function imgSize() {}
-
 class PartsViewModel extends VidaBaseModel {
     constructor() {
         super();
