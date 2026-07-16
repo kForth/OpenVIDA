@@ -1,61 +1,108 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "layout.html" %}
+
+{% block content %}
 <div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">OpenVIDA</h1>
-        <p class="lead text-muted">
+    <div class="home-hero text-center p-4 p-lg-5 mb-5">
+        <h1 class="display-4 fw-bold mb-3">OpenVIDA</h1>
+        <p class="lead text-muted mb-4">
             Open-source parts catalogue and document repository for the maintenance and repair of Volvo vehicles up to MY2016.
         </p>
-        <hr class="my-4 w-25 mx-auto">
+
+        <div class="home-action d-flex flex-column flex-sm-row justify-content-center gap-2 mb-4">
+            <a href="/profile" class="btn btn-primary btn-lg" aria-label="Set up your vehicle profile">Start With Vehicle Profile</a>
+            <a href="/parts" class="btn btn-outline-primary btn-lg" aria-label="Browse the parts catalogue">Browse Parts Catalogue</a>
+        </div>
+
+        <div class="home-trust-badges mb-2">
+            <span class="badge rounded-pill px-3 py-2">Open Source</span>
+            <span class="badge rounded-pill px-3 py-2">MIT Licensed</span>
+            <span class="badge rounded-pill px-3 py-2">Volvo up to MY2016</span>
+        </div>
     </div>
+
+    <section class="mb-5" aria-label="How OpenVIDA works">
+        <div class="row g-3 text-center">
+            <div class="col-12 col-md-4">
+                <div class="home-step-card p-3 h-100">
+                    <div class="home-step-number mx-auto mb-2">1</div>
+                    <h2 class="h6 mb-1">Set Your Profile</h2>
+                    <p class="text-muted mb-0">Choose model and year to narrow results.</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="home-step-card p-3 h-100">
+                    <div class="home-step-number mx-auto mb-2">2</div>
+                    <h2 class="h6 mb-1">Find Parts or Documents</h2>
+                    <p class="text-muted mb-0">Locate OEM part data and service references quickly.</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="home-step-card p-3 h-100">
+                    <div class="home-step-number mx-auto mb-2">3</div>
+                    <h2 class="h6 mb-1">Complete Repairs</h2>
+                    <p class="text-muted mb-0">Use organized information to keep vehicles on the road.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="row g-4 justify-content-center mb-5">
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-car-front-fill fs-1 text-primary mb-3 d-block"></i>
-                    <h5 class="card-title">Vehicle Profile</h5>
-                    <p class="card-text text-muted">Define your vehicle profile, including model and year.</p>
-                    <a href="/profile" class="btn btn-outline-primary">Select Profile</a>
+            <div class="card h-100 shadow-sm home-recommended">
+                <div class="card-body text-center home-card-body">
+                    <i class="bi bi-car-front-fill fs-1 text-primary mb-3 d-block" aria-hidden="true"></i>
+                    <h2 class="h5 card-title">Vehicle Profile</h2>
+                    <p class="card-text text-muted">Set your model and year to get more accurate parts and document results.</p>
+                    <a href="/profile" class="btn btn-primary" aria-label="Go to vehicle profile setup">Select Profile</a>
                 </div>
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-book fs-1 text-primary mb-3 d-block"></i>
-                    <h5 class="card-title">Parts Catalogue</h5>
-                    <p class="card-text text-muted">Browse OEM part numbers and diagrams.</p>
-                    <a href="/parts" class="btn btn-outline-primary">Browse Parts</a>
+                <div class="card-body text-center home-card-body">
+                    <i class="bi bi-book fs-1 text-primary mb-3 d-block" aria-hidden="true"></i>
+                    <h2 class="h5 card-title">Parts Catalogue</h2>
+                    <p class="card-text text-muted">Find OEM part numbers and diagrams by navigating catalog structure.</p>
+                    <a href="/parts" class="btn btn-outline-primary" aria-label="Browse OEM parts catalogue">Browse Parts</a>
                 </div>
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-file-earmark-text fs-1 text-primary mb-3 d-block"></i>
-                    <h5 class="card-title">Documentation</h5>
-                    <p class="card-text text-muted">Access maintenance and repair documents.</p>
-                    <a href="/documents" class="btn btn-outline-primary">View Documents</a>
+                <div class="card-body text-center home-card-body">
+                    <i class="bi bi-file-earmark-text fs-1 text-primary mb-3 d-block" aria-hidden="true"></i>
+                    <h2 class="h5 card-title">Documentation</h2>
+                    <p class="card-text text-muted">Open maintenance and repair documents for diagnostic and service work.</p>
+                    <a href="/documents" class="btn btn-outline-primary" aria-label="View maintenance and repair documentation">View Documents</a>
                 </div>
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-file-earmark-richtext fs-1 text-primary mb-3 d-block"></i>
-                    <h5 class="card-title">Resources</h5>
-                    <p class="card-text text-muted">Chemicals Catalogue and VIDA Help Documents.</p>
-                    <a href="/resources" class="btn btn-outline-primary">View Resources</a>
+                <div class="card-body text-center home-card-body">
+                    <i class="bi bi-file-earmark-richtext fs-1 text-primary mb-3 d-block" aria-hidden="true"></i>
+                    <h2 class="h5 card-title">Resources</h2>
+                    <p class="card-text text-muted">Reference chemicals catalogues and VIDA help material when needed.</p>
+                    <a href="/resources" class="btn btn-outline-primary" aria-label="View resources and help documentation">View Resources</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="text-center text-muted small">
-        <p>Covering Volvo vehicles up to model year 2016 &mdash; <a href="https://github.com/kForth/OpenVIDA" target="_blank">View on GitHub</a></p>
+    <div class="text-center text-muted small pb-3">
+        <p class="mb-1">Covering Volvo vehicles up to model year 2016.</p>
+        <p class="mb-0">
+            <a href="https://github.com/kForth/OpenVIDA" target="_blank" rel="noopener noreferrer">GitHub</a>
+            &middot;
+            <a href="https://github.com/kForth/OpenVIDA/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+            &middot;
+            <a href="https://github.com/kForth/OpenVIDA/blob/main/README.md" target="_blank" rel="noopener noreferrer">Contributing</a>
+        </p>
     </div>
 </div>
-{% endblock %}{% block js %}
+{% endblock %}
+
+{% block js %}
 <script
     type="text/javascript"
     src="{{ url_for('static', filename='js/home.js') }}"
