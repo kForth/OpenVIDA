@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "layout.html" %}
+{% block page_title %} Document{%endblock%}
+{% block content %}
 <div class="container vida-document">{{ content | safe }}</div>
 {% endblock %} {% block js %}
 <script
