@@ -171,6 +171,60 @@ ul.ui-autocomplete {
     }
 }
 
+/* Profile Page */
+
+.profile-shell {
+    width: 100%;
+    background:
+        radial-gradient(circle at 85% 5%, rgba(13, 110, 253, 0.12), transparent 30%),
+        radial-gradient(circle at 8% 18%, rgba(25, 135, 84, 0.11), transparent 30%);
+}
+
+.profile-card {
+    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.12);
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 0.75rem 1.8rem rgba(15, 23, 42, 0.08);
+}
+
+.profile-preview {
+    position: sticky;
+    top: 1.25rem;
+}
+
+.profile-preview img {
+    width: 100%;
+    max-width: 320px;
+    max-height: 280px;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+}
+
+.profile-divider {
+    margin: 1.25rem 0;
+    border-color: rgba(var(--bs-emphasis-color-rgb), 0.14);
+}
+
+.profile-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    font-weight: 700;
+    margin-bottom: 0.65rem;
+}
+
+.profile-actions .btn {
+    min-height: 2.75rem;
+}
+
+@media (max-width: 767.98px) {
+    .profile-preview {
+        position: static;
+    }
+}
+
 /* Misc */
 
 .clickable:hover {
