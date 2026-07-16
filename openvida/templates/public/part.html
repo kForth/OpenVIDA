@@ -6,6 +6,16 @@
         <h2>{{ part["description"]  }}<small> - {{ part["itemNumber"] }}</small></h2>
     </div>
     <div class="row">
+        <div class="fw-bold">Links:</div>
+        <ul class="row list-unstyled">
+            <!-- ko foreach: sources -->
+            <li class="ms-2">
+                <a class="link" data-bind="attr: {href: $data.href($root.component().itemNumber())}, text: $data.title" target="_blank" rel="noopener"></a>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <div class="row">
         <table class="table table-sm table-striped caption-top m-2">
             <caption class="h4 mb-0 pb-0">Usages:</caption>
             <thead>
@@ -34,6 +44,9 @@
     </div>
 </div>
 {% endblock %} {% block js%}
+<script type="text/javascript">
+    var PART = {{ part | tojson }};
+</script>
 <script
     type="text/javascript"
     src="{{ url_for('static', filename='js/part.js') }}"
