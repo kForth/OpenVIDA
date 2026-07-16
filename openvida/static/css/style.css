@@ -117,116 +117,66 @@ ul.ui-autocomplete {
     }
 }
 
-/* Home Page */
-.home-hero {
-    background: linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(13, 110, 253, 0.08));
-    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.12);
-    border-radius: 1rem;
+/* Misc */
+
+hr {
+    border-color: rgba(var(--bs-emphasis-color-rgb), 0.14);
 }
 
-.home-trust-badges {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.home-trust-badges .badge {
-    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.16);
-    background: var(--bs-body-bg);
-    color: var(--bs-secondary-color);
-    font-weight: 600;
-}
-
-.home-step-card {
-    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.12);
-    border-radius: 0.85rem;
-    background: var(--bs-tertiary-bg);
-}
-
-.home-step-number {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(13, 110, 253, 0.14);
-    color: var(--bs-primary);
-    font-weight: 700;
-}
-
-.home-recommended {
-    border: 2px solid rgba(13, 110, 253, 0.35);
-    box-shadow: 0 0.8rem 1.7rem rgba(13, 110, 253, 0.12);
-}
-
-@media (max-width: 767.98px) {
-    .home-action .btn {
-        width: 100%;
-    }
-
-    .home-card-body {
-        padding: 1rem;
-    }
-}
-
-/* Profile Page */
-
-.profile-shell {
-    width: 100%;
+.content-gradient {
     background:
         radial-gradient(circle at 85% 5%, rgba(13, 110, 253, 0.12), transparent 30%),
         radial-gradient(circle at 8% 18%, rgba(25, 135, 84, 0.11), transparent 30%);
+        /* radial-gradient(circle at 10% 5%, rgba(13, 110, 253, 0.1), transparent 30%),
+        radial-gradient(circle at 90% 15%, rgba(25, 135, 84, 0.1), transparent 28%); */
 }
 
-.profile-card {
+.content-shell {
+    width: 100%;
+    min-height: 100%;
+}
+
+.content-panel {
     border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.12);
     border-radius: 1rem;
     background: var(--bs-body-bg);
     box-shadow: 0 0.75rem 1.8rem rgba(15, 23, 42, 0.08);
 }
 
-.profile-preview {
-    position: sticky;
-    top: 1.25rem;
-}
-
-.profile-preview img {
-    width: 100%;
-    max-width: 320px;
-    max-height: 280px;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block;
-}
-
-.profile-divider {
-    margin: 1.25rem 0;
-    border-color: rgba(var(--bs-emphasis-color-rgb), 0.14);
-}
-
-.profile-subtitle {
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--bs-secondary-color);
-    font-weight: 700;
-    margin-bottom: 0.65rem;
-}
-
-.profile-actions .btn {
-    min-height: 2.75rem;
-}
-
-@media (max-width: 767.98px) {
-    .profile-preview {
-        position: static;
-    }
-}
-
-/* Misc */
-
 .clickable:hover {
     cursor: pointer;
 }
+
+/* Util */
+
+.s1x1 { width: 1rem; height: 1rem; }
+.s2x2 { width: 2rem; height: 2rem; }
+.s3x3 { width: 3rem; height: 3rem; }
+.s4x4 { width: 4rem; height: 4rem; }
+.s5x5 { width: 5rem; height: 5rem; }
+.s6x6 { width: 6rem; height: 6rem; }
+.s7x7 { width: 7rem; height: 7rem; }
+.s8x8 { width: 8rem; height: 8rem; }
+.s9x9 { width: 9rem; height: 9rem; }
+.s10x10 { width: 10rem; height: 10rem; }
+
+.bg-opacity-5 { --bs-bg-opacity: 0.05; }
+.bg-opacity-10 { --bs-bg-opacity: 0.10; }
+.bg-opacity-15 { --bs-bg-opacity: 0.15; }
+.bg-opacity-20 { --bs-bg-opacity: 0.20; }
+.bg-opacity-25 { --bs-bg-opacity: 0.25; }
+.bg-opacity-30 { --bs-bg-opacity: 0.30; }
+.bg-opacity-35 { --bs-bg-opacity: 0.35; }
+.bg-opacity-40 { --bs-bg-opacity: 0.40; }
+.bg-opacity-45 { --bs-bg-opacity: 0.45; }
+.bg-opacity-50 { --bs-bg-opacity: 0.50; }
+.bg-opacity-55 { --bs-bg-opacity: 0.55; }
+.bg-opacity-60 { --bs-bg-opacity: 0.60; }
+.bg-opacity-65 { --bs-bg-opacity: 0.65; }
+.bg-opacity-70 { --bs-bg-opacity: 0.70; }
+.bg-opacity-75 { --bs-bg-opacity: 0.75; }
+.bg-opacity-80 { --bs-bg-opacity: 0.80; }
+.bg-opacity-85 { --bs-bg-opacity: 0.85; }
+.bg-opacity-90 { --bs-bg-opacity: 0.90; }
+.bg-opacity-95 { --bs-bg-opacity: 0.95; }
+.bg-opacity-100 { --bs-bg-opacity: 1.0; }

@@ -12,6 +12,9 @@ class ResourcesViewModel extends VidaBaseModel {
                 method: "get",
                 success: (resp) => {
                     self.resources(resp);
+                    if (resp && resp.length > 0 && !self.selectedResourcePath()) {
+                        self.selectedResourcePath(resp[0].url);
+                    }
                 },
             });
         };

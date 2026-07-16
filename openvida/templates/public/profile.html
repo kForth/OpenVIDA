@@ -1,17 +1,17 @@
 {% extends "layout.html" %}
 {% block page_title %}Profiles{%endblock%}
 {% block content %}
-<div class="profile-shell py-4">
+<div class="content-shell content-gradient py-4">
     <div class="container">
-        <div class="row g-4 g-lg-5">
-            <div class="col-md-5 col-lg-4 order-md-last">
-                <div class="profile-card profile-preview p-4">
-                    <p class="profile-subtitle">Vehicle Preview</p>
-                    <img data-bind="attr: {src: imagePath}" alt="Selected vehicle preview" />
+        <div class="row g-4">
+            <div class="col-lg-4 order-lg-last">
+                <div class="content-panel profile-preview p-4 position-sticky">
+                    <p class="fw-semibold text-uppercase">Vehicle Preview</p>
+                    <img class="d-block w-100 object-fit-contain" data-bind="attr: {src: imagePath}" alt="Selected vehicle preview" />
                 </div>
             </div>
-            <div class="col-md-7 col-lg-8">
-                <div class="profile-card p-4 p-lg-5">
+            <div class="col-lg-8">
+                <div class="content-panel p-4">
                     <div class="mb-4">
                         <h4 class="mb-2">Vehicle Profile</h4>
                         <p class="text-muted mb-0">Select or decode your Volvo profile to tailor parts and document results.</p>
@@ -28,7 +28,7 @@
                                     data-bind="value: partnerGroup, options: partnerGroupOptions, optionsValue: 'id', optionsText: 'text'"
                                 ></select>
                             </div>
-                            <hr class="profile-divider" />
+                            <hr />
                             <div class="col-12 mb-1">
                                 <p class="profile-subtitle">VIN Decode</p>
                                 <label for="vin" class="form-label">VIN</label>
@@ -48,7 +48,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <hr class="profile-divider" />
+                            <hr />
                             <div class="col-12 mb-1">
                                 <p class="profile-subtitle">Manual Selection</p>
                             </div>
