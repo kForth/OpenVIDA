@@ -165,7 +165,7 @@ def get_epc_part_by_path(
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
-            func.dbo.GetPartText(CatalogueComponents.Id, language),
+            Lexicon.Description,  # func.dbo.GetPartText(CatalogueComponents.Id, language),
             func.dbo.GetPartNotes(CatalogueComponents.Id, language),
             CatalogueComponents.TypeId,
             PartItems.ItemNumber,
@@ -181,7 +181,11 @@ def get_epc_part_by_path(
             ComponentAttachments.fkCatalogueComponent == CatalogueComponents.Id,
         )
         .outerjoin(AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData)
-        .filter(CatalogueComponents.ComponentPath == path.replace("/", ","))
+        .join(Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId)
+        .filter(
+            CatalogueComponents.ComponentPath == path.replace("/", ","),
+            Lexicon.fkLanguage == language,
+        )
         .one()
     )
     return dict(zip(cols, query))
