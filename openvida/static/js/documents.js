@@ -39,7 +39,16 @@ class DocumentsViewModel extends VidaBaseModel {
         };
 
         window.addEventListener("popstate", function (e) {
-            if (e.state == null) return;
+            if (e.state == null) {
+                const pathDocId = getDocumentIdFromPath();
+                self.selectedDocumentId(pathDocId);
+                if (pathDocId) {
+                    openLinkDoc(pathDocId, null, null, null, null, true);
+                }
+                return;
+            }
+
+            self.selectedDocumentId(e.state.docId || null);
             openLinkDoc(
                 e.state.docId,
                 e.state.isCallout,
@@ -49,9 +58,34 @@ class DocumentsViewModel extends VidaBaseModel {
                 true
             );
         });
+
+        if (INITIAL_CHRONICLE) {
+            self.selectedDocumentId(INITIAL_CHRONICLE);
+            openLinkDoc(INITIAL_CHRONICLE, null, null, null, null, true);
+            window.history.replaceState(
+                {
+                    docId: INITIAL_CHRONICLE,
+                    isCallout: null,
+                    targetElement: null,
+                    sourceElement: null,
+                    isButton: null,
+                },
+                undefined,
+                getDocumentsPath(INITIAL_CHRONICLE)
+            );
+        }
     }
 }
 ko.applyBindings(new DocumentsViewModel());
+
+function getDocumentIdFromPath() {
+    const match = window.location.pathname.match(/^\/documents\/([^/]+)\/?$/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function getDocumentsPath(docId) {
+    return docId ? `/documents/${encodeURIComponent(docId)}/` : "/documents/";
+}
 
 function openLinkDoc(
     docId,
@@ -83,7 +117,7 @@ function openLinkDoc(
                         isButton: isButton,
                     },
                     undefined,
-                    window.location
+                    getDocumentsPath(docId)
                 );
         },
     });

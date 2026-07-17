@@ -90,9 +90,10 @@ def resources():
     return render_template("public/resources.html")
 
 
-@blueprint.route("/documents/")
-def documents():
-    return render_template("public/documents.html")
+@blueprint.route("/documents/", defaults={"chronicle": None})
+@blueprint.route("/documents/<chronicle>/")
+def documents(chronicle):
+    return render_template("public/documents.html", initial_chronicle=chronicle)
 
 
 @blueprint.route("/document/<chronicle>/")
