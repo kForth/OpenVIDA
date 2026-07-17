@@ -12,6 +12,7 @@ from vida_py.service import Session as ServiceRepoSession
 
 from openvida import settings
 from openvida.utils import with_session
+from openvida.vida import const
 from openvida.xslt_extension.table_xslt_extension import TableXsltExtension
 
 
@@ -22,6 +23,7 @@ def get_doc_by_chronicle(chronicle: str, *, session: Session | None = None) -> D
     return session.query(Document).filter(Document.chronicleId == chronicle).first()
 
 
+@with_session(ServiceRepoSession)
 def get_doc_by_link(element_from: str, *, session: Session | None = None) -> Document | None:
     if session is None:
         return None
@@ -51,10 +53,27 @@ def document_to_dict(doc: Document | None) -> dict[str, int | str | bool | None]
     }
 
 
-def doc_to_html(doc):
-    # Extract xml file from zip
+def dom_to_str(dom):
+    if dom is None:
+        return None
+    return etree.tostring(dom, pretty_print=True).decode("utf-8")
+
+
+def doc_to_xml(doc):
+    if doc is None:
+        return None
+
+    # Extract XML file from zip
     with zipfile.ZipFile(io.BytesIO(doc.XmlContent)) as _zip:
-        dom = etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
+        return etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
+
+
+def doc_to_html_raw(doc):
+    if doc is None:
+        return None
+
+    # Get raw XML from doc
+    dom = doc_to_xml(doc)
 
     ext = TableXsltExtension()
     ns = etree.FunctionNamespace("xalan://com.ford.vcc.vida.web.xsltextension.TableXsltExtension")
@@ -78,26 +97,35 @@ def doc_to_html(doc):
 
     xslt = etree.parse(os.path.join(settings.VIDA_XSL_PATH, stylesheet))
     transform = etree.XSLT(xslt)
-    html_dom = transform(dom)
+    return transform(dom)
+
+
+def doc_to_html(doc):
+    if doc is None:
+        return None
+
+    # Get raw HTML from document XML
+    html_dom = doc_to_html_raw(doc)
 
     # Add default classes to all elements of a type
     for t, c in (("table", "table table-borderless"), ("td", "px-3"), ("img", "w-100")):
         for e in html_dom.xpath(f"//{t}"):
             e.attrib["class"] = f"{e.attrib.get('class', '')} {c}".strip()
 
+    # Convert raw HTML dom to a string
+    html_str = etree.tostring(html_dom, pretty_print=True).decode("utf-8")
+
     # Replace classes with bootstrap classes
-    html_str = etree.tostring(html_dom.find("div"), pretty_print=True).decode("utf-8")
-    for p, r in (
-        ("commonText", ""),
-        ("commonBold", "fw-bold"),
-        ("commonBoldMarginBottom", "fw-bold mb-2"),
-        ("para", "mt-2"),
-        ("bigTitle", "h3 fw-bold"),
-        ("smallTitle", "h5 fw-bold"),
-        ("listTitle", "h5"),
-        ("internalLinkClass", "mx-1"),
-        ("software", "text-decoration-underline text-primary"),
-    ):
+    for p, r in const.BOOTSTRAP_CLASSES:
         html_str = re.sub(rf"\b{p}\b", r, html_str)
+
+    # Replace self-closing tags when they shouldn't be self-closing
+    # eg: <a name="" />, <td valign="top" width="430 />
+    for tag in const.NON_SELF_CLOSING_TAGS:
+        html_str = re.sub(rf"<({tag})(\s[^<>]*?)?\s*/>", r"<\1\2></\1>", html_str)
+
+    # Remove div attributes and stylesheet
+    for search, replace in const.REPLACE_STRINGS:
+        html_str = re.sub(search, replace, html_str)
 
     return html_str

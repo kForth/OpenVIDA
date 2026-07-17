@@ -336,18 +336,28 @@ def documents_by_qualifier(profile):
     return docs_by_qual
 
 
-@blueprint.route("/documentInfo/<chronicle>/", methods=["GET", "POST"])
+@blueprint.route("/document/info/<chronicle>/", methods=["GET", "POST"])
 def get_document(chronicle):
     doc = service.get_doc_by_chronicle(chronicle)
     return service.document_to_dict(doc)
 
 
-@blueprint.route("/document/<chronicle>/", methods=["GET", "POST"])
+@blueprint.route("/document/xml/<chronicle>/", methods=["GET", "POST"])
+def get_document_xml(chronicle):
+    doc = service.get_doc_by_chronicle(chronicle)
+    return service.dom_to_str(service.doc_to_xml(doc))
+
+
+@blueprint.route("/document/html/<chronicle>/", methods=["GET", "POST"])
 def get_document_html(chronicle):
     doc = service.get_doc_by_chronicle(chronicle)
-    if doc is None:
-        return None
     return service.doc_to_html(doc)
+
+
+@blueprint.route("/document/raw/<chronicle>/", methods=["GET", "POST"])
+def get_document_raw_html(chronicle):
+    doc = service.get_doc_by_chronicle(chronicle)
+    return service.dom_to_str(service.doc_to_html_raw(doc))
 
 
 @blueprint.route("/doclink/<element>/", methods=["GET", "POST"])

@@ -9,7 +9,7 @@ class DocumentsViewModel extends VidaBaseModel {
         self.activeDoc = ko.observable(ko.mapping.fromJS(INITIAL_DOCUMENT));
         function loadDocById(docId) {
             $.ajax({
-                url: `/Vida/document/${docId}`,
+                url: `/Vida/document/html/${docId}`,
                 method: "get",
                 success: (resp) => self.activeDoc(ko.mapping.fromJS(resp)),
             })
@@ -97,7 +97,7 @@ function openLinkDoc(
 ) {
     var url;
     if (docId != null && docId.length != 0) {
-        url = `/Vida/document/${docId}`;
+        url = `/Vida/document/html/${docId}`;
     } else if (sourceElement != null && sourceElement.length != 0) {
         url = `/Vida/doclink/${sourceElement}`;
     } else return;
