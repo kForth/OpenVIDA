@@ -153,7 +153,7 @@ def get_profile():
         def _arg_filter(query, field, key):
             if (val := request.args.get(key, None)) is None:
                 return query
-            return query.filter(or_(field == val, field == None))
+            return query.filter(or_(field == val, field == None))  # noqa: E711
 
         query = _arg_filter(query, VehicleProfile.Id, "Id")
         query = _arg_filter(query, VehicleProfile.fkPartnerGroup, "fkPartnerGroup")
@@ -324,13 +324,14 @@ def documents_by_qualifier(profile):
             .all()
         )
         for qual in quals:
-            _docs = [dict(zip(("chronicleId", "title"), e[:2])) for e in docs if e[2] == qual[0]]
+            _docs = [
+                dict(zip(("chronicleId", "title"), e[:2], strict=False))
+                for e in docs
+                if e[2] == qual[0]
+            ]
             if _docs:
                 docs_by_qual.append(
-                    {
-                        "qual": dict(zip(("id", "title"), qual)),
-                        "docs": _docs,
-                    }
+                    {"qual": {"id": qual["id"], "title": qual["title"]}, "docs": _docs}
                 )
     return docs_by_qual
 
