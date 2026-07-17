@@ -12,7 +12,7 @@
                         type="search"
                         class="form-control mb-2"
                         placeholder="Search document titles"
-                        data-bind="textInput: documentSearch"
+                        data-bind="textInput: docSearchStr"
                     />
                     <div class="d-lg-none dropdown w-100 z-3 position-relative position-lg-static">
                         <button
@@ -30,7 +30,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item rounded text-wrap"
-                                    data-bind="text: doc.title, click: $root.selectDocument, css: { active: $root.selectedDocumentId() === doc.chronicleId }"
+                                    data-bind="text: doc.title, click: $root.selectDocument, css: { active: $root.activeDocId() === doc.chronicleId }"
                                 ></button>
                             </div>
                             <div class="dropdown-divider"></div>
@@ -41,7 +41,7 @@
                             <!-- /ko -->
                         </div>
                     </div>
-                    <div class="d-none d-lg-block mh-100 overflow-y-scroll accordion" id="documentAccordion">
+                    <div class="d-none d-lg-block mh-100 overflow-y-scroll accordion rounded-2" id="documentAccordion">
                         <!-- ko foreach: { data: filteredDocsByQual, as: 'el' } -->
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingOne">
@@ -65,7 +65,7 @@
                                         <li>
                                             <a
                                                 class="d-block w-100 px-2 py-1 text-decoration-none text-body rounded clickable bg-hover-body-tertiary"
-                                                data-bind="text: doc.title, click: $root.selectDocument, css: { 'fw-semibold bg-primary-subtle': $root.selectedDocumentId() === doc.chronicleId }"
+                                                data-bind="text: doc.title, click: $root.selectDocument, css: { 'fw-semibold bg-primary-subtle': $root.activeDocId() === doc.chronicleId }"
                                             ></a>
                                         </li>
                                     </ul>
@@ -82,15 +82,24 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="col-12 col-lg-9 d-flex flex-column h-100 overflow-y-auto"
-                id="docContent"
-            >
-                <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4 p-lg-5 text-center">
-                    <div class="d-flex flex-column justify-content-center align-items-center px-4 py-5 w-100 rounded-4 border-1 border-secondary border-dashed" style="max-width: 42rem;">
-                        <i class="bi bi-journal-richtext fs-1 text-primary mb-3"></i>
-                        <h2 class="h4 mb-2">Select a document</h2>
-                        <p class="text-muted mb-0">Choose a document from the list to load its content here.</p>
+            <div class="col-12 col-lg-9 d-flex flex-column h-100 overflow-y-auto">
+                <div class="p-3 border-bottom bg-body-secondary bg-opacity-50 d-flex justify-content-between">
+                    <span class="fw-semibold fs-5" data-bind="text: activeDoc().title"></span>
+                    <a
+                        class="btn btn-outline-primary btn-sm"
+                        data-bind="attr: { href: activeDocLink() }, css: { disabled: !activeDocId() }"
+                    >
+                        <i class="bi bi-box-arrow-up-right me-1"></i>
+                        Open in New Tab
+                    </a>
+                </div>
+                <div id="docContent" class="flex-fill overflow-y-auto">
+                    <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4 p-lg-5 text-center">
+                        <div class="d-flex flex-column justify-content-center align-items-center px-4 py-5 w-100 rounded-4 border-1 border-secondary border-dashed" style="max-width: 42rem;">
+                            <i class="bi bi-journal-richtext fs-1 text-primary mb-3"></i>
+                            <h2 class="h4 mb-2">Select a document</h2>
+                            <p class="text-muted mb-0">Choose a document from the list to load its content here.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,7 +107,7 @@
     </div>
 </div>
 {% endblock %} {% block js%}
-<script type="text/javascript">const INITIAL_CHRONICLE = {{ initial_chronicle | tojson }};</script>
+<script type="text/javascript">const INITIAL_DOCUMENT = {{ document | tojson }};</script>
 <script
     type="text/javascript"
     src="{{ url_for('static', filename='js/documents.js') }}"

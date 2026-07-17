@@ -4,11 +4,21 @@ class DocumentsViewModel extends VidaBaseModel {
         var self = this;
 
         self.docsByQual = ko.observableArray();
-        self.documentSearch = ko.observable("");
-        self.selectedDocumentId = ko.observable(null);
+        self.docSearchStr = ko.observable("");
+
+        self.activeDoc = ko.observable(ko.mapping.fromJS(INITIAL_DOCUMENT));
+        function loadDocById(docId) {
+            $.ajax({
+                url: `/Vida/document/${docId}`,
+                method: "get",
+                success: (resp) => self.activeDoc(ko.mapping.fromJS(resp)),
+            })
+        }
+        self.activeDocId = ko.computed(() => self.activeDoc().chronicleId());
+        self.activeDocLink = ko.computed(() => self.activeDocId() ? `/document/${self.activeDocId()}/` : '#');
 
         self.filteredDocsByQual = ko.pureComputed(function () {
-            const query = (self.documentSearch() || "").trim().toLowerCase();
+            const query = (self.docSearchStr() || "").trim().toLowerCase();
             if (!query) return self.docsByQual();
 
             return self.docsByQual()
@@ -34,21 +44,23 @@ class DocumentsViewModel extends VidaBaseModel {
         self.refreshDocs();
 
         self.selectDocument = function (e) {
-            self.selectedDocumentId(e.chronicleId);
+            self.activeDoc(ko.mapping.fromJS(e));
             openLinkDoc(e.chronicleId);
         };
 
         window.addEventListener("popstate", function (e) {
             if (e.state == null) {
                 const pathDocId = getDocumentIdFromPath();
-                self.selectedDocumentId(pathDocId);
+                loadDocById(pathDocId);
+                // self.activeDocId(pathDocId);
                 if (pathDocId) {
                     openLinkDoc(pathDocId, null, null, null, null, true);
                 }
                 return;
             }
 
-            self.selectedDocumentId(e.state.docId || null);
+            loadDocById(e.state.docId);
+            // self.activeDocId(e.state.docId || null);
             openLinkDoc(
                 e.state.docId,
                 e.state.isCallout,
@@ -59,21 +71,9 @@ class DocumentsViewModel extends VidaBaseModel {
             );
         });
 
-        if (INITIAL_CHRONICLE) {
-            self.selectedDocumentId(INITIAL_CHRONICLE);
-            openLinkDoc(INITIAL_CHRONICLE, null, null, null, null, true);
-            window.history.replaceState(
-                {
-                    docId: INITIAL_CHRONICLE,
-                    isCallout: null,
-                    targetElement: null,
-                    sourceElement: null,
-                    isButton: null,
-                },
-                undefined,
-                getDocumentsPath(INITIAL_CHRONICLE)
-            );
-        }
+        // Load initial document, if it exists
+        if (self.activeDocId())
+            openLinkDoc(self.activeDocId(), null, null, null, null, true);
     }
 }
 ko.applyBindings(new DocumentsViewModel());
