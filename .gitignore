@@ -50,7 +50,6 @@ docs/_build
 env/
 
 # npm
-package-lock.json
 /node_modules/
 
 # Configuration
