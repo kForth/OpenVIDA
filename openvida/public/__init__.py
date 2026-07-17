@@ -1,3 +1,3 @@
-"""The public module, including the homepage and user auth."""
+"""Public routes package."""
 
 from . import views  # noqa

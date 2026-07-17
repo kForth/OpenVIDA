@@ -1,4 +1,4 @@
-"""Public section, including homepage and signup."""
+"""Public page routes for template-rendered views."""
 
 from flask import (
     Blueprint,

@@ -1,4 +1,4 @@
-"""Public section, including homepage and signup."""
+"""API routes for VIDA data, images, parts, and documents."""
 
 import io
 

@@ -1,4 +1,4 @@
-"""Public section, including homepage and signup."""
+"""Service-document helpers for loading and transforming VIDA content."""
 
 import io
 import os

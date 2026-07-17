@@ -1,4 +1,4 @@
-"""Public section, including homepage and signup."""
+"""Helpers for querying and shaping VIDA base-data profile values."""
 
 from typing import Any
 

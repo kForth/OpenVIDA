@@ -1,3 +1,5 @@
+"""Constants used by VIDA document HTML cleanup and styling transforms."""
+
 NON_SELF_CLOSING_TAGS = (
     "div",
     "span",

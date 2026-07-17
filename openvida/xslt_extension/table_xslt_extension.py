@@ -1,3 +1,5 @@
+"""Python port of VIDA's table XSLT extension helper."""
+
 # Translated from `com.ford.vcc.vida.web.xsltextension.TabelXsltExtension.class`
 
 import traceback

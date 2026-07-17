@@ -1,4 +1,4 @@
-"""Public section, including homepage and signup."""
+"""EPC query helpers for catalogue navigation and part lookups."""
 
 from functools import reduce
 from operator import iadd
