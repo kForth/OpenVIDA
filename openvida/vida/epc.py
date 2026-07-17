@@ -206,11 +206,12 @@ def get_epc_part_by_path(
 def get_part_item(
     partnumber: str, language: int, *, session: Session | None = None
 ) -> dict[str, str | bool | int]:
-    keys = ("itemNumber", "description", "isSoftware", "stockRate", "unitType")
+    keys = ("id", "itemNumber", "description", "isSoftware", "stockRate", "unitType")
     if session is None:
         return dict.fromkeys(keys, "")
     result = (
         session.query(
+            PartItems.Id,
             PartItems.ItemNumber,
             Lexicon.Description,
             PartItems.IsSoftware,
@@ -231,7 +232,7 @@ def get_part_item(
 def get_part_usages(
     partnumber: str, language: int, *, session: Session | None = None
 ) -> list[dict[str, int | str]]:
-    keys = ("id", "description", "notes", "profileId", "quantity", "path")
+    keys = ("id", "description", "notes", "profileId", "quantity", "path", "parentId")
     if session is None:
         return []
     usages = (
@@ -242,6 +243,7 @@ def get_part_usages(
             ComponentConditions.fkProfile,
             cast(CatalogueComponents.Quantity, Integer),
             CatalogueComponents.ComponentPath,
+            CatalogueComponents.ParentComponentId,
         )
         .outerjoin(PartItems, CatalogueComponents.fkPartItem == PartItems.Id)
         .outerjoin(
@@ -266,23 +268,6 @@ def get_epc_part_info(
 
     usage_profiles = list({e["profileId"] for e in usages})
     profile_keys, profile_values = basedata.get_profile_values(usage_profiles, session=None)
-
-    usage_paths: list[str] = list(
-        set(reduce(iadd, [str(e["path"]).split(",") for e in usages], []))
-    )
-    path_items = (
-        session.query(
-            distinct(CatalogueComponents.Id),
-            Lexicon.Description,
-        )
-        .join(Lexicon, Lexicon.DescriptionId == CatalogueComponents.DescriptionId)
-        .filter(
-            CatalogueComponents.Id.in_(usage_paths),
-            Lexicon.fkLanguage == language,
-        )
-        .all()
-    )
-    path_names: dict[int, str] = dict(path_items)
     profiles: list[dict[str, str | None]] = [
         dict(zip(profile_keys, info, strict=True)) for info in profile_values
     ]
@@ -321,6 +306,17 @@ def get_epc_part_info(
         _id = str(usage["id"])
         if _id not in applications:
             path = str(usage["path"])
+            location = ", ".join(
+                session.query(Lexicon.Description)
+                .join(
+                    CatalogueComponents, Lexicon.DescriptionId == CatalogueComponents.DescriptionId
+                )
+                .filter(
+                    CatalogueComponents.Id == usage["parentId"],
+                    Lexicon.fkLanguage == language,
+                )
+                .first()
+            )
             applications[_id] = {
                 "id": _id,
                 "profile": profile_names.get(str(usage["profileId"]), "??"),
@@ -328,7 +324,7 @@ def get_epc_part_info(
                 "note": usage["notes"] or "",
                 "qty": usage["quantity"] or 0,
                 "path": "/".join(path.split(",")[:-1]),
-                "location": " > ".join(path_names.get(int(e), "??") for e in path.split(",")[:1]),
+                "location": location,
             }
 
     return part, sorted(applications.values(), key=lambda x: x["profile"])
