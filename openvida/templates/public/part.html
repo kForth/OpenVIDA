@@ -1,46 +1,43 @@
 {% extends "layout.html" %}
 {% block page_title %}Part Info - {{ part["description"]  }} #{{ part["itemNumber"] }}{%endblock%}
 {% block content %}
-<div class="container-fluid row">
-    <div class="row">
-        <h2>{{ part["description"]  }}<small> - {{ part["itemNumber"] }}</small></h2>
-    </div>
-    <div class="row">
-        <div class="fw-bold">Links:</div>
-        <ul class="row list-unstyled">
-            <!-- ko foreach: sources -->
-            <li class="ms-2">
-                <a class="link" data-bind="attr: {href: $data.href($root.component().itemNumber())}, text: $data.title" target="_blank" rel="noopener"></a>
-            </li>
-            <!-- /ko -->
-        </ul>
-    </div>
-    <div class="row">
-        <table class="table table-sm table-striped caption-top m-2">
-            <caption class="h4 mb-0 pb-0">Usages:</caption>
-            <thead>
-                <tr>
-                    <td>Vehicle</td>
-                    <td>Title</td>
-                    <td>Note</td>
-                    <td>Qty</td>
-                    <td>Path</td>
-                </tr>
-            </thead>
-            <tbody>
-                {% for el in applications %}
-                <tr>
-                    <td>{{ el["profile"] }}</td>
-                    <td>{{ el["title"] }}</td>
-                    <td>{{ el["note"] }}</td>
-                    <td>{{ el["qty"] }}</td>
-                    <td>
-                        <a href="/parts/{{el['path']}}">{{ el['location'] }}</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="content-shell content-gradient">
+    <div class="container-fluid p-3">
+        <div class="content-panel d-flex flex-column px-0 py-2">
+            <div class="px-3 h2">{{ part["description"]  }}<small> - {{ part["itemNumber"] }}</small></div>
+            <ul class="list-group list-group-flush pb-1">
+                <li class="list-group-item px-3 py-1 h5 mb-0">Links</li>
+                <!-- ko foreach: sources -->
+                <li class="list-group-item ps-4 pe-3 py-1">
+                    <a class="link" data-bind="attr: {href: $data.href($root.component().itemNumber())}, text: $data.title" target="_blank" rel="noopener"></a>
+                </li>
+                <!-- /ko -->
+                <li class="list-group-item p-0"></li>
+            </ul>
+            <table class="table table-sm table-striped caption-top">
+                <caption class="h5 mb-0 pb-0 px-3">Usages</caption>
+                <thead>
+                    <tr class="fw-semibold">
+                        <td class="ps-4">Vehicle</td>
+                        <td>Title</td>
+                        <td>Note</td>
+                        <td>Qty</td>
+                        <td class="pe-2">Path</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for el in applications %}
+                    <tr>
+                        <td class="ps-4">{{ el["profile"] }}</td>
+                        <td>{{ el["title"] }}</td>
+                        <td>{{ el["note"] }}</td>
+                        <td>{{ el["qty"] }}</td>
+                        <td class="pe-2"><a href="/parts/{{el['path']}}">{{ el['location'] }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %} {% block js%}
