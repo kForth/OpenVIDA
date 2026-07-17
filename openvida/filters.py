@@ -1,5 +1,6 @@
 """Custom Jinja filter helpers."""
 
+
 def filter_list(src, key, value):
     return filter(lambda t: getattr(t, key) == value, src)
 
