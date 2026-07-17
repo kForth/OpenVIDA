@@ -1,5 +1,10 @@
 """The app module, containing the app factory function."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 import logging
 import sys
 

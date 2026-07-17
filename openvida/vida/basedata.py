@@ -1,5 +1,10 @@
 """Helpers for querying and shaping VIDA base-data profile values."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 from typing import Any
 
 from sqlalchemy import select
@@ -29,7 +34,7 @@ def get_valid_profiles(profile: str, *, session: Session | None = None) -> list[
 @with_session(BaseDataSession)
 def get_profile_values(
     profiles: str, *, session: Session | None = None
-) -> tuple[tuple[str, ...], list[tuple[Any, ...]]]:
+) -> tuple[tuple[str, ...], list[tuple[str | None, ...]]]:
     # These keys should always match the query below.
     profile_keys = (
         "model",
@@ -69,10 +74,10 @@ def get_profile_values(
         .subquery()
     )
 
-    profile_values = []
+    profile_values: list[tuple[Any, ...]] = []
     # Execute query in batches of 1000 usage profiles
     for i in range(0, len(profiles), 1000):
         stmt = select(query).filter(query.c.ProfileId.in_(profiles[i : i + 1000]))
-        profile_values.extend(session.execute(stmt).all())
+        profile_values.extend(tuple(e) for e in session.execute(stmt).all())
 
     return profile_keys, profile_values

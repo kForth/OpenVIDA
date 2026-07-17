@@ -1,5 +1,10 @@
 """Extensions module. Each extension is initialized in the app factory located in app.py."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 from flask_caching import Cache
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy

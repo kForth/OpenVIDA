@@ -1,5 +1,10 @@
 """Constants used by VIDA document HTML cleanup and styling transforms."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 NON_SELF_CLOSING_TAGS = (
     "div",
     "span",

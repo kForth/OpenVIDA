@@ -1,5 +1,10 @@
 """Python port of VIDA's table XSLT extension helper."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__credits__ = "Volvo Cars Corp."
+__license__ = "MIT"
+
 # Translated from `com.ford.vcc.vida.web.xsltextension.TabelXsltExtension.class`
 
 import traceback
@@ -70,7 +75,7 @@ class TableXsltExtension:
             rowsep = n2.attrib.get("rowsep", rowsep)
 
         width = ""
-        total_col_width = 0
+        total_col_width = 0.0
         for n2 in n.iter("colspec"):
             colwidth = e if (e := n2.attrib.get("colwidth", None)) is not None else None
             if colwidth is not None and colwidth.endswith("*"):
@@ -79,7 +84,6 @@ class TableXsltExtension:
                 total_col_width += float(colwidth)
 
         count = 0
-        rowsep2 = None
         for n2 in n.iter("colspec"):
             cspec = Colspec()
 
@@ -103,11 +107,8 @@ class TableXsltExtension:
                 w = float(colwidth) / total_col_width * 100.0
                 colwidth = f"{w:0.0f}%"
 
-            colsep2 = e if (e := n2.attrib.get("colsep", None)) is not None else None
-            rowsep2 = e if (e := n2.attrib.get("rowsep", None)) is not None else None
-
-            cspec.colsep = colsep2
-            cspec.rowsep = rowsep2
+            cspec.colsep = n2.attrib.get("colsep", None)
+            cspec.rowsep = n2.attrib.get("rowsep", None)
             cspec.colwidth = colwidth
             self.colspec.append(cspec)
             col_node = etree.SubElement(to_node, "col")
@@ -118,15 +119,15 @@ class TableXsltExtension:
 
         for n2 in n.iter("spanspec"):
             sspec = Spanspec()
-            if (e := n2.attrib.get("spanname", None)) is not None:
-                sspec.span_name = e
-            if (e := n2.attrib.get("namest", None)) is not None:
-                sspec.name_start = e
-            if (e := n2.attrib.get("nameend", None)) is not None:
-                sspec.name_end = e
+            if e := n2.attrib.get("spanname"):
+                sspec.spanname = e
+            if e := n2.attrib.get("namest"):
+                sspec.namest = e
+            if e := n2.attrib.get("nameend"):
+                sspec.namend = e
 
-            if sspec.span_name is not None:
-                self.spanspec[sspec.span_name] = sspec
+            if sspec.spanname is not None:
+                self.spanspec[sspec.spanname] = sspec
 
         to_node.attrib["width"] = width
         self.num_colspecs = count
@@ -150,32 +151,32 @@ class TableXsltExtension:
         node = etree.SubElement(row, "td")
         node.attrib["colspan"] = str(specNumberEnd - specNumberStart + 1)
         if moreRow is not None:
-            moreRowValue = int(moreRow)
-            node.attrib["rowspan"] = str(moreRowValue + 1)
+            more_row_value = int(moreRow)
+            node.attrib["rowspan"] = str(more_row_value + 1)
 
-            for i in range(1, moreRowValue + 1):
-                insertValue = self.more_rows.get(self.row_count + i)
-                if insertValue is None:
-                    insertValue = 0
+            for i in range(1, more_row_value + 1):
+                insert_value = self.more_rows.get(self.row_count + i)
+                if insert_value is None:
+                    insert_value = 0
 
-                insertValue = insertValue + specNumberEnd - specNumberStart + 1
-                self.more_rows[self.row_count + i] = insertValue
+                insert_value = insert_value + specNumberEnd - specNumberStart + 1
+                self.more_rows[self.row_count + i] = insert_value
 
         return node
 
     def get_td(self, row: etree._Element, moreRow: str, specNumber: int) -> etree._Element:
         node = etree.SubElement(row, "td")
         if moreRow is not None:
-            moreRowValue = int(moreRow)
-            node.attrib["rowspan"] = str(moreRowValue + 1)
+            more_row_value = int(moreRow)
+            node.attrib["rowspan"] = str(more_row_value + 1)
 
-            for i in range(1, moreRowValue + 1):
-                insertValue = self.more_rows.get(self.row_count + i)
-                if insertValue is None:
-                    insertValue = 0
+            for i in range(1, more_row_value + 1):
+                insert_value = self.more_rows.get(self.row_count + i)
+                if insert_value is None:
+                    insert_value = 0
 
-                insertValue = insertValue + 1
-                self.more_rows[self.row_count + i] = insertValue
+                insert_value = insert_value + 1
+                self.more_rows[self.row_count + i] = insert_value
 
         return node
 
@@ -221,7 +222,7 @@ class TableXsltExtension:
                 style = style + " text-align:" + align + ";"
 
             style = style + " vertical-align:" + valign + ";"
-        except:
+        except Exception:
             traceback.print_exc()
 
         return style
@@ -257,9 +258,9 @@ class TableXsltExtension:
             align = n2.attrib.get("align", None)
             valign = n2.attrib.get("valign", "top")
 
-            if sspec := self.spanspec.get(n2.attrib.get("spanname"), False):
-                name_start = sspec.name_start
-                name_end = sspec.name_end
+            if sspec := self.spanspec.get(n2.spanname):
+                name_start = sspec.namest
+                name_end = sspec.namend
 
             if colname is not None:
                 for end_pos in range(count, self.get_colspec_pos_by_name(colname)):

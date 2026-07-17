@@ -1,5 +1,10 @@
 """EPC query helpers for catalogue navigation and part lookups."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 from functools import reduce
 from operator import iadd
 from typing import Any
@@ -26,6 +31,8 @@ from openvida.vida import basedata
 def get_epc_top_level(
     profile: str, language: int, *, session: Session | None = None
 ) -> list[dict[str, int | str]]:
+    if session is None:
+        return []
     valid_profiles = basedata.get_valid_profiles(profile, session=None)
     query = (
         session.query(
@@ -53,7 +60,7 @@ def get_epc_top_level(
         .outerjoin(AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData)
         .filter(
             or_(
-                ComponentConditions.fkProfile is None,
+                ComponentConditions.fkProfile == None,  # noqa: E711
                 ComponentConditions.fkProfile.in_(valid_profiles),
             ),
             Lexicon.fkLanguage == language,
@@ -64,13 +71,15 @@ def get_epc_top_level(
     )
 
     cols = ("id", "description", "assemblyLevel", "type", "path", "attachment")
-    return [dict(zip(cols, e)) for e in query]
+    return [dict(zip(cols, e, strict=True)) for e in query]
 
 
 @with_session(EpcSession)
 def get_epc_subelements(
     parent: int, level: int, profile: str, language: int, *, session: Session | None = None
 ) -> list[dict[str, int | str]]:
+    if session is None:
+        return []
     valid_profiles = basedata.get_valid_profiles(profile, session=None)
     query = (
         session.query(
@@ -99,7 +108,7 @@ def get_epc_subelements(
         .outerjoin(AttachmentData, AttachmentData.Id == ComponentAttachments.fkAttachmentData)
         .filter(
             or_(
-                ComponentConditions.fkProfile is None,
+                ComponentConditions.fkProfile == None,  # noqa: E711
                 ComponentConditions.fkProfile.in_(valid_profiles),
             ),
             Lexicon.fkLanguage == language,
@@ -111,13 +120,15 @@ def get_epc_subelements(
         .all()
     )
     cols = ("id", "description", "assemblyLevel", "type", "path", "attachment", "note")
-    return [dict(zip(cols, e)) for e in query]
+    return [dict(zip(cols, e, strict=True)) for e in query]
 
 
 @with_session(EpcSession)
 def get_epc_parts(
     parent: int, language: int, *, session: Session | None = None
 ) -> list[dict[str, int | str]]:
+    if session is None:
+        return []
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -140,7 +151,7 @@ def get_epc_parts(
         .all()
     )
     cols = ("id", "description", "note", "type", "number", "quantity", "key", "attachment", "path")
-    return [dict(zip(cols, e)) for e in query]
+    return [dict(zip(cols, e, strict=True)) for e in query]
 
 
 @with_session(EpcSession)
@@ -159,9 +170,9 @@ def get_epc_part_by_path(
         "path",
         "assemblyLevel",
     )
-    if not path:
+    if not path or session is None:
         return dict.fromkeys(cols, "")
-    # TODO: This does not return text or descriptions
+    # TODO: This does not return descriptions
     query = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -188,7 +199,7 @@ def get_epc_part_by_path(
         )
         .one()
     )
-    return dict(zip(cols, query))
+    return dict(zip(cols, query, strict=True))
 
 
 @with_session(EpcSession)
@@ -196,6 +207,8 @@ def get_part_item(
     partnumber: str, language: int, *, session: Session | None = None
 ) -> dict[str, str | bool | int]:
     keys = ("itemNumber", "description", "isSoftware", "stockRate", "unitType")
+    if session is None:
+        return dict.fromkeys(keys, "")
     result = (
         session.query(
             PartItems.ItemNumber,
@@ -211,7 +224,7 @@ def get_part_item(
         )
         .one()
     )
-    return dict(zip(keys, result))
+    return dict(zip(keys, result, strict=True))
 
 
 @with_session(EpcSession)
@@ -219,13 +232,15 @@ def get_part_usages(
     partnumber: str, language: int, *, session: Session | None = None
 ) -> list[dict[str, int | str]]:
     keys = ("id", "description", "notes", "profileId", "quantity", "path")
+    if session is None:
+        return []
     usages = (
         session.query(
             CatalogueComponents.Id,
             func.dbo.GetPartText(CatalogueComponents.Id, language),
             func.dbo.GetPartNotes(CatalogueComponents.Id, language),
             ComponentConditions.fkProfile,
-            func.cast(CatalogueComponents.Quantity, Integer),
+            cast(CatalogueComponents.Quantity, Integer),
             CatalogueComponents.ComponentPath,
         )
         .outerjoin(PartItems, CatalogueComponents.fkPartItem == PartItems.Id)
@@ -237,20 +252,24 @@ def get_part_usages(
         .filter(PartItems.ItemNumber == partnumber)
         .all()
     )
-    return [dict(zip(keys, row)) for row in usages]
+    return [dict(zip(keys, row, strict=True)) for row in usages]
 
 
 @with_session(EpcSession)
 def get_epc_part_info(
     partnumber: str, language: int, *, session: Session | None = None
-) -> tuple[dict[str, int | str], list[dict[str, str]]]:
+) -> tuple[dict[str, int | str], list[dict[str, str | int]]]:
+    if session is None:
+        return ({}, [])
     part = get_part_item(partnumber, language, session=session)
     usages = get_part_usages(partnumber, language, session=session)
 
     usage_profiles = list({e["profileId"] for e in usages})
     profile_keys, profile_values = basedata.get_profile_values(usage_profiles, session=None)
 
-    usage_paths: list[str] = list(set(reduce(iadd, [e["path"].split(",") for e in usages], [])))
+    usage_paths: list[str] = list(
+        set(reduce(iadd, [str(e["path"]).split(",") for e in usages], []))
+    )
     path_items = (
         session.query(
             distinct(CatalogueComponents.Id),
@@ -263,25 +282,21 @@ def get_epc_part_info(
         )
         .all()
     )
-    path_names = dict(path_items)
-    profile_names = [dict(zip(profile_keys, info)) for info in profile_values]
+    path_names: dict[int, str] = dict(path_items)
+    profiles: list[dict[str, str | None]] = [
+        dict(zip(profile_keys, info, strict=True)) for info in profile_values
+    ]
 
-    usage_tree: dict[str, Any] = {}
-    for item in profile_names:
+    usage_tree: dict[str | None, dict[str | None, Any]] = {}
+    for item in profiles:
         current = usage_tree
-        for i, key in enumerate(profile_keys):
-            if i < len(profile_keys) - 2:
-                if item[key] not in current:
-                    current[item[key]] = {}
-                current = current[item[key]]
-            if i == len(profile_keys) - 2:
-                if item[key] not in current:
-                    current[item[key]] = []
-                current = current[item[key]]
-            if i == len(profile_keys) - 1:
-                current.append(item[key])
+        for key in profile_keys:
+            val = item[key]
+            if val not in current:
+                current[val] = {}
+            current = current[val]
 
-    def generate_profile_names(tree: dict[str, Any]) -> dict[str, str]:
+    def generate_profile_names(tree: dict[str | None, dict[str | None, Any]]) -> dict[str, str]:
         names = {}
 
         def _explore_branches(branches, prefix="", i=0):
@@ -290,26 +305,25 @@ def get_epc_part_info(
                     names[id_] = prefix
             elif i == len(profile_keys) - 2:
                 prefix_ = prefix + " " + compress_years(branches.keys())
-                ids = sum(branches.values(), start=[])
+                ids = reduce(iadd, (e.keys() for e in branches.values()), [])
                 _explore_branches(ids, prefix_, i + 1)
             else:
                 for key, branch in branches.items():
-                    prefix_ = (prefix + " " + key) if key else prefix
+                    prefix_ = (prefix + " " + key) if key is not None else prefix
                     _explore_branches(branch, prefix_, i + 1)
 
         _explore_branches(tree)
         return names
 
     profile_names: dict[str, str] = generate_profile_names(usage_tree)
-
-    applications = {}
+    applications: dict[str, dict[str, int | str]] = {}
     for usage in usages:
-        _id = usage["id"]
+        _id = str(usage["id"])
         if _id not in applications:
-            path = usage["path"]
+            path = str(usage["path"])
             applications[_id] = {
                 "id": _id,
-                "profile": profile_names.get(usage["profileId"], "??"),
+                "profile": profile_names.get(str(usage["profileId"]), "??"),
                 "title": usage["description"],
                 "note": usage["notes"] or "",
                 "qty": usage["quantity"] or 0,

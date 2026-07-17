@@ -1,5 +1,9 @@
 """API routes for VIDA data, images, parts, and documents."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
 import io
 
 import cgm.extract as cgm

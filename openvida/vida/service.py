@@ -1,5 +1,10 @@
 """Service-document helpers for loading and transforming VIDA content."""
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 import io
 import os
 import re

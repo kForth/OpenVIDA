@@ -6,6 +6,11 @@ For local development, use a .env file to set
 environment variables.
 """
 
+__author__ = "Kestin Goforth"
+__copyright__ = "Copyright 2026"
+__license__ = "MIT"
+
+
 from environs import Env
 
 env = Env()
