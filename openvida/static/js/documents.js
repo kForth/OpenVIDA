@@ -4,6 +4,23 @@ class DocumentsViewModel extends VidaBaseModel {
         var self = this;
 
         self.docsByQual = ko.observableArray();
+        self.documentSearch = ko.observable("");
+        self.selectedDocumentId = ko.observable(null);
+
+        self.filteredDocsByQual = ko.pureComputed(function () {
+            const query = (self.documentSearch() || "").trim().toLowerCase();
+            if (!query) return self.docsByQual();
+
+            return self.docsByQual()
+                .map((group) => {
+                    const docs = (group.docs || []).filter((doc) =>
+                        (doc.title || "").toLowerCase().includes(query)
+                    );
+
+                    return docs.length > 0 ? { ...group, docs: docs } : null;
+                })
+                .filter(Boolean);
+        });
 
         self.refreshDocs = function () {
             $.ajax({
@@ -17,6 +34,7 @@ class DocumentsViewModel extends VidaBaseModel {
         self.refreshDocs();
 
         self.selectDocument = function (e) {
+            self.selectedDocumentId(e.chronicleId);
             openLinkDoc(e.chronicleId);
         };
 

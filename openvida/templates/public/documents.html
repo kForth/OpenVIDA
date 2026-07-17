@@ -1,58 +1,101 @@
 {% extends "layout.html" %}
 {% block page_title %}Documents{%endblock%}
 {% block content %}
-<div class="container-fluid d-flex flex-fill flex-nowrap overflow-none px-0">
-    <div id="tocSidebar" class="d-flex flex border-end">
-        <div
-            class="h-100 overflow-y-auto collpase collapse-horizontal collapse show"
-            id="tocSidebarContent"
-        >
-            <div class="accordion p-2" id="documentAccordion">
-                <!-- ko foreach: { data: docsByQual, as: 'el' } -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingOne">
+<div class="content-shell content-gradient">
+    <div class="container-fluid h-100 p-3 px-lg-4" style="min-height: 0;">
+        <div class="content-panel documents-panel-mobile h-lg-100 d-flex flex-column flex-lg-row flex-fill overflow-lg-hidden rounded-4" style="min-height: 0;">
+            <div class="col-12 col-lg-3 documents-sidebar-mobile h-100 d-flex flex-column overflow-lg-hidden">
+                <div class="h-100 p-3 d-flex flex-column bg-body-secondary bg-opacity-75">
+                    <label for="documentSearch" class="form-label small text-uppercase fw-semibold text-body-secondary mb-1">Filter documents</label>
+                    <input
+                        id="documentSearch"
+                        type="search"
+                        class="form-control mb-2"
+                        placeholder="Search document titles"
+                        data-bind="textInput: documentSearch"
+                    />
+                    <div class="d-lg-none dropdown w-100 z-3 position-relative position-lg-static">
                         <button
-                            class="accordion-button collapsed"
+                            class="btn btn-outline-secondary w-100 text-start dropdown-toggle"
                             type="button"
-                            data-bs-toggle="collapse"
-                            data-bind="text: `${el.qual.title} (${el.docs.length})`, attr: { 'data-bs-target': `#qual-${el.qual.id}-collapse` }"
-                        ></button>
-                    </h2>
-                    <div
-                        class="accordion-collapse collapse"
-                        data-bs-parent="#documentAccordion"
-                        data-bind="attr: {'id': `qual-${el.qual.id}-collapse` }"
-                    >
-                        <div class="accordion-body">
-                            <ul
-                                class="btn-toggle-nav list-unstyled fw-normal pb-1 small"
-                                data-bind="foreach: { data: el.docs, as: 'doc' }"
-                            >
-                                <li>
-                                    <a
-                                        class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                        data-bind="text: doc.title, click: $root.selectDocument"
-                                    ></a>
-                                </li>
-                            </ul>
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            Browse Documents
+                        </button>
+                        <div class="dropdown-menu mh-50v w-100 overflow-y-auto p-2">
+                            <!-- ko foreach: { data: filteredDocsByQual, as: 'el' } -->
+                            <h6 class="dropdown-header px-2" data-bind="text: el.qual.title"></h6>
+                            <div data-bind="foreach: { data: el.docs, as: 'doc' }">
+                                <button
+                                    type="button"
+                                    class="dropdown-item rounded text-wrap"
+                                    data-bind="text: doc.title, click: $root.selectDocument, css: { active: $root.selectedDocumentId() === doc.chronicleId }"
+                                ></button>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <!-- /ko -->
+
+                            <!-- ko if: filteredDocsByQual().length === 0 -->
+                            <div class="px-2 py-1 text-muted small">No matching documents found for the current filter.</div>
+                            <!-- /ko -->
                         </div>
                     </div>
+                    <div class="d-none d-lg-block mh-100 overflow-y-scroll accordion" id="documentAccordion">
+                        <!-- ko foreach: { data: filteredDocsByQual, as: 'el' } -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button
+                                    class="accordion-button px-3 py-2 collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bind="text: el.qual.title, attr: { 'data-bs-target': `#qual-${el.qual.id}-collapse` }"
+                                ></button>
+                            </h2>
+                            <div
+                                class="accordion-collapse collapse"
+                                data-bs-parent="#documentAccordion"
+                                data-bind="attr: {'id': `qual-${el.qual.id}-collapse` }"
+                            >
+                                <div class="accordion-body p-2">
+                                    <ul
+                                        class="mb-0 btn-toggle-nav list-unstyled fw-normal small"
+                                        data-bind="foreach: { data: el.docs, as: 'doc' }"
+                                    >
+                                        <li>
+                                            <a
+                                                class="d-block w-100 px-2 py-1 text-decoration-none text-body rounded clickable bg-hover-body-tertiary"
+                                                data-bind="text: doc.title, click: $root.selectDocument, css: { 'fw-semibold bg-primary-subtle': $root.selectedDocumentId() === doc.chronicleId }"
+                                            ></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /ko -->
+
+                        <!-- ko if: filteredDocsByQual().length === 0 -->
+                        <div class="p-3 text-muted small">
+                            No matching documents found for the current filter.
+                        </div>
+                        <!-- /ko -->
+                    </div>
                 </div>
-                <!-- /ko -->
+            </div>
+            <div
+                class="col-12 col-lg-9 d-flex flex-column h-100 overflow-y-auto"
+                id="docContent"
+            >
+                <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4 p-lg-5 text-center">
+                    <div class="d-flex flex-column justify-content-center align-items-center px-4 py-5 w-100 rounded-4 border-1 border-secondary border-dashed" style="max-width: 42rem;">
+                        <i class="bi bi-journal-richtext fs-1 text-primary mb-3"></i>
+                        <h2 class="h4 mb-2">Select a document</h2>
+                        <p class="text-muted mb-0">Choose a document from the list to load its content here.</p>
+                    </div>
+                </div>
             </div>
         </div>
-        <button
-            class="btn btn-sm btn-toc-toggle"
-            type="button"
-            aria-expanded="true"
-            data-bs-toggle="collapse"
-            data-bs-target="#tocSidebarContent"
-        ></button>
     </div>
-    <div
-        class="d-flex flex-column w-100 h-100 overflow-y-auto"
-        id="docContent"
-    ></div>
 </div>
 {% endblock %} {% block js%}
 <script
