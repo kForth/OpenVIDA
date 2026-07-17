@@ -5,7 +5,7 @@
 	<div class="container-fluid py-3">
         <script type="text/html" id="panels">
             <div
-                class="row m-0 row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"
+                class="row m-0 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3"
                 data-bind="foreach: $root.catalogue()"
             >
                 <div class="col">
@@ -17,7 +17,7 @@
                         <img
                             class="bd-placeholder-img card-img-top bg-secondary"
                             width="100%"
-                            height="200px"
+                            height="300px"
                             role="img"
                             data-bind="attr: {src: $root.attachmentPath($data)}"
                         />
