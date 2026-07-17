@@ -22,8 +22,8 @@ from vida_py.basedata import (
 )
 from vida_py.basedata import Session as BaseDataSession
 
-from openvida.vida.api import get_doc_by_link, get_document_html, get_epc_part_info
-from openvida.vida.epc import get_epc_part_by_path
+from openvida.vida import epc, service
+from openvida.vida.api import get_epc_part_info
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -75,7 +75,7 @@ def profile_select():
 @blueprint.route("/parts/")
 @blueprint.route("/parts/<path:path>/")
 def part_list(path=""):
-    part = get_epc_part_by_path(path, 15)
+    part = epc.get_epc_part_by_path(path, 15)
     return render_template("public/parts.html", path=path, part=part)
 
 
@@ -93,20 +93,24 @@ def resources():
 @blueprint.route("/documents/", defaults={"chronicle": None})
 @blueprint.route("/documents/<chronicle>/")
 def documents(chronicle):
-    return render_template("public/documents.html", initial_chronicle=chronicle)
+    doc = service.get_doc_by_chronicle(chronicle) if chronicle else None
+    doc_dict = service.document_to_dict(doc)
+    return render_template("public/documents.html", document=doc_dict)
 
 
 @blueprint.route("/document/<chronicle>/")
 def document(chronicle):
-    doc_html = get_document_html(chronicle)
+    doc = service.get_doc_by_chronicle(chronicle)
+    doc_html = service.doc_to_html(doc)
     if doc_html is None:
         return abort(404)
-    return render_template("public/document.html", content=doc_html)
+    doc_dict = service.document_to_dict(doc)
+    return render_template("public/document.html", document=doc_dict, content=doc_html)
 
 
 @blueprint.route("/doclink/<element>/")
 def document2(element):
-    doc = get_doc_by_link(element)
+    doc = service.get_doc_by_link(element)
     if doc is None:
         return abort(404)
     return redirect(url_for("public.document", chronicle=doc.chronicleId))

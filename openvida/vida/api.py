@@ -1,9 +1,6 @@
 """Public section, including homepage and signup."""
 
 import io
-import os
-import re
-import zipfile
 
 import cgm.extract as cgm
 from flask import (
@@ -15,7 +12,6 @@ from flask import (
     send_from_directory,
     url_for,
 )
-from lxml import etree
 from sqlalchemy import desc, or_
 from vida_py.basedata import (
     BodyStyle,
@@ -42,7 +38,7 @@ from vida_py.service import (
 )
 from vida_py.service import Session as ServiceRepoSession
 
-from openvida import settings
+from openvida.vida import service
 from openvida.vida.epc import (
     get_epc_part_by_path,
     get_epc_part_info,
@@ -50,8 +46,6 @@ from openvida.vida.epc import (
     get_epc_subelements,
     get_epc_top_level,
 )
-from openvida.vida.service import get_doc_by_chronicle, get_doc_by_link
-from openvida.xslt_extension.table_xslt_extension import TableXsltExtension
 
 blueprint = Blueprint("api", __name__, static_folder="../static", url_prefix="/Vida")
 
@@ -341,69 +335,23 @@ def documents_by_qualifier(profile):
     return docs_by_qual
 
 
+@blueprint.route("/documentInfo/<chronicle>/", methods=["GET", "POST"])
+def get_document(chronicle):
+    doc = service.get_doc_by_chronicle(chronicle)
+    return service.document_to_dict(doc)
+
+
 @blueprint.route("/document/<chronicle>/", methods=["GET", "POST"])
 def get_document_html(chronicle):
-    doc = get_doc_by_chronicle(chronicle)
+    doc = service.get_doc_by_chronicle(chronicle)
     if doc is None:
         return None
-    return doc_to_html(doc)
+    return service.doc_to_html(doc)
 
 
 @blueprint.route("/doclink/<element>/", methods=["GET", "POST"])
 def get_doclink_html(element):
-    doc = get_doc_by_link(element)
+    doc = service.get_doc_by_link(element)
     if doc is None:
         return "Error."
-    return doc_to_html(doc)
-
-
-def doc_to_html(doc):
-    # Extract xml file from zip
-    with zipfile.ZipFile(io.BytesIO(doc.XmlContent)) as _zip:
-        dom = etree.parse(io.BytesIO(_zip.read(_zip.filelist[0])))
-
-    ext = TableXsltExtension()
-    ns = etree.FunctionNamespace("xalan://com.ford.vcc.vida.web.xsltextension.TableXsltExtension")
-    ns["getTableNodes"] = ext.get_table_nodes
-
-    # Transform xml doc using xslt template
-    doc_type = doc.fkDocumentType
-    stylesheet = "servinfo.xsl"
-    if doc_type == 2:
-        if doc.conditionType == "special_tool":
-            stylesheet = "specialtool.xsl"
-    elif doc_type in {4, 5}:
-        if doc.conditionType == "condition":
-            stylesheet = "diagcondition.xsl"
-        elif doc.conditionType == "test":
-            stylesheet = "diagtest.xsl"
-    elif doc_type == 6:
-        stylesheet = "bulletin.xsl"
-    elif doc_type == 7:
-        stylesheet = "installationinstr.xsl"
-
-    xslt = etree.parse(os.path.join(settings.VIDA_XSL_PATH, stylesheet))
-    transform = etree.XSLT(xslt)
-    html_dom = transform(dom)
-
-    # Add default classes to all elements of a type
-    for t, c in (("table", "table table-borderless"), ("td", "px-3"), ("img", "w-100")):
-        for e in html_dom.xpath(f"//{t}"):
-            e.attrib["class"] = f"{e.attrib.get('class', '')} {c}".strip()
-
-    # Replace classes with bootstrap classes
-    html_str = etree.tostring(html_dom.find("div"), pretty_print=True).decode("utf-8")
-    for p, r in (
-        ("commonText", ""),
-        ("commonBold", "fw-bold"),
-        ("commonBoldMarginBottom", "fw-bold mb-2"),
-        ("para", "mt-2"),
-        ("bigTitle", "h3 fw-bold"),
-        ("smallTitle", "h5 fw-bold"),
-        ("listTitle", "h5"),
-        ("internalLinkClass", "mx-1"),
-        ("software", "text-decoration-underline text-primary"),
-    ):
-        html_str = re.sub(rf"\b{p}\b", r, html_str)
-
-    return html_str
+    return service.doc_to_html(doc)
