@@ -17,10 +17,14 @@ from openvida.xslt_extension.table_xslt_extension import TableXsltExtension
 
 @with_session(ServiceRepoSession)
 def get_doc_by_chronicle(chronicle: str, *, session: Session | None = None) -> Document | None:
+    if session is None:
+        return None
     return session.query(Document).filter(Document.chronicleId == chronicle).first()
 
 
 def get_doc_by_link(element_from: str, *, session: Session | None = None) -> Document | None:
+    if session is None:
+        return None
     return (
         session.query(Document)
         .join(DocumentLink, Document.projectDocumentId == DocumentLink.projectDocumentTo)
@@ -29,7 +33,7 @@ def get_doc_by_link(element_from: str, *, session: Session | None = None) -> Doc
     )
 
 
-def document_to_dict(doc: Document | None) -> dict[str, int | str | bool]:
+def document_to_dict(doc: Document | None) -> dict[str, int | str | bool | None]:
     return {
         "id": doc.id if doc else None,
         "chronicleId": doc.chronicleId if doc else None,
