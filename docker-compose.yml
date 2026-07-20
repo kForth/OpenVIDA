@@ -29,7 +29,26 @@ services:
             - 1433:1433
         volumes:
             - sqlserverdata:/var/opt/mssql
-            - C:/VIDA/db:/vida
+            - /home/archer/VIDA/db:/vida
+
+    dbgate:
+        image: dbgate/dbgate
+        restart: always
+        depends_on:
+            - vida-db
+        ports:
+            - 3005:3000
+        volumes:
+            - dbgate-data:/root/.dbgate
+
+        environment:
+            CONNECTIONS: vida
+            LABEL_vida: VIDA SQL Server
+            SERVER_vida: vida-db
+            USER_vida: sa
+            PASSWORD_vida: VidaFlask.123
+            PORT_vida: 1433
+            ENGINE_vida: mssql@dbgate-plugin-mssql
 
     flask-dev:
         build:
@@ -87,3 +106,5 @@ services:
 
 volumes:
     sqlserverdata:
+    dbgate-data:
+        driver: local
