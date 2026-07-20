@@ -5,11 +5,13 @@ FROM python:${INSTALL_PYTHON_VERSION} AS builder
 
 WORKDIR /app
 
+USER root
 RUN curl -sSL -O https://packages.microsoft.com/config/debian/$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2 | cut -d '.' -f 1)/packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     rm packages-microsoft-prod.deb
 RUN apt-get update && \
     apt-get install -y unixodbc && \
+    apt-get install -y python3-setuptools && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
 COPY requirements requirements
@@ -28,7 +30,6 @@ WORKDIR /app
 
 RUN useradd -m sid
 RUN chown -R sid:sid /app
-USER sid
 ENV PATH="/home/sid/.local/bin:${PATH}"
 
 RUN curl -sSL -O https://packages.microsoft.com/config/debian/$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2 | cut -d '.' -f 1)/packages-microsoft-prod.deb && \
@@ -36,7 +37,9 @@ RUN curl -sSL -O https://packages.microsoft.com/config/debian/$(grep VERSION_ID 
     rm packages-microsoft-prod.deb
 RUN apt-get update && \
     apt-get install -y unixodbc && \
+    apt-get install -y python3-setuptools && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql17
+USER sid
 
 COPY --from=builder --chown=sid:sid /app/openvida/static /app/openvida/static
 COPY requirements requirements
@@ -60,3 +63,4 @@ RUN pip install --no-cache -r requirements/prod.txt
 
 EXPOSE 5000
 CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+
