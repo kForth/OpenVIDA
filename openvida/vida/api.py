@@ -251,8 +251,6 @@ def get_special_vehicles():
 @blueprint.route("/epc/getComponents/")
 def get_epc_components():
     profile = request.args.get("selectedProfile", False)
-    if not profile:
-        return abort(400)
     language = request.args.get("language", False) or 15
     path = request.args.get("path", "")
     if not path:
