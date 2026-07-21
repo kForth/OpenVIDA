@@ -29,7 +29,7 @@ services:
             - 1433:1433
         volumes:
             - sqlserverdata:/var/opt/mssql
-            - /home/archer/VIDA/db:/vida
+            - C:/VIDA/db:/vida
 
     dbgate:
         image: dbgate/dbgate
