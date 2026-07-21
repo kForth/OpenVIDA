@@ -38,11 +38,41 @@
                     <div class="content-panel p-3 d-flex flex-column gap-1">
                         <span class="h4 fw-semibold">Component Diagram</span>
                         <img
-                            class="w-100 object-fit-contain rounded bd-placeholder-img bg-white"
+                            class="w-100 object-fit-contain rounded bd-placeholder-img bg-white clickable"
                             style="max-height: 600px"
                             role="img"
-                            data-bind="attr: {src: attachmentPath(component())}"
+                            data-bind="click: $root.showDiagramModal, attr: {src: attachmentPath(component())}"
                         />
+                        <div
+                            class="modal fade"
+                            id="diagramModal"
+                            tabindex="-1"
+                            aria-hidden="true"
+                            data-bs-backdrop="true"
+                            data-bs-keyboard="true"
+                        >
+                            <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+                                <div class="modal-content bg-dark border-0">
+                                    <div class="modal-header border-0 text-white">
+                                        <h5 class="modal-title">Component Diagram</h5>
+                                        <button
+                                            type="button"
+                                            class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close"
+                                        ></button>
+                                    </div>
+                                    <div class="modal-body d-flex align-items-center justify-content-center p-0">
+                                        <img
+                                            class="w-100 h-100 object-fit-contain mh-100v"
+                                            style="max-height: calc(100vh - 4rem)"
+                                            alt="Component diagram"
+                                            data-bind="attr: {src: attachmentPath(component())}"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <p class="m-0">
                             <span class="fs-5 fw-semibold">{{ part["description"] }}</span>
                             <span>{{ part["note"] }}</span>

@@ -15,6 +15,10 @@ class PartsViewModel extends VidaBaseModel {
         self.attachmentPath = function (el) {
             return el.attachment() ? `/Vida/img/${el.attachment()}` : null;
         }
+        self.showDiagramModal = function () {
+            if (self.attachmentPath(self.component()))
+                bootstrap.Modal.getOrCreateInstance(document.getElementById("diagramModal")).show();
+        }
 
         // Load component list for current catalogue
         $.ajax({
