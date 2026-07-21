@@ -23,7 +23,7 @@ Flask-DebugToolbar==0.16.0
 environs==14.2.0
 
 # Misc
-python-cgm==0.3.4
+python-cgm==0.3.*
 vida-py==0.1.7
 lxml==5.4.0
 
