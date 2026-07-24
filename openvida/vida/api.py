@@ -332,9 +332,7 @@ def documents_by_qualifier(profile):
                 if e[2] == qual[0]
             ]
             if _docs:
-                docs_by_qual.append(
-                    {"qual": {"id": qual["id"], "title": qual["title"]}, "docs": _docs}
-                )
+                docs_by_qual.append({"qual": {"id": qual[0], "title": qual[1]}, "docs": _docs})
     return docs_by_qual
 
 
