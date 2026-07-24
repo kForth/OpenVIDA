@@ -24,7 +24,7 @@ environs==14.2.0
 
 # Misc
 python-cgm==0.3.*
-vida-py==0.1.7
+vida-py==1.0.*
 lxml==5.4.0
 
 setuptools<82.0.0

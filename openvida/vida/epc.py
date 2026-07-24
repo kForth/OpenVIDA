@@ -11,7 +11,8 @@ from typing import Any
 
 from sqlalchemy import Integer, cast, distinct, func, or_
 from sqlalchemy.orm import Session
-from vida_py.epc import (
+from vida_py.epc import Session as EpcSession
+from vida_py.epc.models import (
     AttachmentData,
     CatalogueComponents,
     CCPartnerGroup,
@@ -21,7 +22,6 @@ from vida_py.epc import (
     PartItems,
     VirtualToShared,
 )
-from vida_py.epc import Session as EpcSession
 
 from openvida.utils import compress_years, with_session
 from openvida.vida import basedata

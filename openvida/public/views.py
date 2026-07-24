@@ -14,7 +14,8 @@ from flask import (
     request,
     url_for,
 )
-from vida_py.basedata import (
+from vida_py.basedata import Session as BaseDataSession
+from vida_py.basedata.models import (
     BodyStyle,
     Engine,
     ModelYear,
@@ -24,7 +25,6 @@ from vida_py.basedata import (
     Transmission,
     VehicleModel,
 )
-from vida_py.basedata import Session as BaseDataSession
 
 from openvida.vida import epc, service
 from openvida.vida.api import get_epc_part_info

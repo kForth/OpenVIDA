@@ -9,7 +9,8 @@ from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from vida_py.basedata import (
+from vida_py.basedata import Session as BaseDataSession
+from vida_py.basedata.models import (
     BodyStyle,
     BrakeSystem,
     Engine,
@@ -20,8 +21,7 @@ from vida_py.basedata import (
     VehicleModel,
     VehicleProfile,
 )
-from vida_py.basedata import Session as BaseDataSession
-from vida_py.diag import get_valid_profiles_for_selected
+from vida_py.diag.funcs import get_valid_profiles_for_selected
 
 from openvida.utils import with_session
 

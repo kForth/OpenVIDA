@@ -12,8 +12,8 @@ import zipfile
 
 from lxml import etree
 from sqlalchemy.orm import Session
-from vida_py.service import Document, DocumentLink
 from vida_py.service import Session as ServiceRepoSession
+from vida_py.service.models import Document, DocumentLink
 
 from openvida import settings
 from openvida.utils import with_session

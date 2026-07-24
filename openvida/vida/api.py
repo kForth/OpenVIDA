@@ -17,7 +17,8 @@ from flask import (
     url_for,
 )
 from sqlalchemy import desc, or_
-from vida_py.basedata import (
+from vida_py.basedata import Session as BaseDataSession
+from vida_py.basedata.models import (
     BodyStyle,
     Engine,
     ModelYear,
@@ -27,20 +28,19 @@ from vida_py.basedata import (
     Transmission,
     VehicleModel,
     VehicleProfile,
-    get_vin_components_by_partner_group_id,
 )
-from vida_py.basedata import Session as BaseDataSession
+from vida_py.basedata.scripts import get_vin_components_by_partner_group_id
 from vida_py.diag import Session as DiagSession
-from vida_py.diag import get_valid_profiles_for_selected
-from vida_py.images import GraphicFormats, Graphics, LocalizedGraphics
+from vida_py.diag.funcs import get_valid_profiles_for_selected
 from vida_py.images import Session as ImagesSession
-from vida_py.service import (
+from vida_py.images.models import GraphicFormats, Graphics, LocalizedGraphics
+from vida_py.service import Session as ServiceRepoSession
+from vida_py.service.models import (
     Document,
     DocumentProfile,
     Qualifier,
     Resource,
 )
-from vida_py.service import Session as ServiceRepoSession
 
 from openvida.vida import service
 from openvida.vida.epc import (
