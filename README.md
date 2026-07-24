@@ -47,6 +47,8 @@
    cp .env.example .env
    ```
 
+   Set `VIDA_XSL_HOST_PATH` and `VIDA_DB_HOST_PATH` in `.env` to absolute host paths before starting Docker.
+
 3. Start the development server:
    ```bash
    docker-compose up -d flask-dev

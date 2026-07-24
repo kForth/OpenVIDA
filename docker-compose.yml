@@ -4,7 +4,7 @@ x-build-args: &build_args
 x-default-volumes: &default_volumes
     volumes:
         - ./:/app
-        - C:/VIDA/jboss/standalone/deployments/VidaEar.ear/VidaWeb.war/WEB-INF/classes:/xsl
+        - ${VIDA_XSL_HOST_PATH}:${VIDA_XSL_PATH}
 
 x-db-paths: &db_paths
     VIDA_ACCESS_DB_URI: "mssql+pyodbc://open_vida:vida_flask@host.docker.internal/AccessServer?driver=ODBC+Driver+17+for+SQL+Server"
@@ -29,7 +29,7 @@ services:
             - 1433:1433
         volumes:
             - sqlserverdata:/var/opt/mssql
-            - C:/VIDA/db:/vida
+            - ${VIDA_DB_HOST_PATH:-./.docker/db}:/vida
 
     dbgate:
         image: dbgate/dbgate
