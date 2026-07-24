@@ -34,6 +34,16 @@ ul.ui-autocomplete {
     box-shadow: 0 0.75rem 1.8rem rgba(15, 23, 42, 0.08);
 }
 
+.vida-document img {
+    max-width: 100%;
+    height: auto;
+}
+
+.vida-document table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
 hr {
     border-color: rgba(var(--bs-emphasis-color-rgb), 0.14);
 }
@@ -110,6 +120,68 @@ hr {
 .mh-75v { max-height: 75vh; }
 .mh-50v { max-height: 50vh; }
 .mh-25v { max-height: 25vh; }
+
+@media print {
+    @page {
+        size: auto;
+        margin: 0.5in;
+    }
+
+    header,
+    .document-print-actions {
+        display: none !important;
+    }
+
+    body,
+    main {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .content-shell,
+    .container,
+    .document-print-page {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    .document-print-page {
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .vida-document {
+        font-size: 11pt;
+        line-height: 1.4;
+        color: #000 !important;
+    }
+
+    .vida-document a {
+        color: #000 !important;
+        text-decoration: underline;
+    }
+
+    .vida-document img,
+    .vida-document table,
+    .vida-document pre,
+    .vida-document blockquote {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .vida-document table td,
+    .vida-document table th {
+        border: 1px solid #777;
+        padding: 0.2rem 0.35rem;
+    }
+}
 
 
 /* sm */
