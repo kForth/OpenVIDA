@@ -7,7 +7,10 @@ class PartsViewModel extends VidaBaseModel {
         self.catalogue = ko.observableArray([]);
 
         self.layoutTemplate = function () {
-            return self.component().type() == 3 ? "table" : "panels";
+            const component = self.component();
+            return component.type() == 3 ? "table" :
+                   component.assemblyLevel() == 2 ? "panels" :
+                   "blocks";
         }
         self.componentPath = function (el) {
             return `/parts/${el.path().replace(",", "/")}/`;
