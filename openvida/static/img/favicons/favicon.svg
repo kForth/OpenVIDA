@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OpenVIDA favicon">
+  <rect width="64" height="64" rx="12" fill="#1f4f7a"/>
+  <path fill="#ffffff" fill-rule="evenodd" d="M32 8 52.785 20v24L32 56 11.215 44V20zM32 15.392 17.615 23.696v16.608L32 48.608l14.385-8.304V23.696z"/>
+  <path fill="#ffffff" d="M22.5 23.5 32 42l9.5-18.5h-6L32 31l-3.5-7.5z"/>
+</svg>

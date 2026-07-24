@@ -1,4 +1,4 @@
-# OpenVIDA
+# <img width="48" height="48" src="openvida/static/img/favicons/favicon.svg"> OpenVIDA
 
 [![GitHub](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/kForth/OpenVIDA)
 [![GitHub License](https://img.shields.io/github/license/kforth/OpenVIDA)](https://github.com/kForth/OpenVIDA/blob/main/LICENSE)
@@ -9,12 +9,17 @@
 
 ## Table of Contents
 
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
+- [ OpenVIDA](#-openvida)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Running Locally](#running-locally)
+    - [Local Python Workflow (Without Docker)](#local-python-workflow-without-docker)
+  - [Configuration](#configuration)
+  - [Development](#development)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Features
 
