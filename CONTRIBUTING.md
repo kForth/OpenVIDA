@@ -55,7 +55,3 @@ Please include:
 - Expected behavior
 - Actual behavior
 - Environment details (OS, Python version, Docker/non-Docker)
-
-## Security
-
-Do not disclose vulnerabilities publicly. See `SECURITY.md` for reporting guidance.
