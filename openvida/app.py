@@ -9,6 +9,7 @@ import logging
 import sys
 
 from flask import Flask, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from openvida import public, vida
 from openvida.extensions import cache, db, debug_toolbar
@@ -28,6 +29,7 @@ def create_app(config_object="openvida.settings"):
     register_errorhandlers(app)
     register_shellcontext(app)
     configure_logger(app)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     return app
 
 
