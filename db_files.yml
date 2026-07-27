@@ -1,0 +1,36 @@
+- database: AccessServer
+  mdf: AccessServer.mdf
+  ldf: AccessServer.ldf
+
+- database: basedata
+  mdf: BaseData_Data.MDF
+  ldf: BaseData_log.LDF
+
+- database: carcom
+  mdf: CarComRT_Data.MDF
+  ldf: CarComRT_Log.LDF
+
+- database: DiagSwdlRepository
+  mdf: DiagSwdlRepository_Data.MDF
+  ldf: DiagSwdlRepository_Log.LDF
+
+- database: DiagSwdlSession
+  mdf: DiagSwdlSession_Data.MDF
+  ldf: DiagSwdlSession_log.LDF
+
+- database: DiceTiming
+  mdf: DiceTiming_Data.MDF
+  ldf: DiceTiming_Log.LDF
+
+- database: epc
+  mdf: EPC_Data.MDF
+  ldf: EPC_Log.LDF
+
+- database: ImageRepository
+  mdf: imagerepository_Data.MDF
+  ldf: imagerepository_Log.LDF
+
+- database: servicerep_en-US
+  mdf: servicerep_en-US.MDF
+  ldf: servicerep_en-US.LDF
+
