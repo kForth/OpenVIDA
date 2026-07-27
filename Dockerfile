@@ -46,8 +46,8 @@ COPY requirements requirements
 RUN pip install --no-cache --user -r requirements/prod.txt
 RUN pip freeze > reqs.txt
 
-COPY supervisord.conf /etc/supervisor/supervisord.conf
-COPY supervisord_programs /etc/supervisor/conf.d
+COPY resources/supervisord.conf /etc/supervisor/supervisord.conf
+COPY resources/gunicorn.conf /etc/supervisor/conf.d/gunicorn.conf
 
 COPY . .
 
