@@ -12,11 +12,11 @@
 
 - database: DiagSwdlRepository
   mdf: DiagSwdlRepository_Data.MDF
-  ldf: DiagSwdlRepository_Log.LDF
+  ldf: DiagSwdlRepository_log.LDF
 
 - database: DiagSwdlSession
   mdf: DiagSwdlSession_Data.MDF
-  ldf: DiagSwdlSession_log.LDF
+  ldf: DiagSwdlSession_Log.LDF
 
 - database: DiceTiming
   mdf: DiceTiming_Data.MDF
