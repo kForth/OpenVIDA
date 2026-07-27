@@ -1,11 +1,6 @@
 x-build-args: &build_args
     INSTALL_PYTHON_VERSION: "3.13.3"
 
-x-default-volumes: &default_volumes
-    volumes:
-        - ./:/app
-        - ${VIDA_XSL_HOST_PATH}:${VIDA_XSL_PATH}
-
 x-db-paths: &db_paths
     VIDA_ACCESS_DB_URI: "mssql+pyodbc://open_vida:vida_flask@host.docker.internal/AccessServer?driver=ODBC+Driver+17+for+SQL+Server"
     VIDA_BASEDATA_DB_URI: "mssql+pyodbc://open_vida:vida_flask@host.docker.internal/basedata?driver=ODBC+Driver+17+for+SQL+Server"
@@ -67,7 +62,9 @@ services:
             <<: *db_paths
         depends_on:
             - vida-db
-        <<: *default_volumes
+        volumes:
+            - ${VIDA_XSL_HOST_PATH}:${VIDA_XSL_PATH}
+            - ./:/app
 
     flask-prod:
         build:
@@ -79,6 +76,8 @@ services:
         restart: always
         ports:
             - 5000:5000
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         environment:
             FLASK_ENV: production
             FLASK_DEBUG: 0
@@ -87,7 +86,8 @@ services:
             <<: *db_paths
         depends_on:
             - vida-db
-        <<: *default_volumes
+        volumes:
+            - ${VIDA_XSL_HOST_PATH}:${VIDA_XSL_PATH}
 
     manage:
         build:
@@ -102,7 +102,8 @@ services:
         image: openvida-manage
         stdin_open: true
         tty: true
-        <<: *default_volumes
+        volumes:
+            - ${VIDA_XSL_HOST_PATH}:${VIDA_XSL_PATH}
 
 volumes:
     sqlserverdata:
