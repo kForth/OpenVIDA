@@ -90,10 +90,18 @@ docker cp "$LDF_PATH" "$CONTAINER_NAME:$LDF_TARGET"
 
 DB_NAME_ESCAPED="${DB_NAME//]/]]}"
 DB_NAME_SQL="${DB_NAME//\'/\'\'}"
-read -r -d '' SQL <<EOF || true
-IF DB_ID(N'$DB_NAME_SQL') IS NOT NULL
-    THROW 50000, N'Database already exists.', 1;
+DB_EXISTS="$({
+    docker exec -e SQLCMDPASSWORD="$SA_PASSWORD" "$CONTAINER_NAME" \
+        "$SQLCMD_BIN" -S localhost -U sa -C -h -1 -W -Q "SET NOCOUNT ON; SELECT CASE WHEN DB_ID(N'$DB_NAME_SQL') IS NULL THEN 0 ELSE 1 END;" \
+        2>/dev/null | tr -d '\r[:space:]'
+} || true)"
 
+if [[ "$DB_EXISTS" == "1" ]]; then
+    echo "Skipped. Database '$DB_NAME' already exists in container '$CONTAINER_NAME'."
+    exit 0
+fi
+
+read -r -d '' SQL <<EOF || true
 CREATE DATABASE [$DB_NAME_ESCAPED]
 ON (FILENAME = N'$MDF_TARGET'),
    (FILENAME = N'$LDF_TARGET')

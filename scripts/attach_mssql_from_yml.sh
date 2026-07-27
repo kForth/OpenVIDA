@@ -160,4 +160,4 @@ if [[ $entry_count -eq 0 ]]; then
     exit 1
 fi
 
-echo "Done. Attached $entry_count database(s)."
+echo "Done. Processed $entry_count database(s)."

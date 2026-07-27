@@ -82,7 +82,7 @@ if %ENTRY_COUNT% EQU 0 (
     exit /b 1
 )
 
-echo Done. Attached %ENTRY_COUNT% database^(s^).
+echo Done. Processed %ENTRY_COUNT% database^(s^).
 exit /b 0
 
 :process_line
@@ -223,7 +223,17 @@ if errorlevel 1 exit /b 1
 
 set "DB_NAME_ESCAPED=%DB_NAME:]=]]%"
 set "DB_NAME_SQL=%DB_NAME:'=''%"
-set "SQL=IF DB_ID(N'%DB_NAME_SQL%') IS NOT NULL THROW 50000, N'Database already exists.', 1; CREATE DATABASE [%DB_NAME_ESCAPED%] ON (FILENAME = N'%MDF_TARGET%'), (FILENAME = N'%LDF_TARGET%') FOR ATTACH;"
+
+set "DB_EXISTS="
+for /f "usebackq delims=" %%E in (`docker exec -e SQLCMDPASSWORD="%SA_PASSWORD%" "%TARGET_CONTAINER%" "%SQLCMD_BIN%" -S localhost -U sa -C -h -1 -W -Q "SET NOCOUNT ON; SELECT CASE WHEN DB_ID(N'%DB_NAME_SQL%') IS NULL THEN 0 ELSE 1 END;" 2^>nul`) do set "DB_EXISTS=%%E"
+set "DB_EXISTS=%DB_EXISTS: =%"
+
+if /I "%DB_EXISTS%"=="1" (
+    echo Skipped. Database '%DB_NAME%' already exists in container '%TARGET_CONTAINER%'.
+    exit /b 0
+)
+
+set "SQL=CREATE DATABASE [%DB_NAME_ESCAPED%] ON (FILENAME = N'%MDF_TARGET%'), (FILENAME = N'%LDF_TARGET%') FOR ATTACH;"
 
 echo Attaching database '%DB_NAME%' to SQL Server in container '%TARGET_CONTAINER%'...
 docker exec -e SQLCMDPASSWORD="%SA_PASSWORD%" "%TARGET_CONTAINER%" "%SQLCMD_BIN%" -S localhost -U sa -C -b -Q "%SQL%"
