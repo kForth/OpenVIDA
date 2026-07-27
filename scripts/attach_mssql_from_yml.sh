@@ -10,15 +10,17 @@ set -euo pipefail
 usage() {
     cat <<'EOF'
 Usage:
-  attach_mssql_from_yml.sh <container-name> <path-to-db_files.yml>
+    attach_mssql_from_yml.sh <container-name> <path-to-db_files.yml> <db-files-directory>
 
 Arguments:
   container-name         Name of the running SQL Server container (e.g. vida-db)
   path-to-db_files.yml   Path to YAML file containing database entries.
                          Expected entry keys: database, mdf, ldf
+    db-files-directory     Directory containing MDF/LDF files referenced by YAML.
 
 Notes:
-  - mdf/ldf values can be absolute paths or paths relative to the YAML file directory.
+    - mdf/ldf values in YAML are treated as filenames.
+    - Paths are built as <db-files-directory>/<mdf-or-ldf-filename>.
   - Each entry is attached by calling scripts/attach_mssql_db.sh.
 EOF
 }
@@ -28,13 +30,14 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     exit 0
 fi
 
-if [[ $# -ne 2 ]]; then
+if [[ $# -ne 3 ]]; then
     usage
     exit 1
 fi
 
 CONTAINER_NAME="$1"
 YAML_FILE="$2"
+DB_FILES_DIR="$3"
 ATTACH_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ATTACH_SCRIPT="$ATTACH_SCRIPT_DIR/attach_mssql_db.sh"
 
@@ -48,16 +51,23 @@ if [[ ! -f "$ATTACH_SCRIPT" ]]; then
     exit 1
 fi
 
-YAML_DIR="$(cd "$(dirname "$YAML_FILE")" && pwd)"
+if [[ ! -d "$DB_FILES_DIR" ]]; then
+    echo "Error: DB files directory not found: $DB_FILES_DIR" >&2
+    exit 1
+fi
 
-resolve_path() {
-    local input_path="$1"
+build_file_path() {
+    local file_name="$1"
 
-    if [[ "$input_path" = /* ]]; then
-        echo "$input_path"
-    else
-        echo "$YAML_DIR/$input_path"
-    fi
+    # Strip optional wrapping single/double quotes from YAML scalar values.
+    file_name="${file_name#\"}"
+    file_name="${file_name%\"}"
+    file_name="${file_name#\'}"
+    file_name="${file_name%\'}"
+
+    # Use only the filename component from YAML.
+    file_name="$(basename "$file_name")"
+    echo "$DB_FILES_DIR/$file_name"
 }
 
 current_db=""
@@ -77,8 +87,8 @@ run_entry() {
 
     local mdf_path
     local ldf_path
-    mdf_path="$(resolve_path "$current_mdf")"
-    ldf_path="$(resolve_path "$current_ldf")"
+    mdf_path="$(build_file_path "$current_mdf")"
+    ldf_path="$(build_file_path "$current_ldf")"
 
     echo "Attaching database '$current_db'..."
     "$ATTACH_SCRIPT" "$mdf_path" "$ldf_path" "$current_db" "$CONTAINER_NAME"
