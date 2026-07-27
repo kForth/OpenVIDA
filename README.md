@@ -1,4 +1,4 @@
-# <img width="48" height="48" src="openvida/static/img/favicons/favicon.svg"> OpenVIDA
+# <img width="40" height="40" style="margin-bottom: -10px" src="openvida/static/img/favicons/favicon.svg"> OpenVIDA
 
 [![GitHub](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/kForth/OpenVIDA)
 [![GitHub License](https://img.shields.io/github/license/kforth/OpenVIDA)](https://github.com/kForth/OpenVIDA/blob/main/LICENSE)
