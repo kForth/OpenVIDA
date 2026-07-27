@@ -54,7 +54,7 @@ COPY resources/gunicorn.conf /etc/supervisor/conf.d/gunicorn.conf
 COPY . .
 
 EXPOSE 5000
-ENTRYPOINT ["/bin/bash", "scripts/supervisord_entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "resources/supervisord_entrypoint.sh"]
 CMD ["-c", "/etc/supervisor/supervisord.conf"]
 
 # ================================= DEVELOPMENT ================================
