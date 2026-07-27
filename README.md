@@ -5,6 +5,11 @@
 [![GitHub Forks](https://img.shields.io/github/forks/kforth/OpenVIDA)](https://github.com/kForth/OpenVIDA/forks)
 [![GitHub Stars](https://img.shields.io/github/stars/kforth/OpenVIDA)](https://github.com/kForth/OpenVIDA/stargazers)
 
+[
+    ![Website](https://img.shields.io/badge/website-openvida.net-blue)
+    ![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fopenvida.net)
+](https://openvida.net)
+
 **OpenVIDA** is an open-source, web-based parts catalogue and document repository for the maintenance and repair of Volvo vehicles up to model year 2016.
 
 ## Table of Contents
