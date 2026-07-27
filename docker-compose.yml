@@ -2,15 +2,15 @@ x-build-args: &build_args
     INSTALL_PYTHON_VERSION: "3.13.3"
 
 x-db-paths: &db_paths
-    VIDA_ACCESS_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/AccessServer?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_BASEDATA_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/basedata?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_CARCOM_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/carcom?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_DIAG_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/DiagSwdlRepository?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_SESSION_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/DiagSwdlSession?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_TIMING_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/DiceTiming?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_EPC_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/epc?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_IMAGES_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/ImageRepository?driver=ODBC+Driver+17+for+SQL+Server"
-    VIDA_SERVICE_DB_URI: "mssql+pyodbc://sa:VidaFlask.123@host.docker.internal/servicerep_en-US?driver=ODBC+Driver+17+for+SQL+Server"
+    VIDA_ACCESS_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/AccessServer?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_BASEDATA_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/basedata?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_CARCOM_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/carcom?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_DIAG_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/DiagSwdlRepository?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_SESSION_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/DiagSwdlSession?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_TIMING_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/DiceTiming?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_EPC_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/epc?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_IMAGES_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/ImageRepository?driver=ODBC+Driver+17+for+SQL+Server
+    VIDA_SERVICE_DB_URI: mssql+pyodbc://sa:VidaFlask.123@vida-db/servicerep_en-US?driver=ODBC+Driver+17+for+SQL+Server
 
 services:
     vida-db:
