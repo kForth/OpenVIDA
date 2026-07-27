@@ -12,7 +12,7 @@ from flask import Flask, render_template
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from openvida import public, vida
-from openvida.extensions import cache, db, debug_toolbar
+from openvida.extensions import cache, debug_toolbar
 from openvida.filters import FilterModule
 
 
@@ -27,7 +27,6 @@ def create_app(config_object="openvida.settings"):
     register_extensions(app)
     register_blueprints(app)
     register_errorhandlers(app)
-    register_shellcontext(app)
     configure_logger(app)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     return app
@@ -40,7 +39,6 @@ def register_filters(app):
 def register_extensions(app):
     """Register Flask extensions."""
     cache.init_app(app)
-    db.init_app(app)
     debug_toolbar.init_app(app)
     return None
 
@@ -64,16 +62,6 @@ def register_errorhandlers(app):
     for errcode in [401, 404, 500]:
         app.errorhandler(errcode)(render_error)
     return None
-
-
-def register_shellcontext(app):
-    """Register shell context objects."""
-
-    def shell_context():
-        """Shell context objects."""
-        return {"db": db}
-
-    app.shell_context_processor(shell_context)
 
 
 def configure_logger(app):
