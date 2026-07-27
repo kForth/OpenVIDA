@@ -24,7 +24,7 @@ services:
             - 1433:1433
         volumes:
             - sqlserverdata:/var/opt/mssql
-            - ${VIDA_DB_HOST_PATH:-./.docker/db}:/vida
+            - ${VIDA_DB_HOST_PATH}:/vida
 
     dbgate:
         image: dbgate/dbgate
