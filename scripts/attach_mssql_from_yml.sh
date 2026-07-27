@@ -8,20 +8,24 @@ fi
 set -euo pipefail
 
 usage() {
-    cat <<'EOF'
+        cat <<'EOF'
 Usage:
-    attach_mssql_from_yml.sh <container-name> <path-to-db_files.yml> <db-files-directory>
+        attach_mssql_from_yml.sh <path-to-db_files.yml> [db-files-directory]
+        attach_mssql_from_yml.sh [container-name] <path-to-db_files.yml> [db-files-directory]
 
 Arguments:
-  container-name         Name of the running SQL Server container (e.g. vida-db)
-  path-to-db_files.yml   Path to YAML file containing database entries.
-                         Expected entry keys: database, mdf, ldf
-    db-files-directory     Directory containing MDF/LDF files referenced by YAML.
+    container-name         Optional. Name of the running SQL Server container.
+                                                 Defaults to 'vida-db' when omitted.
+    path-to-db_files.yml   Path to YAML file containing database entries.
+                                                 Expected entry keys: database, mdf, ldf
+    db-files-directory     Optional. Directory containing MDF/LDF files referenced by YAML.
+                                                 If omitted, VIDA_DB_HOST_PATH is used.
 
 Notes:
     - mdf/ldf values in YAML are treated as filenames.
     - Paths are built as <db-files-directory>/<mdf-or-ldf-filename>.
-  - Each entry is attached by calling scripts/attach_mssql_db.sh.
+    - If [db-files-directory] is omitted, VIDA_DB_HOST_PATH must be set.
+    - Each entry is attached by calling scripts/attach_mssql_db.sh.
 EOF
 }
 
@@ -30,16 +34,41 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     exit 0
 fi
 
-if [[ $# -ne 3 ]]; then
+if [[ $# -lt 1 || $# -gt 3 ]]; then
     usage
     exit 1
 fi
 
-CONTAINER_NAME="$1"
-YAML_FILE="$2"
-DB_FILES_DIR="$3"
+DEFAULT_CONTAINER_NAME="vida-db"
+
+if [[ $# -eq 1 ]]; then
+    CONTAINER_NAME="$DEFAULT_CONTAINER_NAME"
+    YAML_FILE="$1"
+    DB_FILES_DIR="${VIDA_DB_HOST_PATH:-}"
+elif [[ $# -eq 2 ]]; then
+    if [[ -f "$1" || "$1" == *.yml || "$1" == *.yaml ]]; then
+        CONTAINER_NAME="$DEFAULT_CONTAINER_NAME"
+        YAML_FILE="$1"
+        DB_FILES_DIR="$2"
+    else
+        CONTAINER_NAME="$1"
+        YAML_FILE="$2"
+        DB_FILES_DIR="${VIDA_DB_HOST_PATH:-}"
+    fi
+else
+    CONTAINER_NAME="$1"
+    YAML_FILE="$2"
+    DB_FILES_DIR="$3"
+fi
+
 ATTACH_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ATTACH_SCRIPT="$ATTACH_SCRIPT_DIR/attach_mssql_db.sh"
+
+if [[ -z "$DB_FILES_DIR" ]]; then
+    echo "Error: DB files directory not provided and VIDA_DB_HOST_PATH is not set." >&2
+    usage
+    exit 1
+fi
 
 if [[ ! -f "$YAML_FILE" ]]; then
     echo "Error: YAML file not found: $YAML_FILE" >&2
