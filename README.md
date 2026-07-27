@@ -22,7 +22,6 @@
     - [Running Locally](#running-locally)
     - [Local Python Workflow (Without Docker)](#local-python-workflow-without-docker)
   - [Configuration](#configuration)
-  - [Development](#development)
   - [Deployment](#deployment)
   - [Contributing](#contributing)
   - [License](#license)
@@ -84,16 +83,6 @@ The project reads settings from environment variables. Start from `.env.example`
 - `VIDA_XSL_PATH`
 
 See `.env.example` for additional supported variables.
-
-## Development
-
-Recommended checks before opening a PR:
-
-```bash
-ruff check openvida
-mypy openvida
-pytest
-```
 
 ## Deployment
 

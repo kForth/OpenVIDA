@@ -28,6 +28,8 @@ Thanks for contributing.
 
 ## Local Quality Checks
 
+Recommended checks before opening a PR:
+
 ```bash
 ruff check openvida
 mypy openvida
