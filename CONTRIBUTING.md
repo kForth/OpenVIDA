@@ -14,7 +14,7 @@ Thanks for contributing.
 2. Create a `.env` file from `.env.example`.
 3. Install development dependencies:
    ```bash
-   pip install -r requirements/dev.txt
+   pip install ".[dev]"
    ```
 4. Run locally (Docker or `flask --app autoapp.py run`).
 

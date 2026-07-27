@@ -14,8 +14,9 @@ RUN apt-get update && \
     apt-get install -y python3-setuptools && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
-COPY requirements requirements
-RUN pip install --no-cache -r requirements/prod.txt
+COPY pyproject.toml ./
+COPY openvida openvida
+RUN pip install --no-cache ".[prod]"
 
 # COPY webpack.config.js autoapp.py ./
 COPY autoapp.py ./
@@ -42,8 +43,9 @@ RUN apt-get update && \
 USER sid
 
 COPY --from=builder --chown=sid:sid /app/openvida/static /app/openvida/static
-COPY requirements requirements
-RUN pip install --no-cache --user -r requirements/prod.txt
+COPY pyproject.toml ./
+COPY openvida openvida
+RUN pip install --no-cache --user ".[prod]"
 RUN pip freeze > reqs.txt
 
 COPY resources/supervisord.conf /etc/supervisor/supervisord.conf
@@ -58,8 +60,7 @@ CMD ["-c", "/etc/supervisor/supervisord.conf"]
 # ================================= DEVELOPMENT ================================
 FROM builder AS development
 
-RUN pip install --no-cache -r requirements/dev.txt
-RUN pip install --no-cache -r requirements/prod.txt
+RUN pip install --no-cache ".[dev]"
 
 EXPOSE 5000
 CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]

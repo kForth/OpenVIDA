@@ -67,7 +67,7 @@
 1. Create and activate a virtual environment.
 2. Install development dependencies:
    ```bash
-   pip install -r requirements/dev.txt
+   pip install ".[dev]"
    ```
 3. Configure `.env` from `.env.example`.
 4. Run the app:
